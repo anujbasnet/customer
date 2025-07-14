@@ -1,7 +1,8 @@
+import React from 'react';
 import { Tabs } from 'expo-router';
-import { Platform } from 'react-native';
-import { Home, Search, Calendar, Settings } from 'lucide-react-native';
 import { useTranslation } from '@/hooks/useTranslation';
+import { Home, Search, Calendar, Settings } from 'lucide-react-native';
+import { Platform } from 'react-native';
 
 export default function TabsLayout() {
   const { t } = useTranslation();
@@ -9,48 +10,59 @@ export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#5C6BC0',
-        tabBarInactiveTintColor: '#757575',
+        tabBarActiveTintColor: '#5C9EA6',
+        tabBarInactiveTintColor: '#888',
         tabBarStyle: {
-          backgroundColor: Platform.OS === 'web' ? '#FFFFFF' : '#FFFFFF',
-          borderTopColor: Platform.OS === 'web' ? '#E0E0E0' : '#E0E0E0',
-          borderTopWidth: Platform.OS === 'web' ? 1 : 0.5,
-          height: Platform.OS === 'ios' ? 80 : 60,
-          paddingBottom: Platform.OS === 'ios' ? 30 : 10,
+          backgroundColor: Platform.OS === 'web' ? '#f8f8f8' : '#fff',
+          borderTopWidth: Platform.OS === 'web' ? 0 : 1,
+          borderTopColor: '#eee',
+          height: Platform.OS === 'web' ? 60 : 80,
+          paddingBottom: Platform.OS === 'web' ? 0 : 20,
         },
         tabBarLabelStyle: {
           fontSize: 12,
-          fontWeight: '500',
+          marginTop: 4,
         },
-        headerShown: false,
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          tabBarLabel: t.home,
-          tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
+          title: t('home.title'),
+          tabBarLabel: t('home.title'),
+          tabBarIcon: ({ color, size, focused }) => (
+            <Home color={color} size={size} strokeWidth={focused ? 2.5 : 2} />
+          ),
         }}
       />
       <Tabs.Screen
         name="search"
         options={{
-          tabBarLabel: t.search || 'Search',
-          tabBarIcon: ({ color, size }) => <Search color={color} size={size} />,
+          title: t('search.title'),
+          tabBarLabel: t('search.title'),
+          tabBarIcon: ({ color, size, focused }) => (
+            <Search color={color} size={size} strokeWidth={focused ? 2.5 : 2} />
+          ),
         }}
       />
       <Tabs.Screen
         name="appointments"
         options={{
-          tabBarLabel: t.appointments || 'Appointments',
-          tabBarIcon: ({ color, size }) => <Calendar color={color} size={size} />,
+          title: t('appointments.title'),
+          tabBarLabel: t('appointments.title'),
+          tabBarIcon: ({ color, size, focused }) => (
+            <Calendar color={color} size={size} strokeWidth={focused ? 2.5 : 2} />
+          ),
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
-          tabBarLabel: t.settings || 'Settings',
-          tabBarIcon: ({ color, size }) => <Settings color={color} size={size} />,
+          title: t('settings.title'),
+          tabBarLabel: t('settings.title'),
+          tabBarIcon: ({ color, size, focused }) => (
+            <Settings color={color} size={size} strokeWidth={focused ? 2.5 : 2} />
+          ),
         }}
       />
     </Tabs>
