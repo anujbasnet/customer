@@ -84,7 +84,11 @@ type TranslationKeys = {
     about: string;
     city: string;
   };
+  search: {
+    title: string;
+  };
   appointments: {
+    title: string;
     noAppointments: string;
     status: {
       pending: string;
@@ -195,7 +199,11 @@ export const translations: Translations = {
       about: "About",
       city: "City",
     },
+    search: {
+      title: "Search",
+    },
     appointments: {
+      title: "Appointments",
       noAppointments: "No appointments",
       status: {
         pending: "Pending",
@@ -300,7 +308,11 @@ export const translations: Translations = {
       about: "О приложении",
       city: "Город",
     },
+    search: {
+      title: "Поиск",
+    },
     appointments: {
+      title: "Записи",
       noAppointments: "Нет записей",
       status: {
         pending: "Ожидание",
@@ -405,7 +417,11 @@ export const translations: Translations = {
       about: "Ilova haqida",
       city: "Shahar",
     },
+    search: {
+      title: "Qidirish",
+    },
     appointments: {
+      title: "Bandlar",
       noAppointments: "Bandlar yo'q",
       status: {
         pending: "Kutilmoqda",

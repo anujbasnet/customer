@@ -1,6 +1,6 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { Home, Search, Calendar, User } from 'lucide-react-native';
+import { Home, Search, Calendar, Settings } from 'lucide-react-native';
 import { useTranslation } from '@/hooks/useTranslation';
 import { colors } from '@/constants/colors';
 
@@ -31,6 +31,30 @@ export default function TabLayout() {
           title: t.home.title,
           tabBarLabel: t.home.title,
           tabBarIcon: ({ color }) => <Home size={24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="search"
+        options={{
+          title: t.search.title,
+          tabBarLabel: t.search.title,
+          tabBarIcon: ({ color }) => <Search size={24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="appointments"
+        options={{
+          title: t.appointments.title,
+          tabBarLabel: t.appointments.title,
+          tabBarIcon: ({ color }) => <Calendar size={24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: t.profile.title,
+          tabBarLabel: t.profile.title,
+          tabBarIcon: ({ color }) => <Settings size={24} color={color} />,
         }}
       />
     </Tabs>
