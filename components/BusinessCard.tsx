@@ -1,0 +1,122 @@
+import React from 'react';
+import { 
+  TouchableOpacity, 
+  Text, 
+  StyleSheet, 
+  View 
+} from 'react-native';
+import { Image } from 'expo-image';
+import { Star, MapPin } from 'lucide-react-native';
+import { Business } from '@/types';
+import { colors } from '@/constants/colors';
+import { useTranslation } from '@/hooks/useTranslation';
+
+interface BusinessCardProps {
+  business: Business;
+  onPress: (business: Business) => void;
+}
+
+export const BusinessCard: React.FC<BusinessCardProps> = ({ business, onPress }) => {
+  const { t, language } = useTranslation();
+  
+  const getLocalizedAddress = () => {
+    switch (language) {
+      case 'ru':
+        return business.addressRu;
+      case 'uz':
+        return business.addressUz;
+      default:
+        return business.address;
+    }
+  };
+  
+  return (
+    <TouchableOpacity 
+      style={styles.card}
+      onPress={() => onPress(business)}
+      activeOpacity={0.7}
+    >
+      <Image
+        source={{ uri: business.image }}
+        style={styles.image}
+        contentFit="cover"
+        transition={200}
+      />
+      <View style={styles.content}>
+        <Text style={styles.name}>{business.name}</Text>
+        <Text style={styles.category}>
+          {t.categories[business.category as keyof typeof t.categories]}
+        </Text>
+        <View style={styles.addressContainer}>
+          <MapPin size={14} color={colors.textSecondary} />
+          <Text style={styles.address} numberOfLines={1}>
+            {getLocalizedAddress()}
+          </Text>
+        </View>
+        <View style={styles.ratingContainer}>
+          <Star size={16} color={colors.warning} fill={colors.warning} />
+          <Text style={styles.rating}>{business.rating}</Text>
+          <Text style={styles.reviewCount}>({business.reviewCount})</Text>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+};
+
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: colors.card,
+    borderRadius: 12,
+    overflow: 'hidden',
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  image: {
+    width: '100%',
+    height: 150,
+  },
+  content: {
+    padding: 12,
+  },
+  name: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.text,
+    marginBottom: 4,
+  },
+  category: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginBottom: 8,
+  },
+  addressContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  address: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginLeft: 4,
+    flex: 1,
+  },
+  ratingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  rating: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: colors.text,
+    marginLeft: 4,
+  },
+  reviewCount: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginLeft: 4,
+  },
+});

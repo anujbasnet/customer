@@ -1,0 +1,433 @@
+import { Language } from '@/constants/languages';
+
+type TranslationKeys = {
+  common: {
+    appName: string;
+    loading: string;
+    search: string;
+    cancel: string;
+    confirm: string;
+    save: string;
+    edit: string;
+    delete: string;
+    back: string;
+    next: string;
+    sum: string; // Uzbekistan currency
+  };
+  auth: {
+    login: string;
+    register: string;
+    email: string;
+    password: string;
+    name: string;
+    phone: string;
+    forgotPassword: string;
+    noAccount: string;
+    hasAccount: string;
+    logout: string;
+  };
+  home: {
+    title: string;
+    categories: string;
+    popular: string;
+    nearby: string;
+    viewAll: string;
+    recentlyVisited: string;
+    recommendations: string;
+    noRecentlyVisited: string;
+    selectCity: string;
+  };
+  categories: {
+    hairSalon: string;
+    barber: string;
+    nailSalon: string;
+    spa: string;
+    massage: string;
+    dental: string;
+    fitness: string;
+    football: string;
+  };
+  business: {
+    about: string;
+    services: string;
+    reviews: string;
+    address: string;
+    workingHours: string;
+    bookAppointment: string;
+    noServices: string;
+    employees: string;
+    selectEmployee: string;
+    closed: string;
+  };
+  booking: {
+    selectService: string;
+    selectDate: string;
+    selectTime: string;
+    selectEmployee: string;
+    duration: string;
+    price: string;
+    confirmBooking: string;
+    bookingSuccess: string;
+    bookingFailed: string;
+    minutes: string;
+  };
+  profile: {
+    title: string;
+    appointments: string;
+    upcoming: string;
+    past: string;
+    settings: string;
+    editProfile: string;
+    language: string;
+    notifications: string;
+    help: string;
+    about: string;
+    city: string;
+  };
+  appointments: {
+    noAppointments: string;
+    status: {
+      pending: string;
+      confirmed: string;
+      completed: string;
+      cancelled: string;
+    };
+    cancel: string;
+    reschedule: string;
+  };
+  days: {
+    monday: string;
+    tuesday: string;
+    wednesday: string;
+    thursday: string;
+    friday: string;
+    saturday: string;
+    sunday: string;
+  };
+};
+
+type Translations = {
+  [key in Language]: TranslationKeys;
+};
+
+export const translations: Translations = {
+  en: {
+    common: {
+      appName: "Timely.uz",
+      loading: "Loading...",
+      search: "Search",
+      cancel: "Cancel",
+      confirm: "Confirm",
+      save: "Save",
+      edit: "Edit",
+      delete: "Delete",
+      back: "Back",
+      next: "Next",
+      sum: "UZS",
+    },
+    auth: {
+      login: "Login",
+      register: "Register",
+      email: "Email",
+      password: "Password",
+      name: "Name",
+      phone: "Phone",
+      forgotPassword: "Forgot Password?",
+      noAccount: "Don't have an account? Register",
+      hasAccount: "Already have an account? Login",
+      logout: "Logout",
+    },
+    home: {
+      title: "Find and book services",
+      categories: "Service Types",
+      popular: "Popular",
+      nearby: "Nearby",
+      viewAll: "View All",
+      recentlyVisited: "Recently Visited",
+      recommendations: "Recommendations",
+      noRecentlyVisited: "No recently visited services",
+      selectCity: "Select City",
+    },
+    categories: {
+      hairSalon: "Hair Salon",
+      barber: "Barber",
+      nailSalon: "Nail Salon",
+      spa: "Spa",
+      massage: "Massage",
+      dental: "Dental",
+      fitness: "Fitness",
+      football: "Football",
+    },
+    business: {
+      about: "About",
+      services: "Services",
+      reviews: "Reviews",
+      address: "Address",
+      workingHours: "Working Hours",
+      bookAppointment: "Book Appointment",
+      noServices: "No services available",
+      employees: "Employees",
+      selectEmployee: "Select Employee",
+      closed: "Closed",
+    },
+    booking: {
+      selectService: "Select Service",
+      selectDate: "Select Date",
+      selectTime: "Select Time",
+      selectEmployee: "Select Employee",
+      duration: "Duration",
+      price: "Price",
+      confirmBooking: "Confirm Booking",
+      bookingSuccess: "Booking Successful!",
+      bookingFailed: "Booking Failed",
+      minutes: "min",
+    },
+    profile: {
+      title: "Profile",
+      appointments: "Appointments",
+      upcoming: "Upcoming",
+      past: "Past",
+      settings: "Settings",
+      editProfile: "Edit Profile",
+      language: "Language",
+      notifications: "Notifications",
+      help: "Help & Support",
+      about: "About",
+      city: "City",
+    },
+    appointments: {
+      noAppointments: "No appointments",
+      status: {
+        pending: "Pending",
+        confirmed: "Confirmed",
+        completed: "Completed",
+        cancelled: "Cancelled",
+      },
+      cancel: "Cancel Appointment",
+      reschedule: "Reschedule",
+    },
+    days: {
+      monday: "Monday",
+      tuesday: "Tuesday",
+      wednesday: "Wednesday",
+      thursday: "Thursday",
+      friday: "Friday",
+      saturday: "Saturday",
+      sunday: "Sunday",
+    },
+  },
+  ru: {
+    common: {
+      appName: "Timely.uz",
+      loading: "Загрузка...",
+      search: "Поиск",
+      cancel: "Отмена",
+      confirm: "Подтвердить",
+      save: "Сохранить",
+      edit: "Изменить",
+      delete: "Удалить",
+      back: "Назад",
+      next: "Далее",
+      sum: "сум",
+    },
+    auth: {
+      login: "Вход",
+      register: "Регистрация",
+      email: "Эл. почта",
+      password: "Пароль",
+      name: "Имя",
+      phone: "Телефон",
+      forgotPassword: "Забыли пароль?",
+      noAccount: "Нет аккаунта? Зарегистрироваться",
+      hasAccount: "Уже есть аккаунт? Войти",
+      logout: "Выйти",
+    },
+    home: {
+      title: "Найти и забронировать услуги",
+      categories: "Типы услуг",
+      popular: "Популярные",
+      nearby: "Рядом",
+      viewAll: "Показать все",
+      recentlyVisited: "Недавно посещенные",
+      recommendations: "Рекомендации",
+      noRecentlyVisited: "Нет недавно посещенных услуг",
+      selectCity: "Выбрать город",
+    },
+    categories: {
+      hairSalon: "Парикмахерская",
+      barber: "Барбершоп",
+      nailSalon: "Маникюр",
+      spa: "СПА",
+      massage: "Массаж",
+      dental: "Стоматология",
+      fitness: "Фитнес",
+      football: "Футбол",
+    },
+    business: {
+      about: "О нас",
+      services: "Услуги",
+      reviews: "Отзывы",
+      address: "Адрес",
+      workingHours: "Часы работы",
+      bookAppointment: "Записаться",
+      noServices: "Нет доступных услуг",
+      employees: "Сотрудники",
+      selectEmployee: "Выбрать сотрудника",
+      closed: "Закрыто",
+    },
+    booking: {
+      selectService: "Выберите услугу",
+      selectDate: "Выберите дату",
+      selectTime: "Выберите время",
+      selectEmployee: "Выберите сотрудника",
+      duration: "Продолжительность",
+      price: "Цена",
+      confirmBooking: "Подтвердить запись",
+      bookingSuccess: "Запись успешно создана!",
+      bookingFailed: "Ошибка при создании записи",
+      minutes: "мин",
+    },
+    profile: {
+      title: "Профиль",
+      appointments: "Записи",
+      upcoming: "Предстоящие",
+      past: "Прошедшие",
+      settings: "Настройки",
+      editProfile: "Редактировать профиль",
+      language: "Язык",
+      notifications: "Уведомления",
+      help: "Помощь и поддержка",
+      about: "О приложении",
+      city: "Город",
+    },
+    appointments: {
+      noAppointments: "Нет записей",
+      status: {
+        pending: "Ожидание",
+        confirmed: "Подтверждено",
+        completed: "Завершено",
+        cancelled: "Отменено",
+      },
+      cancel: "Отменить запись",
+      reschedule: "Перенести",
+    },
+    days: {
+      monday: "Понедельник",
+      tuesday: "Вторник",
+      wednesday: "Среда",
+      thursday: "Четверг",
+      friday: "Пятница",
+      saturday: "Суббота",
+      sunday: "Воскресенье",
+    },
+  },
+  uz: {
+    common: {
+      appName: "Timely.uz",
+      loading: "Yuklanmoqda...",
+      search: "Qidirish",
+      cancel: "Bekor qilish",
+      confirm: "Tasdiqlash",
+      save: "Saqlash",
+      edit: "Tahrirlash",
+      delete: "O'chirish",
+      back: "Orqaga",
+      next: "Keyingi",
+      sum: "so'm",
+    },
+    auth: {
+      login: "Kirish",
+      register: "Ro'yxatdan o'tish",
+      email: "Elektron pochta",
+      password: "Parol",
+      name: "Ism",
+      phone: "Telefon",
+      forgotPassword: "Parolni unutdingizmi?",
+      noAccount: "Hisobingiz yo'qmi? Ro'yxatdan o'ting",
+      hasAccount: "Hisobingiz bormi? Kiring",
+      logout: "Chiqish",
+    },
+    home: {
+      title: "Xizmatlarni toping va band qiling",
+      categories: "Xizmat turlari",
+      popular: "Mashhur",
+      nearby: "Yaqin atrofda",
+      viewAll: "Hammasini ko'rish",
+      recentlyVisited: "Yaqinda tashrif buyurilgan",
+      recommendations: "Tavsiyalar",
+      noRecentlyVisited: "Yaqinda tashrif buyurilgan xizmatlar yo'q",
+      selectCity: "Shaharni tanlang",
+    },
+    categories: {
+      hairSalon: "Soch saloni",
+      barber: "Sartarosh",
+      nailSalon: "Tirnoq saloni",
+      spa: "SPA",
+      massage: "Massaj",
+      dental: "Tish shifokori",
+      fitness: "Fitness",
+      football: "Futbol",
+    },
+    business: {
+      about: "Haqida",
+      services: "Xizmatlar",
+      reviews: "Sharhlar",
+      address: "Manzil",
+      workingHours: "Ish vaqti",
+      bookAppointment: "Band qilish",
+      noServices: "Mavjud xizmatlar yo'q",
+      employees: "Xodimlar",
+      selectEmployee: "Xodimni tanlang",
+      closed: "Yopiq",
+    },
+    booking: {
+      selectService: "Xizmatni tanlang",
+      selectDate: "Sanani tanlang",
+      selectTime: "Vaqtni tanlang",
+      selectEmployee: "Xodimni tanlang",
+      duration: "Davomiyligi",
+      price: "Narxi",
+      confirmBooking: "Bandni tasdiqlash",
+      bookingSuccess: "Band qilish muvaffaqiyatli!",
+      bookingFailed: "Band qilish muvaffaqiyatsiz",
+      minutes: "daqiqa",
+    },
+    profile: {
+      title: "Profil",
+      appointments: "Bandlar",
+      upcoming: "Kelayotgan",
+      past: "O'tgan",
+      settings: "Sozlamalar",
+      editProfile: "Profilni tahrirlash",
+      language: "Til",
+      notifications: "Bildirishnomalar",
+      help: "Yordam va qo'llab-quvvatlash",
+      about: "Ilova haqida",
+      city: "Shahar",
+    },
+    appointments: {
+      noAppointments: "Bandlar yo'q",
+      status: {
+        pending: "Kutilmoqda",
+        confirmed: "Tasdiqlangan",
+        completed: "Bajarilgan",
+        cancelled: "Bekor qilingan",
+      },
+      cancel: "Bandni bekor qilish",
+      reschedule: "Qayta rejalashtirish",
+    },
+    days: {
+      monday: "Dushanba",
+      tuesday: "Seshanba",
+      wednesday: "Chorshanba",
+      thursday: "Payshanba",
+      friday: "Juma",
+      saturday: "Shanba",
+      sunday: "Yakshanba",
+    },
+  },
+};
+
+export const getTranslation = (language: Language) => {
+  return translations[language];
+};
