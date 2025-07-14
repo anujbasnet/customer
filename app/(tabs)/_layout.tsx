@@ -4,7 +4,7 @@ import { Home, Search, Calendar, Settings } from 'lucide-react-native';
 import { useTranslation } from '@/hooks/useTranslation';
 
 export default function TabsLayout() {
-  const t = useTranslation();
+  const { t } = useTranslation();
 
   return (
     <Tabs
@@ -28,28 +28,28 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          tabBarLabel: t('home'),
+          tabBarLabel: t.home,
           tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="search"
         options={{
-          tabBarLabel: t('search') || 'Search',
+          tabBarLabel: t.search || 'Search',
           tabBarIcon: ({ color, size }) => <Search color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="appointments"
         options={{
-          tabBarLabel: t('appointments') || 'Appointments',
+          tabBarLabel: t.appointments || 'Appointments',
           tabBarIcon: ({ color, size }) => <Calendar color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
-          tabBarLabel: t('settings') || 'Settings',
+          tabBarLabel: t.settings || 'Settings',
           tabBarIcon: ({ color, size }) => <Settings color={color} size={size} />,
         }}
       />
