@@ -33,30 +33,6 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <Home size={24} color={color} />,
         }}
       />
-      <Tabs.Screen
-        name="search"
-        options={{
-          title: t.common.search,
-          tabBarLabel: t.common.search,
-          tabBarIcon: ({ color }) => <Search size={24} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="appointments"
-        options={{
-          title: t.profile.appointments,
-          tabBarLabel: t.profile.appointments,
-          tabBarIcon: ({ color }) => <Calendar size={24} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: t.profile.title,
-          tabBarLabel: t.profile.title,
-          tabBarIcon: ({ color }) => <User size={24} color={color} />,
-        }}
-      />
     </Tabs>
   );
 }
