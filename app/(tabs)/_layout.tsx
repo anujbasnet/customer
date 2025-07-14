@@ -4,7 +4,7 @@ import { Home, Search, Calendar, Settings } from 'lucide-react-native';
 import { useTranslation } from '@/hooks/useTranslation';
 
 export default function TabsLayout() {
-  const { t } = useTranslation();
+  const t = useTranslation();
 
   return (
     <Tabs
@@ -28,7 +28,6 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          // Using a key that exists in TranslationKeys
           tabBarLabel: t('home'),
           tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
         }}
@@ -36,7 +35,6 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="search"
         options={{
-          // Using a fallback or empty string since 'search' key doesn't exist
           tabBarLabel: t('search') || 'Search',
           tabBarIcon: ({ color, size }) => <Search color={color} size={size} />,
         }}
@@ -44,20 +42,17 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="appointments"
         options={{
-          // Using a fallback or empty string since nested 'title' doesn't exist
-          tabBarLabel: t('appointments.title') || 'Appointments',
+          tabBarLabel: t('appointments') || 'Appointments',
           tabBarIcon: ({ color, size }) => <Calendar color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
-          // Using a fallback or empty string since 'settings' key doesn't exist
           tabBarLabel: t('settings') || 'Settings',
           tabBarIcon: ({ color, size }) => <Settings color={color} size={size} />,
         }}
       />
-      {/* Profile tab removed as per user's request to have 4 tabs */}
     </Tabs>
   );
 }
