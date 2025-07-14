@@ -1,62 +1,63 @@
-import React from 'react';
 import { Tabs } from 'expo-router';
+import { Platform } from 'react-native';
 import { Home, Search, Calendar, Settings } from 'lucide-react-native';
 import { useTranslation } from '@/hooks/useTranslation';
-import { colors } from '@/constants/colors';
 
-export default function TabLayout() {
+export default function TabsLayout() {
   const { t } = useTranslation();
-  
+
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.textSecondary,
+        tabBarActiveTintColor: '#5C6BC0',
+        tabBarInactiveTintColor: '#757575',
         tabBarStyle: {
-          borderTopColor: colors.border,
+          backgroundColor: Platform.OS === 'web' ? '#FFFFFF' : '#FFFFFF',
+          borderTopColor: Platform.OS === 'web' ? '#E0E0E0' : '#E0E0E0',
+          borderTopWidth: Platform.OS === 'web' ? 1 : 0.5,
+          height: Platform.OS === 'ios' ? 80 : 60,
+          paddingBottom: Platform.OS === 'ios' ? 30 : 10,
         },
-        headerStyle: {
-          backgroundColor: '#FFFFFF',
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '500',
         },
-        headerTitleStyle: {
-          color: colors.text,
-          fontWeight: '600',
-        },
-        headerShown: false, // Hide the header for all tab screens
+        headerShown: false,
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: t.home.title,
-          tabBarLabel: t.home.title,
-          tabBarIcon: ({ color }) => <Home size={24} color={color} />,
+          // Using a key that exists in TranslationKeys
+          tabBarLabel: t('home'),
+          tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="search"
         options={{
-          title: t.search.title,
-          tabBarLabel: t.search.title,
-          tabBarIcon: ({ color }) => <Search size={24} color={color} />,
+          // Using a fallback or empty string since 'search' key doesn't exist
+          tabBarLabel: t('search') || 'Search',
+          tabBarIcon: ({ color, size }) => <Search color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="appointments"
         options={{
-          title: t.appointments.title,
-          tabBarLabel: t.appointments.title,
-          tabBarIcon: ({ color }) => <Calendar size={24} color={color} />,
+          // Using a fallback or empty string since nested 'title' doesn't exist
+          tabBarLabel: t('appointments.title') || 'Appointments',
+          tabBarIcon: ({ color, size }) => <Calendar color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
-          title: t.settings.title,
-          tabBarLabel: t.settings.title,
-          tabBarIcon: ({ color }) => <Settings size={24} color={color} />,
+          // Using a fallback or empty string since 'settings' key doesn't exist
+          tabBarLabel: t('settings') || 'Settings',
+          tabBarIcon: ({ color, size }) => <Settings color={color} size={size} />,
         }}
       />
+      {/* Profile tab removed as per user's request to have 4 tabs */}
     </Tabs>
   );
 }
