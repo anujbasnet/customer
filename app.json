@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Multi-language Appointment Scheduler Clone",
-    "slug": "multi-language-appointment-scheduler-pego4vgz",
+    "name": "bronapp",
+    "slug": "bronapp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
