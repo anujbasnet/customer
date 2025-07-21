@@ -36,6 +36,8 @@ export interface Business {
   workingHours: WorkingHours;
   timeSlots: TimeSlot[];
   services: Service[];
+  latitude: number;
+  longitude: number;
 }
 
 export interface Employee {

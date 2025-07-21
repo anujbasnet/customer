@@ -68,6 +68,8 @@ export const businesses: Business[] = [
       sunday: { open: '10:00', close: '16:00' }
     },
     timeSlots: generateTimeSlots(9, 20, 30, ['13:00', '13:30']),
+    latitude: 41.2995,
+    longitude: 69.2401,
     services: [
       {
         id: '1001',
@@ -144,6 +146,8 @@ export const businesses: Business[] = [
       sunday: { open: '11:00', close: '17:00' }
     },
     timeSlots: generateTimeSlots(10, 21, 30, ['14:00', '14:30']),
+    latitude: 41.3111,
+    longitude: 69.2797,
     services: [
       {
         id: '2001',

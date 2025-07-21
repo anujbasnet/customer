@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { Platform } from "react-native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { trpc, trpcClient } from "@/lib/trpc";
+import { LocationProvider } from "@/hooks/useLocationStore";
 
 import { ErrorBoundary } from "./error-boundary";
 
@@ -45,9 +46,11 @@ export default function RootLayout() {
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>
-        <ErrorBoundary>
-          <RootLayoutNav />
-        </ErrorBoundary>
+        <LocationProvider>
+          <ErrorBoundary>
+            <RootLayoutNav />
+          </ErrorBoundary>
+        </LocationProvider>
       </QueryClientProvider>
     </trpc.Provider>
   );
