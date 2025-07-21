@@ -11,16 +11,21 @@ import {
   Globe, 
   Bell, 
   Moon, 
-  ChevronRight 
+  ChevronRight
 } from 'lucide-react-native';
 import { useTranslation } from '@/hooks/useTranslation';
 import { colors } from '@/constants/colors';
 import { LanguageSelector } from '@/components/LanguageSelector';
+import { ContactInfoModal } from '@/components/ContactInfoModal';
+import { ProfileInfoCard } from '@/components/ProfileInfoCard';
+import { useAppStore } from '@/hooks/useAppStore';
 
 export default function SettingsScreen() {
   const { t } = useTranslation();
+  const { user } = useAppStore();
   const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
   const [darkModeEnabled, setDarkModeEnabled] = React.useState(false);
+  const [contactModalVisible, setContactModalVisible] = React.useState(false);
   
   const settingsSections = [
     {
@@ -76,6 +81,7 @@ export default function SettingsScreen() {
             />
           </View>
         );
+
       default:
         return (
           <TouchableOpacity
@@ -95,6 +101,8 @@ export default function SettingsScreen() {
   
   return (
     <ScrollView style={styles.container}>
+      <ProfileInfoCard onEditPress={() => setContactModalVisible(true)} />
+      
       {settingsSections.map((section, sectionIndex) => (
         <View key={sectionIndex} style={styles.section}>
           <Text style={styles.sectionTitle}>{section.title}</Text>
@@ -105,6 +113,11 @@ export default function SettingsScreen() {
           </View>
         </View>
       ))}
+      
+      <ContactInfoModal
+        visible={contactModalVisible}
+        onClose={() => setContactModalVisible(false)}
+      />
     </ScrollView>
   );
 }

@@ -83,6 +83,14 @@ type TranslationKeys = {
     help: string;
     about: string;
     city: string;
+    contactInfo: string;
+    personalInfo: string;
+    gender: string;
+    birthday: string;
+    address: string;
+    male: string;
+    female: string;
+    other: string;
   };
   search: {
     title: string;
@@ -198,6 +206,14 @@ export const translations: Translations = {
       help: "Help & Support",
       about: "About",
       city: "City",
+      contactInfo: "Contact Information",
+      personalInfo: "Personal Information",
+      gender: "Gender",
+      birthday: "Birthday",
+      address: "Address",
+      male: "Male",
+      female: "Female",
+      other: "Other",
     },
     search: {
       title: "Search",
@@ -307,6 +323,14 @@ export const translations: Translations = {
       help: "Помощь и поддержка",
       about: "О приложении",
       city: "Город",
+      contactInfo: "Контактная информация",
+      personalInfo: "Личная информация",
+      gender: "Пол",
+      birthday: "День рождения",
+      address: "Адрес",
+      male: "Мужской",
+      female: "Женский",
+      other: "Другой",
     },
     search: {
       title: "Поиск",
@@ -416,6 +440,14 @@ export const translations: Translations = {
       help: "Yordam va qo'llab-quvvatlash",
       about: "Ilova haqida",
       city: "Shahar",
+      contactInfo: "Aloqa ma'lumotlari",
+      personalInfo: "Shaxsiy ma'lumotlar",
+      gender: "Jinsi",
+      birthday: "Tug'ilgan kun",
+      address: "Manzil",
+      male: "Erkak",
+      female: "Ayol",
+      other: "Boshqa",
     },
     search: {
       title: "Qidirish",

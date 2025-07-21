@@ -7,6 +7,9 @@ export interface User {
   phone?: string;
   avatar?: string;
   cityId?: string;
+  gender?: 'male' | 'female' | 'other';
+  birthday?: string;
+  address?: string;
 }
 
 export interface City {
@@ -125,4 +128,5 @@ export interface AppState {
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   register: (name: string, email: string, password: string) => Promise<void>;
+  updateUserProfile: (updates: Partial<User>) => Promise<void>;
 }

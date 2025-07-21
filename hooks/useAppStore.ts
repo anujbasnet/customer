@@ -66,6 +66,13 @@ export const useAppStore = create<AppState>()(
           throw error;
         }
       },
+      updateUserProfile: async (updates: Partial<User>) => {
+        const currentUser = useAppStore.getState().user;
+        if (currentUser) {
+          const updatedUser = { ...currentUser, ...updates };
+          set({ user: updatedUser });
+        }
+      },
     }),
     {
       name: 'timely-storage',
