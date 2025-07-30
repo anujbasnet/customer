@@ -5,7 +5,10 @@ const registerSchema = z.object({
   name: z.string().min(2),
   email: z.string().email(),
   password: z.string().min(6),
-  phone: z.string().optional()
+  phone: z.string().optional(),
+  gender: z.enum(['male', 'female', 'other']).optional(),
+  birthday: z.string().optional(),
+  address: z.string().optional()
 });
 
 export const registerProcedure = publicProcedure
@@ -19,6 +22,9 @@ export const registerProcedure = publicProcedure
       name: input.name,
       email: input.email,
       phone: input.phone,
+      gender: input.gender,
+      birthday: input.birthday,
+      address: input.address,
       avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
       cityId: "1"
     };

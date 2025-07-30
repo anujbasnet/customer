@@ -127,6 +127,16 @@ export interface AppState {
   setSelectedCity: (cityId: string | null) => void;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
-  register: (name: string, email: string, password: string) => Promise<void>;
+  register: (
+    name: string, 
+    email: string, 
+    password: string, 
+    additionalInfo?: {
+      phone?: string;
+      gender?: 'male' | 'female' | 'other';
+      birthday?: string;
+      address?: string;
+    }
+  ) => Promise<void>;
   updateUserProfile: (updates: Partial<User>) => Promise<void>;
 }
