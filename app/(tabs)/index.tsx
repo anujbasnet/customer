@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   View, 
   Text, 
@@ -7,8 +7,8 @@ import {
   TouchableOpacity,
   FlatList,
   TextInput,
-  Dimensions,
-  Platform
+
+
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Search, User } from 'lucide-react-native';
@@ -20,16 +20,16 @@ import { CategoryCircle } from '@/components/CategoryCircle';
 import { BusinessCard } from '@/components/BusinessCard';
 import { CitySelector } from '@/components/CitySelector';
 import { categories } from '@/mocks/categories';
-import { getBusinessesByCity, getRecentlyVisitedBusinesses, getRecommendedBusinesses } from '@/mocks/businesses';
+import { getRecentlyVisitedBusinesses, getRecommendedBusinesses } from '@/mocks/businesses';
 import { Business, Category } from '@/types';
 import { trpc } from '@/lib/trpc';
 
-const { width } = Dimensions.get('window');
+
 
 export default function HomeScreen() {
   const { t } = useTranslation();
   const router = useRouter();
-  const { selectedCity, isAuthenticated } = useAppStore();
+  const { isAuthenticated } = useAppStore();
   const [searchQuery, setSearchQuery] = useState('');
   
   // Backend data
@@ -38,7 +38,7 @@ export default function HomeScreen() {
   
   const recentlyVisited = getRecentlyVisitedBusinesses();
   const recommendedBusinesses = getRecommendedBusinesses();
-  const cityBusinesses = selectedCity ? getBusinessesByCity(selectedCity) : [];
+
   
   const handleCategoryPress = (category: Category) => {
     router.push(`/category/${category.id}`);

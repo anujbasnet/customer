@@ -5,7 +5,7 @@ import {
   StyleSheet, 
   FlatList,
   TouchableOpacity,
-  Platform
+
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from '@/hooks/useTranslation';

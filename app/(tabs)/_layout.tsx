@@ -1,6 +1,6 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { Home, Search, Calendar, Settings } from 'lucide-react-native';
+import { Home, Search, Calendar, User } from 'lucide-react-native';
 import { useTranslation } from '@/hooks/useTranslation';
 import { colors } from '@/constants/colors';
 
@@ -54,7 +54,7 @@ export default function TabLayout() {
         options={{
           title: t.profile.title,
           tabBarLabel: t.profile.title,
-          tabBarIcon: ({ color }) => <Settings size={24} color={color} />,
+          tabBarIcon: ({ color }) => <User size={24} color={color} />,
         }}
       />
     </Tabs>

@@ -6,19 +6,19 @@ import {
   TouchableOpacity, 
   ScrollView,
   Image,
-  Platform,
+
   Switch
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { 
   User, 
   Calendar, 
-  Settings, 
+
   HelpCircle, 
   Info, 
   ChevronRight,
   MapPin,
-  LogOut,
+
   Globe,
   Bell,
   Moon
