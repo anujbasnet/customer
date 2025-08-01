@@ -64,7 +64,7 @@ export default function ProfileScreen() {
     {
       icon: <Edit3 size={24} color={colors.primary} />,
       title: 'Edit profile',
-      onPress: () => {},
+      onPress: () => router.push('/edit-profile'),
     },
     {
       icon: <Settings size={24} color={colors.primary} />,
