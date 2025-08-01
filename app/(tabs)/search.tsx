@@ -10,7 +10,7 @@ import {
   Platform
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Search as SearchIcon, X, MapPin } from 'lucide-react-native';
+import { Search as SearchIcon, X, MapPin, Map } from 'lucide-react-native';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAppStore } from '@/hooks/useAppStore';
 import { colors } from '@/constants/colors';
@@ -116,8 +116,12 @@ export default function SearchScreen() {
           <MapPin size={16} color={colors.textSecondary} style={styles.cityIcon} />
           <Text style={styles.cityText}>{selectedCityName}</Text>
         </View>
-        <TouchableOpacity style={styles.mapsButton} activeOpacity={0.7}>
-          <MapPin size={20} color={colors.primary} />
+        <TouchableOpacity 
+          style={styles.mapsButton} 
+          activeOpacity={0.7}
+          onPress={() => router.push(`/map?categoryId=${selectedCategory || 'all'}`)}
+        >
+          <Map size={20} color={colors.primary} />
           <Text style={styles.mapsText}>Maps</Text>
         </TouchableOpacity>
       </View>
@@ -147,13 +151,13 @@ export default function SearchScreen() {
       
       <View style={styles.filtersContainer}>
         <FlatList
-          data={[{ id: 'all', name: 'All', nameRu: 'Все', nameUz: 'Hammasi', icon: 'grid-3x3', image: '' }, ...categories]}
+          data={[{ id: 'all', name: 'All', nameRu: 'Все', nameUz: 'Hammasi', icon: 'grid-3x3', image: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=100&h=100&fit=crop&crop=center' }, ...categories]}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <CategoryCircle 
               category={item}
               onPress={handleCategoryPress}
-              selected={selectedCategory === item.id}
+              selected={selectedCategory === item.id || (selectedCategory === null && item.id === 'all')}
             />
           )}
           horizontal

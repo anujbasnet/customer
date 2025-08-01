@@ -21,7 +21,16 @@ export const CategoryCircle: React.FC<CategoryCircleProps> = ({
   onPress,
   selected = false
 }) => {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
+  
+  const getCategoryName = () => {
+    if (category.id === 'all') {
+      if (language === 'ru') return 'Все';
+      if (language === 'uz') return 'Hammasi';
+      return 'All';
+    }
+    return t.categories[category.name as keyof typeof t.categories] || category.name;
+  };
   
   return (
     <TouchableOpacity 
@@ -45,7 +54,7 @@ export const CategoryCircle: React.FC<CategoryCircleProps> = ({
         styles.name, 
         selected && styles.selectedName
       ]} numberOfLines={1}>
-        {t.categories[category.name as keyof typeof t.categories]}
+        {getCategoryName()}
       </Text>
     </TouchableOpacity>
   );
