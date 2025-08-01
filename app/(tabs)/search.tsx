@@ -10,7 +10,7 @@ import {
   Platform
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Search as SearchIcon, X } from 'lucide-react-native';
+import { Search as SearchIcon, X, MapPin } from 'lucide-react-native';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAppStore } from '@/hooks/useAppStore';
 import { colors } from '@/constants/colors';
@@ -19,6 +19,7 @@ import { CategoryCircle } from '@/components/CategoryCircle';
 import { CitySelector } from '@/components/CitySelector';
 import { businesses } from '@/mocks/businesses';
 import { categories } from '@/mocks/categories';
+import { cities } from '@/mocks/cities';
 import { Business, Category } from '@/types';
 
 export default function SearchScreen() {
@@ -73,7 +74,7 @@ export default function SearchScreen() {
       }
       
       // Filter by category if selected
-      if (selectedCategory) {
+      if (selectedCategory && selectedCategory !== 'all') {
         const category = categories.find(c => c.id === selectedCategory);
         if (category) {
           results = results.filter(business => business.category === category.name);
@@ -86,7 +87,9 @@ export default function SearchScreen() {
   }, [searchQuery, selectedCategory, selectedCity, language]);
   
   const handleCategoryPress = (category: Category) => {
-    if (selectedCategory === category.id) {
+    if (category.id === 'all') {
+      setSelectedCategory(null);
+    } else if (selectedCategory === category.id) {
       setSelectedCategory(null);
     } else {
       setSelectedCategory(category.id);
@@ -102,8 +105,22 @@ export default function SearchScreen() {
     setSelectedCategory(null);
   };
   
+  const selectedCityName = selectedCity 
+    ? cities.find(city => city.id === selectedCity)?.[language === 'ru' ? 'nameRu' : language === 'uz' ? 'nameUz' : 'name'] || 'City'
+    : 'Select City';
+
   return (
     <View style={styles.container}>
+      <View style={styles.headerContainer}>
+        <View style={styles.cityContainer}>
+          <Text style={styles.cityText}>{selectedCityName}</Text>
+        </View>
+        <TouchableOpacity style={styles.mapsButton} activeOpacity={0.7}>
+          <MapPin size={20} color={colors.primary} />
+          <Text style={styles.mapsText}>Maps</Text>
+        </TouchableOpacity>
+      </View>
+      
       <View style={styles.searchContainer}>
         <View style={styles.searchInputContainer}>
           <SearchIcon size={20} color={colors.textSecondary} style={styles.searchIcon} />
@@ -133,7 +150,7 @@ export default function SearchScreen() {
         </View>
         
         <FlatList
-          data={categories}
+          data={[{ id: 'all', name: 'All', nameRu: 'Все', nameUz: 'Hammasi', icon: 'grid-3x3' }, ...categories]}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <CategoryCircle 
@@ -190,6 +207,46 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFFFF',
     paddingTop: 16,
+  },
+  headerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+  },
+  cityContainer: {
+    flex: 1,
+  },
+  cityText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  mapsButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: colors.card,
+    borderRadius: 8,
+    ...Platform.select({
+      android: {
+        elevation: 1,
+      },
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 1,
+      }
+    })
+  },
+  mapsText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: colors.primary,
+    marginLeft: 4,
   },
   searchContainer: {
     padding: 16,
