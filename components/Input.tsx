@@ -26,6 +26,7 @@ interface InputProps {
   style?: ViewStyle;
   inputStyle?: TextStyle;
   labelStyle?: TextStyle;
+  leftIcon?: React.ReactElement;
 }
 
 export const Input: React.FC<InputProps> = ({
@@ -42,6 +43,7 @@ export const Input: React.FC<InputProps> = ({
   style,
   inputStyle,
   labelStyle,
+  leftIcon,
 }) => {
   const [showPassword, setShowPassword] = React.useState(false);
   
@@ -57,8 +59,18 @@ export const Input: React.FC<InputProps> = ({
         error ? styles.inputError : null,
         multiline ? { height: numberOfLines * 24 } : null
       ]}>
+        {leftIcon && (
+          <View style={styles.leftIcon}>
+            {leftIcon}
+          </View>
+        )}
         <TextInput
-          style={[styles.input, inputStyle, secureTextEntry && { paddingRight: 40 }]}
+          style={[
+            styles.input, 
+            inputStyle, 
+            leftIcon && { paddingLeft: 8 },
+            secureTextEntry && { paddingRight: 40 }
+          ]}
           placeholder={placeholder}
           value={value}
           onChangeText={onChangeText}
@@ -136,5 +148,10 @@ const styles = StyleSheet.create({
   eyeIcon: {
     position: 'absolute',
     right: 12,
+  },
+  leftIcon: {
+    paddingLeft: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

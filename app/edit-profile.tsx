@@ -338,7 +338,6 @@ export default function EditProfileScreen() {
                 multiline
                 numberOfLines={3}
                 style={[styles.input, styles.textArea]}
-                leftIcon={<MapPin size={20} color={colors.textSecondary} />}
               />
             </View>
             
