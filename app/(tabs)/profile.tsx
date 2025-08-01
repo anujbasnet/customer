@@ -6,22 +6,22 @@ import {
   TouchableOpacity, 
   ScrollView,
   Image,
-
   Switch
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { 
   User, 
-  Calendar, 
-
+  Edit3,
+  Settings,
   HelpCircle, 
   Info, 
   ChevronRight,
   MapPin,
-
+  Phone,
   Globe,
+  Star,
   Bell,
-  Moon
+  LogOut
 } from 'lucide-react-native';
 import { useAppStore } from '@/hooks/useAppStore';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -29,12 +29,9 @@ import { colors } from '@/constants/colors';
 import { Button } from '@/components/Button';
 import { cities } from '@/mocks/cities';
 import { LanguageSelector } from '@/components/LanguageSelector';
-import { CitySelector } from '@/components/CitySelector';
 
 export default function ProfileScreen() {
-  const [activeTab, setActiveTab] = useState<'profile' | 'settings'>('profile');
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [darkModeEnabled, setDarkModeEnabled] = useState(false);
   
   const { user, logout, selectedCity, isAuthenticated } = useAppStore();
   const { t, language } = useTranslation();
@@ -63,52 +60,47 @@ export default function ProfileScreen() {
     }
   };
   
-  const profileMenuItems = [
+  const menuItems = [
     {
-      icon: <Calendar size={24} color={colors.primary} />,
-      title: t.profile.appointments,
-      onPress: () => router.push('/appointments'),
-    },
-    {
-      icon: <HelpCircle size={24} color={colors.primary} />,
-      title: t.profile.help,
+      icon: <Edit3 size={24} color={colors.primary} />,
+      title: 'Edit profile',
       onPress: () => {},
     },
     {
-      icon: <Info size={24} color={colors.primary} />,
-      title: t.profile.about,
+      icon: <Settings size={24} color={colors.primary} />,
+      title: 'Profile settings',
       onPress: () => {},
     },
-  ];
-
-  const settingsItems = [
     {
       icon: <Globe size={24} color={colors.primary} />,
       title: t.profile.language,
       type: 'language',
     },
     {
-      icon: <MapPin size={24} color={colors.primary} />,
-      title: t.profile.city,
-      type: 'city',
+      icon: <Star size={24} color={colors.primary} />,
+      title: 'My Reviews',
+      onPress: () => {},
     },
     {
       icon: <Bell size={24} color={colors.primary} />,
-      title: t.profile.notifications,
+      title: 'App settings',
       type: 'switch',
       value: notificationsEnabled,
       onValueChange: setNotificationsEnabled,
     },
     {
-      icon: <Moon size={24} color={colors.primary} />,
-      title: 'Dark Mode',
-      type: 'switch',
-      value: darkModeEnabled,
-      onValueChange: setDarkModeEnabled,
+      icon: <HelpCircle size={24} color={colors.primary} />,
+      title: 'Help & Support',
+      onPress: () => {},
+    },
+    {
+      icon: <Info size={24} color={colors.primary} />,
+      title: 'About',
+      onPress: () => {},
     },
   ];
 
-  const renderSettingItem = (item: any, index: number) => {
+  const renderMenuItem = (item: any, index: number) => {
     switch (item.type) {
       case 'language':
         return (
@@ -118,16 +110,6 @@ export default function ProfileScreen() {
               <Text style={styles.menuItemTitle}>{item.title}</Text>
             </View>
             <LanguageSelector />
-          </View>
-        );
-      case 'city':
-        return (
-          <View key={index} style={styles.menuItem}>
-            <View style={styles.menuItemLeft}>
-              {item.icon}
-              <Text style={styles.menuItemTitle}>{item.title}</Text>
-            </View>
-            <CitySelector />
           </View>
         );
       case 'switch':
@@ -185,107 +167,54 @@ export default function ProfileScreen() {
   
   return (
     <View style={styles.container}>
-      {/* Tab Selector */}
-      <View style={styles.tabsContainer}>
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'profile' && styles.activeTab]}
-          onPress={() => setActiveTab('profile')}
-          activeOpacity={0.7}
-        >
-          <Text 
-            style={[
-              styles.tabText, 
-              activeTab === 'profile' && styles.activeTabText
-            ]}
-          >
-            {t.profile.title}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'settings' && styles.activeTab]}
-          onPress={() => setActiveTab('settings')}
-          activeOpacity={0.7}
-        >
-          <Text 
-            style={[
-              styles.tabText, 
-              activeTab === 'settings' && styles.activeTabText
-            ]}
-          >
-            {t.profile.settings}
-          </Text>
-        </TouchableOpacity>
-      </View>
-
       <ScrollView 
         style={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
         scrollEventThrottle={16}
       >
-        {activeTab === 'profile' ? (
-          <>
-            <View style={styles.header}>
-              {user?.avatar ? (
-                <Image
-                  source={{ uri: user.avatar }}
-                  style={styles.avatar}
-                />
-              ) : (
-                <View style={styles.avatarPlaceholder}>
-                  <User size={40} color="#FFFFFF" />
-                </View>
-              )}
-              <Text style={styles.name}>{user?.name || 'User'}</Text>
-              <Text style={styles.email}>{user?.email || 'user@example.com'}</Text>
-              
-              <View style={styles.cityContainer}>
-                <MapPin size={16} color={colors.textSecondary} />
-                <Text style={styles.cityText}>{getCurrentCityName()}</Text>
+        {/* Profile Header */}
+        <View style={styles.header}>
+          <View style={styles.profileRow}>
+            {user?.avatar ? (
+              <Image
+                source={{ uri: user.avatar }}
+                style={styles.avatar}
+              />
+            ) : (
+              <View style={styles.avatarPlaceholder}>
+                <User size={40} color="#FFFFFF" />
               </View>
-              
-              <TouchableOpacity 
-                style={styles.editButton}
-                onPress={() => setActiveTab('settings')}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.editButtonText}>{t.profile.editProfile}</Text>
-              </TouchableOpacity>
-            </View>
+            )}
             
-            <View style={styles.menuContainer}>
-              {profileMenuItems.map((item, index) => (
-                <TouchableOpacity
-                  key={index}
-                  style={styles.menuItem}
-                  onPress={item.onPress}
-                  activeOpacity={0.7}
-                >
-                  <View style={styles.menuItemLeft}>
-                    {item.icon}
-                    <Text style={styles.menuItemTitle}>{item.title}</Text>
-                  </View>
-                  <ChevronRight size={20} color={colors.textSecondary} />
-                </TouchableOpacity>
-              ))}
-            </View>
-          </>
-        ) : (
-          <View style={styles.settingsContainer}>
-            <View style={styles.settingsSection}>
-              <Text style={styles.sectionTitle}>{t.profile.settings}</Text>
-              <View style={styles.sectionContent}>
-                {settingsItems.map((item, index) => renderSettingItem(item, index))}
+            <View style={styles.profileInfo}>
+              <Text style={styles.name}>{user?.name || 'User'}</Text>
+              <View style={styles.contactRow}>
+                <Phone size={14} color={colors.textSecondary} />
+                <Text style={styles.contactText}>{user?.phone || '+1 234 567 8900'}</Text>
+              </View>
+              <View style={styles.contactRow}>
+                <MapPin size={14} color={colors.textSecondary} />
+                <Text style={styles.contactText}>{getCurrentCityName()}</Text>
               </View>
             </View>
           </View>
-        )}
+        </View>
         
+        {/* Menu Items */}
+        <View style={styles.menuContainer}>
+          {menuItems.map((item, index) => renderMenuItem(item, index))}
+        </View>
+        
+        {/* Logout Button */}
         <View style={styles.logoutContainer}>
-          <Button
-            title={t.auth.logout}
+          <TouchableOpacity 
+            style={styles.logoutButton}
             onPress={handleLogout}
-            variant="outline"
-          />
+            activeOpacity={0.7}
+          >
+            <LogOut size={24} color={colors.error} />
+            <Text style={styles.logoutText}>Log out</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </View>
@@ -321,85 +250,53 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 300,
   },
-  tabsContainer: {
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  tab: {
-    flex: 1,
-    paddingVertical: 16,
-    alignItems: 'center',
-  },
-  activeTab: {
-    borderBottomWidth: 2,
-    borderBottomColor: colors.primary,
-  },
-  tabText: {
-    fontSize: 16,
-    color: colors.textSecondary,
-  },
-  activeTabText: {
-    color: colors.primary,
-    fontWeight: '500',
-  },
   scrollContainer: {
     flex: 1,
   },
   header: {
-    alignItems: 'center',
     padding: 24,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
+  profileRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    marginBottom: 16,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
   },
   avatarPlaceholder: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 16,
+  },
+  profileInfo: {
+    flex: 1,
+    marginLeft: 16,
   },
   name: {
     fontSize: 20,
     fontWeight: '600',
     color: colors.text,
-    marginBottom: 4,
-  },
-  email: {
-    fontSize: 16,
-    color: colors.textSecondary,
     marginBottom: 8,
   },
-  cityContainer: {
+  contactRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 4,
   },
-  cityText: {
+  contactText: {
     fontSize: 14,
     color: colors.textSecondary,
-    marginLeft: 4,
-  },
-  editButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 20,
-    backgroundColor: colors.card,
-  },
-  editButtonText: {
-    fontSize: 14,
-    color: colors.primary,
+    marginLeft: 6,
   },
   menuContainer: {
-    marginTop: 16,
+    marginTop: 8,
   },
   menuItem: {
     flexDirection: 'row',
@@ -419,28 +316,26 @@ const styles = StyleSheet.create({
     color: colors.text,
     marginLeft: 16,
   },
-  settingsContainer: {
-    flex: 1,
-  },
-  settingsSection: {
-    marginTop: 16,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.textSecondary,
-    marginBottom: 8,
-    paddingHorizontal: 24,
-  },
-  sectionContent: {
-    backgroundColor: colors.card,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: colors.border,
-  },
   logoutContainer: {
     padding: 24,
     marginTop: 16,
     marginBottom: 24,
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    backgroundColor: '#FFF5F5',
+    borderWidth: 1,
+    borderColor: '#FED7D7',
+  },
+  logoutText: {
+    fontSize: 16,
+    color: colors.error,
+    marginLeft: 8,
+    fontWeight: '500',
   },
 });
