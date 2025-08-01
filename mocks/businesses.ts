@@ -218,6 +218,8 @@ export const businesses: Business[] = [
       sunday: { open: null, close: null }
     },
     timeSlots: generateTimeSlots(9, 19, 60, ['13:00']),
+    latitude: 41.3111,
+    longitude: 69.2797,
     services: [
       {
         id: '3001',
@@ -308,6 +310,8 @@ export const businesses: Business[] = [
       sunday: { open: null, close: null }
     },
     timeSlots: generateTimeSlots(10, 20, 60, ['14:00']),
+    latitude: 41.2995,
+    longitude: 69.2401,
     services: [
       {
         id: '4001',
@@ -386,6 +390,8 @@ export const businesses: Business[] = [
       sunday: { open: null, close: null }
     },
     timeSlots: generateTimeSlots(9, 19, 30, ['13:00', '13:30']),
+    latitude: 39.6542,
+    longitude: 66.9597,
     services: [
       {
         id: '5001',
@@ -456,6 +462,8 @@ export const businesses: Business[] = [
       sunday: { open: '11:00', close: '16:00' }
     },
     timeSlots: generateTimeSlots(10, 20, 60, ['14:00']),
+    latitude: 39.6270,
+    longitude: 66.9750,
     services: [
       {
         id: '6001',
@@ -526,6 +534,8 @@ export const businesses: Business[] = [
       sunday: { open: null, close: null }
     },
     timeSlots: generateTimeSlots(9, 19, 60, ['13:00']),
+    latitude: 39.6542,
+    longitude: 66.9597,
     services: [
       {
         id: '7001',
@@ -596,6 +606,8 @@ export const businesses: Business[] = [
       sunday: { open: '08:00', close: '22:00' }
     },
     timeSlots: generateTimeSlots(8, 22, 60, []),
+    latitude: 39.6270,
+    longitude: 66.9750,
     services: [
       {
         id: '8001',
@@ -668,6 +680,8 @@ export const businesses: Business[] = [
       sunday: { open: null, close: null }
     },
     timeSlots: generateTimeSlots(9, 18, 30, ['13:00', '13:30']),
+    latitude: 40.1031,
+    longitude: 67.8417,
     services: [
       {
         id: '9001',
@@ -738,6 +752,8 @@ export const businesses: Business[] = [
       sunday: { open: null, close: null }
     },
     timeSlots: generateTimeSlots(9, 18, 60, ['13:00']),
+    latitude: 40.1031,
+    longitude: 67.8417,
     services: [
       {
         id: '10001',
