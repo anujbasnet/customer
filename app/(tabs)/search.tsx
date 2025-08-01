@@ -150,7 +150,7 @@ export default function SearchScreen() {
         </View>
         
         <FlatList
-          data={[{ id: 'all', name: 'All', nameRu: 'Все', nameUz: 'Hammasi', icon: 'grid-3x3' }, ...categories]}
+          data={[{ id: 'all', name: 'All', nameRu: 'Все', nameUz: 'Hammasi', icon: 'grid-3x3', image: '' }, ...categories]}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <CategoryCircle 
