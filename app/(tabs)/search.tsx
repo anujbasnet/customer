@@ -113,6 +113,7 @@ export default function SearchScreen() {
     <View style={styles.container}>
       <View style={styles.headerContainer}>
         <View style={styles.cityContainer}>
+          <MapPin size={16} color={colors.textSecondary} style={styles.cityIcon} />
           <Text style={styles.cityText}>{selectedCityName}</Text>
         </View>
         <TouchableOpacity style={styles.mapsButton} activeOpacity={0.7}>
@@ -145,10 +146,6 @@ export default function SearchScreen() {
       </View>
       
       <View style={styles.filtersContainer}>
-        <View style={styles.citySelector}>
-          <CitySelector />
-        </View>
-        
         <FlatList
           data={[{ id: 'all', name: 'All', nameRu: 'Все', nameUz: 'Hammasi', icon: 'grid-3x3', image: '' }, ...categories]}
           keyExtractor={(item) => item.id}
@@ -217,10 +214,15 @@ const styles = StyleSheet.create({
   },
   cityContainer: {
     flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  cityIcon: {
+    marginRight: 6,
   },
   cityText: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: 16,
+    fontWeight: '500',
     color: colors.text,
   },
   mapsButton: {
@@ -243,7 +245,7 @@ const styles = StyleSheet.create({
     })
   },
   mapsText: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '500',
     color: colors.primary,
     marginLeft: 4,
@@ -286,10 +288,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  citySelector: {
-    paddingHorizontal: 16,
-    marginBottom: 8,
-  },
+
   categoriesList: {
     paddingHorizontal: 16,
     paddingVertical: 8,
