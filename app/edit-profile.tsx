@@ -176,8 +176,8 @@ export default function EditProfileScreen() {
       return;
     }
     
-    if (!formData.email.trim()) {
-      Alert.alert('Error', 'Email is required');
+    if (!formData.phone.trim() && !formData.email.trim()) {
+      Alert.alert('Error', 'Please provide at least one contact method (phone number or email)');
       return;
     }
     
@@ -261,12 +261,11 @@ export default function EditProfileScreen() {
                 placeholder="+1 234 567 8900"
                 keyboardType="phone-pad"
                 style={styles.input}
-                leftIcon={<Phone size={20} color={colors.textSecondary} />}
               />
             </View>
             
             <View style={styles.fieldGroup}>
-              <Text style={styles.label}>Email *</Text>
+              <Text style={styles.label}>Email</Text>
               <Input
                 value={formData.email}
                 onChangeText={(text) => setFormData(prev => ({ ...prev, email: text }))}
@@ -274,9 +273,10 @@ export default function EditProfileScreen() {
                 keyboardType="email-address"
                 autoCapitalize="none"
                 style={styles.input}
-                leftIcon={<Mail size={20} color={colors.textSecondary} />}
               />
             </View>
+            
+            <Text style={styles.contactNote}>* At least one contact method (phone or email) is required</Text>
             
             <View style={styles.fieldGroup}>
               <Text style={styles.label}>City</Text>
@@ -611,5 +611,12 @@ const styles = StyleSheet.create({
   modalItemText: {
     fontSize: 16,
     color: colors.text,
+  },
+  contactNote: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    fontStyle: 'italic',
+    marginTop: -8,
+    marginBottom: 16,
   },
 });
