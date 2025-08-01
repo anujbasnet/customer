@@ -150,10 +150,16 @@ export default function EditProfileScreen() {
   };
   
   const handleDateChange = (event: any, selectedDate?: Date) => {
+    console.log('Date picker event:', event, 'Selected date:', selectedDate);
     setShowDatePicker(Platform.OS === 'ios');
     if (selectedDate) {
       setFormData(prev => ({ ...prev, birthday: selectedDate }));
     }
+  };
+  
+  const openDatePicker = () => {
+    console.log('Opening date picker, current platform:', Platform.OS);
+    setShowDatePicker(true);
   };
   
   const formatDate = (date: Date | null) => {
@@ -316,7 +322,7 @@ export default function EditProfileScreen() {
               <Text style={styles.label}>Birthday</Text>
               <TouchableOpacity 
                 style={styles.selectButton}
-                onPress={() => setShowDatePicker(true)}
+                onPress={openDatePicker}
                 activeOpacity={0.7}
               >
                 <View style={styles.selectContent}>
@@ -373,7 +379,7 @@ export default function EditProfileScreen() {
         </ScrollView>
         
         {/* Date Picker */}
-        {showDatePicker && (
+        {showDatePicker && Platform.OS !== 'web' && (
           <DateTimePicker
             value={formData.birthday || new Date()}
             mode="date"
@@ -381,6 +387,62 @@ export default function EditProfileScreen() {
             onChange={handleDateChange}
             maximumDate={new Date()}
           />
+        )}
+        
+        {/* Web Date Picker Modal */}
+        {showDatePicker && Platform.OS === 'web' && (
+          <Modal
+            visible={showDatePicker}
+            animationType="slide"
+            presentationStyle="pageSheet"
+            transparent={true}
+          >
+            <View style={styles.webDatePickerOverlay}>
+              <View style={styles.webDatePickerContainer}>
+                <View style={styles.modalHeader}>
+                  <Text style={styles.modalTitle}>Select Birthday</Text>
+                  <TouchableOpacity onPress={() => setShowDatePicker(false)}>
+                    <X size={24} color={colors.text} />
+                  </TouchableOpacity>
+                </View>
+                <View style={styles.webDatePickerContent}>
+                  <input
+                    type="date"
+                    value={formData.birthday ? formData.birthday.toISOString().split('T')[0] : ''}
+                    max={new Date().toISOString().split('T')[0]}
+                    onChange={(e) => {
+                      if (e.target.value) {
+                        const selectedDate = new Date(e.target.value);
+                        setFormData(prev => ({ ...prev, birthday: selectedDate }));
+                      }
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: 16,
+                      fontSize: 16,
+                      border: `1px solid ${colors.border}`,
+                      borderRadius: 12,
+                      backgroundColor: '#FFFFFF'
+                    }}
+                  />
+                  <View style={styles.webDatePickerButtons}>
+                    <TouchableOpacity
+                      style={[styles.webDatePickerButton, styles.webDatePickerButtonCancel]}
+                      onPress={() => setShowDatePicker(false)}
+                    >
+                      <Text style={styles.webDatePickerButtonTextCancel}>Cancel</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.webDatePickerButton, styles.webDatePickerButtonConfirm]}
+                      onPress={() => setShowDatePicker(false)}
+                    >
+                      <Text style={styles.webDatePickerButtonTextConfirm}>Done</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+            </View>
+          </Modal>
         )}
         
         {/* City Modal */}
@@ -618,5 +680,53 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     marginTop: -8,
     marginBottom: 16,
+  },
+  webDatePickerOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  webDatePickerContainer: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    width: '100%',
+    maxWidth: 400,
+    maxHeight: '80%',
+  },
+  webDatePickerContent: {
+    padding: 24,
+  },
+  webDatePickerButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 24,
+    gap: 12,
+  },
+  webDatePickerButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  webDatePickerButtonCancel: {
+    backgroundColor: colors.background,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  webDatePickerButtonConfirm: {
+    backgroundColor: colors.primary,
+  },
+  webDatePickerButtonTextCancel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  webDatePickerButtonTextConfirm: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
 });
