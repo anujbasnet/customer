@@ -115,10 +115,9 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </View>
       
-      {/* Service Types with City Selector */}
+      {/* Service Types */}
       <View style={styles.categoryHeader}>
         <Text style={styles.sectionTitle}>{t.home.categories}</Text>
-        <CitySelector />
       </View>
       
       {/* Service Types - Horizontal Scroll */}
