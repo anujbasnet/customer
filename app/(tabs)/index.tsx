@@ -11,7 +11,7 @@ import {
 
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Search, User } from 'lucide-react-native';
+import { Search, MapPin } from 'lucide-react-native';
 import { Image } from 'expo-image';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAppStore } from '@/hooks/useAppStore';
@@ -21,6 +21,7 @@ import { BusinessCard } from '@/components/BusinessCard';
 import { CitySelector } from '@/components/CitySelector';
 import { categories } from '@/mocks/categories';
 import { getRecentlyVisitedBusinesses, getRecommendedBusinesses } from '@/mocks/businesses';
+import { cities } from '@/mocks/cities';
 import { Business, Category } from '@/types';
 import { trpc } from '@/lib/trpc';
 
@@ -29,8 +30,11 @@ import { trpc } from '@/lib/trpc';
 export default function HomeScreen() {
   const { t } = useTranslation();
   const router = useRouter();
-  const { isAuthenticated } = useAppStore();
+  const { isAuthenticated, selectedCity } = useAppStore();
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // Get current city name
+  const currentCity = cities.find(city => city.id === selectedCity);
   
   // Backend data
   const { data: backendBusinesses } = trpc.businesses.list.useQuery({ limit: 3 });
@@ -57,8 +61,9 @@ export default function HomeScreen() {
     }
   };
 
-  const handleAuthPress = () => {
-    router.push('/(auth)');
+  const handleCityPress = () => {
+    // You can implement city selection modal here if needed
+    console.log('City pressed:', currentCity?.name);
   };
   
   return (
@@ -77,16 +82,16 @@ export default function HomeScreen() {
         />
         <Text style={styles.appName}>Timely.uz</Text>
         
-        {/* Login/Register Button */}
+        {/* City Display */}
         <TouchableOpacity 
-          style={styles.authButton}
-          onPress={handleAuthPress}
+          style={styles.cityButton}
+          onPress={handleCityPress}
           activeOpacity={0.7}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
-          <User size={20} color={colors.primary} />
-          <Text style={styles.authButtonText}>
-            {isAuthenticated ? t.profile.title : t.auth.login}
+          <MapPin size={18} color={colors.primary} />
+          <Text style={styles.cityButtonText}>
+            {currentCity?.name || 'Tashkent'}
           </Text>
         </TouchableOpacity>
       </View>
@@ -247,20 +252,20 @@ const styles = StyleSheet.create({
     color: colors.primary,
     marginLeft: 12,
   },
-  authButton: {
+  cityButton: {
     marginLeft: 'auto',
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.card,
-    paddingVertical: 6,
+    paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 20,
   },
-  authButtonText: {
+  cityButtonText: {
     color: colors.primary,
-    fontWeight: '500',
-    fontSize: 14,
-    marginLeft: 4,
+    fontWeight: '600',
+    fontSize: 15,
+    marginLeft: 6,
   },
   searchContainer: {
     flexDirection: 'row',

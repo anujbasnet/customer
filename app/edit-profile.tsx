@@ -90,6 +90,27 @@ export default function EditProfileScreen() {
   
   const pickImage = async () => {
     try {
+      if (Platform.OS === 'web') {
+        // Web file input approach
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.onchange = (event: any) => {
+          const file = event.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              if (e.target?.result) {
+                setFormData(prev => ({ ...prev, avatar: e.target!.result as string }));
+              }
+            };
+            reader.readAsDataURL(file);
+          }
+        };
+        input.click();
+        return;
+      }
+      
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       
       if (status !== 'granted') {
@@ -115,6 +136,11 @@ export default function EditProfileScreen() {
   
   const takePhoto = async () => {
     try {
+      if (Platform.OS === 'web') {
+        Alert.alert('Camera not available', 'Camera is not available on web. Please use photo library instead.');
+        return;
+      }
+      
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
       
       if (status !== 'granted') {
@@ -138,6 +164,11 @@ export default function EditProfileScreen() {
   };
   
   const showImagePicker = () => {
+    if (Platform.OS === 'web') {
+      pickImage();
+      return;
+    }
+    
     Alert.alert(
       'Change Profile Photo',
       'Choose an option',
