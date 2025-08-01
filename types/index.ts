@@ -41,6 +41,7 @@ export interface Business {
   services: Service[];
   latitude: number;
   longitude: number;
+  portfolio?: PortfolioItem[];
 }
 
 export interface Employee {

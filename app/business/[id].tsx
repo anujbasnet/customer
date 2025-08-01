@@ -297,6 +297,29 @@ export default function BusinessScreen() {
                   <MapPin size={16} color={colors.textSecondary} />
                   <Text style={styles.addressDetail}>{getLocalizedAddress()}</Text>
                 </View>
+                
+                {business.portfolio && business.portfolio.length > 0 && (
+                  <>
+                    <Text style={styles.sectionTitle}>{t.business.portfolio}</Text>
+                    <View style={styles.portfolioContainer}>
+                      {business.portfolio.map((item) => (
+                        <View key={item.id} style={styles.portfolioItem}>
+                          <Image
+                            source={{ uri: item.image }}
+                            style={styles.portfolioImage}
+                            contentFit="cover"
+                          />
+                          <View style={styles.portfolioContent}>
+                            <Text style={styles.portfolioTitle}>{item.title}</Text>
+                            {item.description && (
+                              <Text style={styles.portfolioDescription}>{item.description}</Text>
+                            )}
+                          </View>
+                        </View>
+                      ))}
+                    </View>
+                  </>
+                )}
               </View>
             )}
             
@@ -504,5 +527,33 @@ const styles = StyleSheet.create({
   },
   bookButton: {
     width: '100%',
+  },
+  portfolioContainer: {
+    gap: 16,
+    marginTop: 16,
+  },
+  portfolioItem: {
+    backgroundColor: colors.card,
+    borderRadius: 12,
+    overflow: 'hidden',
+    marginBottom: 8,
+  },
+  portfolioImage: {
+    width: '100%',
+    height: 200,
+  },
+  portfolioContent: {
+    padding: 16,
+  },
+  portfolioTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.text,
+    marginBottom: 4,
+  },
+  portfolioDescription: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    lineHeight: 20,
   },
 });

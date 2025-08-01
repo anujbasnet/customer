@@ -252,6 +252,26 @@ export const businesses: Business[] = [
         duration: 45,
         price: 120000
       }
+    ],
+    portfolio: [
+      {
+        id: 'g1',
+        title: 'Elegant Updo Styling',
+        image: 'https://images.unsplash.com/photo-1595476108010-b4d1f102b1b1?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80',
+        description: 'Beautiful updo hairstyles for special occasions'
+      },
+      {
+        id: 'g2',
+        title: 'Modern Hair Coloring',
+        image: 'https://images.unsplash.com/photo-1580618672591-eb180b1a973f?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80',
+        description: 'Professional hair coloring with premium products'
+      },
+      {
+        id: 'g3',
+        title: 'Stylish Haircuts',
+        image: 'https://images.unsplash.com/photo-1562322140-8baeececf3df?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80',
+        description: 'Modern and trendy haircut styles'
+      }
     ]
   },
   {
