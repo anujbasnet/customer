@@ -192,6 +192,26 @@ export const providers: Provider[] = [
         duration: 45,
         price: 70
       }
+    ],
+    portfolio: [
+      {
+        id: 'p10',
+        title: 'Relaxation Room',
+        image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80',
+        description: 'Peaceful spa environment for ultimate relaxation'
+      },
+      {
+        id: 'p11',
+        title: 'Massage Therapy',
+        image: 'https://images.unsplash.com/photo-1600334129128-685c5582fd35?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80',
+        description: 'Professional therapeutic massage sessions'
+      },
+      {
+        id: 'p12',
+        title: 'Facial Treatment',
+        image: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80',
+        description: 'Rejuvenating facial treatments for glowing skin'
+      }
     ]
   },
   {
@@ -225,6 +245,26 @@ export const providers: Provider[] = [
         duration: 60,
         price: 95
       }
+    ],
+    portfolio: [
+      {
+        id: 'p13',
+        title: 'Deep Tissue Work',
+        image: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80',
+        description: 'Specialized deep tissue massage techniques'
+      },
+      {
+        id: 'p14',
+        title: 'Hot Stone Therapy',
+        image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80',
+        description: 'Therapeutic hot stone massage sessions'
+      },
+      {
+        id: 'p15',
+        title: 'Sports Recovery',
+        image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80',
+        description: 'Athletic recovery and performance massage'
+      }
     ]
   },
   {
@@ -257,6 +297,26 @@ export const providers: Provider[] = [
         description: 'Comprehensive dental examination',
         duration: 30,
         price: 75
+      }
+    ],
+    portfolio: [
+      {
+        id: 'p16',
+        title: 'Teeth Whitening Results',
+        image: 'https://images.unsplash.com/photo-1606811971618-4486d14f3f99?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80',
+        description: 'Before and after professional whitening'
+      },
+      {
+        id: 'p17',
+        title: 'Dental Care',
+        image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80',
+        description: 'Comprehensive dental care services'
+      },
+      {
+        id: 'p18',
+        title: 'Modern Equipment',
+        image: 'https://images.unsplash.com/photo-1629909613654-28e377c37b09?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80',
+        description: 'State-of-the-art dental technology'
       }
     ]
   }
