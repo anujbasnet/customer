@@ -57,7 +57,7 @@ export default function MapScreen() {
     : 'Select City';
     
   const categoryName = params.categoryId && params.categoryId !== 'all'
-    ? categories.find(c => c.id === params.categoryId)?.[language === 'ru' ? 'nameRu' : language === 'uz' ? 'nameUz' : 'name'] || 'All'
+    ? categories.find(c => c.id === params.categoryId)?.name || 'All'
     : 'All';
 
   return (
@@ -124,7 +124,7 @@ export default function MapScreen() {
             activeOpacity={0.8}
           >
             <View style={styles.pinContainer}>
-              <MapPin size={20} color={colors.white} />
+              <MapPin size={20} color="#FFFFFF" />
             </View>
           </TouchableOpacity>
         ))}
@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
   },
   infoContainer: {
     padding: 16,
-    backgroundColor: colors.white,
+    backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
     bottom: 20,
     left: 16,
     right: 16,
-    backgroundColor: colors.white,
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 16,
     flexDirection: 'row',
@@ -305,6 +305,6 @@ const styles = StyleSheet.create({
   viewButtonText: {
     fontSize: 14,
     fontWeight: '500',
-    color: colors.white,
+    color: '#FFFFFF',
   },
 });
