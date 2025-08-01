@@ -58,6 +58,17 @@ type TranslationKeys = {
     employees: string;
     selectEmployee: string;
     closed: string;
+    portfolio: string;
+  };
+  provider: {
+    about: string;
+    services: string;
+    reviews: string;
+    address: string;
+    workingHours: string;
+    bookAppointment: string;
+    noServices: string;
+    portfolio: string;
   };
   booking: {
     selectService: string;
@@ -181,6 +192,17 @@ export const translations: Translations = {
       employees: "Employees",
       selectEmployee: "Select Employee",
       closed: "Closed",
+      portfolio: "Portfolio",
+    },
+    provider: {
+      about: "About",
+      services: "Services",
+      reviews: "Reviews",
+      address: "Address",
+      workingHours: "Working Hours",
+      bookAppointment: "Book Appointment",
+      noServices: "No services available",
+      portfolio: "Portfolio",
     },
     booking: {
       selectService: "Select Service",
@@ -298,6 +320,17 @@ export const translations: Translations = {
       employees: "Сотрудники",
       selectEmployee: "Выбрать сотрудника",
       closed: "Закрыто",
+      portfolio: "Портфолио",
+    },
+    provider: {
+      about: "О нас",
+      services: "Услуги",
+      reviews: "Отзывы",
+      address: "Адрес",
+      workingHours: "Часы работы",
+      bookAppointment: "Записаться",
+      noServices: "Нет доступных услуг",
+      portfolio: "Портфолио",
     },
     booking: {
       selectService: "Выберите услугу",
@@ -415,6 +448,17 @@ export const translations: Translations = {
       employees: "Xodimlar",
       selectEmployee: "Xodimni tanlang",
       closed: "Yopiq",
+      portfolio: "Portfolio",
+    },
+    provider: {
+      about: "Haqida",
+      services: "Xizmatlar",
+      reviews: "Sharhlar",
+      address: "Manzil",
+      workingHours: "Ish vaqti",
+      bookAppointment: "Band qilish",
+      noServices: "Mavjud xizmatlar yo'q",
+      portfolio: "Portfolio",
     },
     booking: {
       selectService: "Xizmatni tanlang",

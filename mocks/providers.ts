@@ -1,4 +1,5 @@
 import { Provider } from '@/types';
+import { categories } from './categories';
 
 export const providers: Provider[] = [
   {
@@ -31,6 +32,26 @@ export const providers: Provider[] = [
         description: 'Professional blow dry and styling',
         duration: 30,
         price: 25
+      }
+    ],
+    portfolio: [
+      {
+        id: 'p1',
+        title: 'Modern Bob Cut',
+        image: 'https://images.unsplash.com/photo-1562322140-8baeececf3df?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80',
+        description: 'Stylish bob cut with layers'
+      },
+      {
+        id: 'p2',
+        title: 'Balayage Highlights',
+        image: 'https://images.unsplash.com/photo-1580618672591-eb180b1a973f?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80',
+        description: 'Natural-looking balayage highlights'
+      },
+      {
+        id: 'p3',
+        title: 'Wedding Updo',
+        image: 'https://images.unsplash.com/photo-1595476108010-b4d1f102b1b1?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80',
+        description: 'Elegant updo for special occasions'
       }
     ]
   },
@@ -65,6 +86,26 @@ export const providers: Provider[] = [
         duration: 45,
         price: 35
       }
+    ],
+    portfolio: [
+      {
+        id: 'p4',
+        title: 'Classic Fade',
+        image: 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80',
+        description: 'Perfect fade with sharp lines'
+      },
+      {
+        id: 'p5',
+        title: 'Beard Styling',
+        image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80',
+        description: 'Professional beard grooming'
+      },
+      {
+        id: 'p6',
+        title: 'Traditional Cut',
+        image: 'https://images.unsplash.com/photo-1622286346003-c8b4473f4c0c?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80',
+        description: 'Classic gentleman\'s haircut'
+      }
     ]
   },
   {
@@ -97,6 +138,26 @@ export const providers: Provider[] = [
         description: 'Long-lasting gel nail application',
         duration: 60,
         price: 45
+      }
+    ],
+    portfolio: [
+      {
+        id: 'p7',
+        title: 'French Manicure',
+        image: 'https://images.unsplash.com/photo-1604654894610-df63bc536371?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80',
+        description: 'Classic French manicure'
+      },
+      {
+        id: 'p8',
+        title: 'Nail Art Design',
+        image: 'https://images.unsplash.com/photo-1610992015732-2449b76344bc?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80',
+        description: 'Creative nail art designs'
+      },
+      {
+        id: 'p9',
+        title: 'Gel Extensions',
+        image: 'https://images.unsplash.com/photo-1607779097040-26e80aa78e66?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80',
+        description: 'Beautiful gel nail extensions'
       }
     ]
   },

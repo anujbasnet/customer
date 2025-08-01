@@ -83,6 +83,13 @@ export interface Service {
   price: number;
 }
 
+export interface PortfolioItem {
+  id: string;
+  title: string;
+  image: string;
+  description?: string;
+}
+
 export interface Provider {
   id: string;
   name: string;
@@ -93,6 +100,7 @@ export interface Provider {
   reviewCount: number;
   image: string;
   services: Service[];
+  portfolio?: PortfolioItem[];
 }
 
 export interface Category {
