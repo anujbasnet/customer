@@ -96,10 +96,10 @@ export const [LocationProvider, useLocation] = createContextHook(() => {
     }
   };
 
-  // Request permission on mount
-  useEffect(() => {
-    requestPermission();
-  }, []);
+  // Don't request permission automatically to avoid blocking app startup
+  // useEffect(() => {
+  //   requestPermission();
+  // }, []);
 
   return {
     location,

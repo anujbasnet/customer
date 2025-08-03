@@ -36,9 +36,31 @@ export default function HomeScreen() {
   // Get current city name
   const currentCity = cities.find(city => city.id === selectedCity);
   
-  // Backend data
-  const { data: backendBusinesses } = trpc.businesses.list.useQuery({ limit: 3 });
-  const { data: backendStats } = trpc.stats.overview.useQuery();
+  // Backend data with error handling
+  const { data: backendBusinesses, error: businessesError } = trpc.businesses.list.useQuery(
+    { limit: 3 },
+    {
+      retry: false,
+      refetchOnWindowFocus: false,
+      staleTime: 5 * 60 * 1000,
+    }
+  );
+  const { data: backendStats, error: statsError } = trpc.stats.overview.useQuery(
+    undefined,
+    {
+      retry: false,
+      refetchOnWindowFocus: false,
+      staleTime: 5 * 60 * 1000,
+    }
+  );
+  
+  // Log errors for debugging
+  if (businessesError) {
+    console.warn('Failed to load businesses from backend:', businessesError.message);
+  }
+  if (statsError) {
+    console.warn('Failed to load stats from backend:', statsError.message);
+  }
   
   const recentlyVisited = getRecentlyVisitedBusinesses();
   const recommendedBusinesses = getRecommendedBusinesses();
