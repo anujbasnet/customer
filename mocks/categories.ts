@@ -16,7 +16,7 @@ export const categories: Category[] = [
   {
     id: '3',
     name: 'nailSalon',
-    icon: 'hand',
+    icon: 'paintbrush',
     image: 'https://images.unsplash.com/photo-1519014816548-bf5fe059798b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'
   },
   {
@@ -28,13 +28,13 @@ export const categories: Category[] = [
   {
     id: '5',
     name: 'spa',
-    icon: 'flower',
+    icon: 'flower2',
     image: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'
   },
   {
     id: '6',
     name: 'massage',
-    icon: 'heart',
+    icon: 'hand',
     image: 'https://images.unsplash.com/photo-1519823551278-64ac92734fb1?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'
   },
   {

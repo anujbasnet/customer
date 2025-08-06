@@ -18,49 +18,23 @@ import { useAppStore } from '@/hooks/useAppStore';
 import { colors } from '@/constants/colors';
 import { CategoryCircle } from '@/components/CategoryCircle';
 import { BusinessCard } from '@/components/BusinessCard';
-import { CitySelector } from '@/components/CitySelector';
 import { categories } from '@/mocks/categories';
 import { getRecentlyVisitedBusinesses, getRecommendedBusinesses } from '@/mocks/businesses';
 import { cities } from '@/mocks/cities';
 import { Business, Category } from '@/types';
-import { trpc } from '@/lib/trpc';
 
 
 
 export default function HomeScreen() {
   const { t } = useTranslation();
   const router = useRouter();
-  const { isAuthenticated, selectedCity } = useAppStore();
+  const { selectedCity } = useAppStore();
   const [searchQuery, setSearchQuery] = useState('');
   
   // Get current city name
   const currentCity = cities.find(city => city.id === selectedCity);
   
-  // Backend data with error handling
-  const { data: backendBusinesses, error: businessesError } = trpc.businesses.list.useQuery(
-    { limit: 3 },
-    {
-      retry: false,
-      refetchOnWindowFocus: false,
-      staleTime: 5 * 60 * 1000,
-    }
-  );
-  const { data: backendStats, error: statsError } = trpc.stats.overview.useQuery(
-    undefined,
-    {
-      retry: false,
-      refetchOnWindowFocus: false,
-      staleTime: 5 * 60 * 1000,
-    }
-  );
-  
-  // Log errors for debugging
-  if (businessesError) {
-    console.warn('Failed to load businesses from backend:', businessesError.message);
-  }
-  if (statsError) {
-    console.warn('Failed to load stats from backend:', statsError.message);
-  }
+  const [showAllRecent, setShowAllRecent] = useState(false);
   
   const recentlyVisited = getRecentlyVisitedBusinesses();
   const recommendedBusinesses = getRecommendedBusinesses();
@@ -163,23 +137,29 @@ export default function HomeScreen() {
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>{t.home.recentlyVisited}</Text>
-          <TouchableOpacity 
-            onPress={() => router.push('/search')}
-            activeOpacity={0.7}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            <Text style={styles.viewAll}>{t.home.viewAll}</Text>
-          </TouchableOpacity>
         </View>
         
         {recentlyVisited.length > 0 ? (
-          recentlyVisited.map((business) => (
-            <BusinessCard
-              key={business.id}
-              business={business}
-              onPress={handleBusinessPress}
-            />
-          ))
+          <>
+            {(showAllRecent ? recentlyVisited : recentlyVisited.slice(0, 1)).map((business) => (
+              <BusinessCard
+                key={business.id}
+                business={business}
+                onPress={handleBusinessPress}
+              />
+            ))}
+            {recentlyVisited.length > 1 && (
+              <TouchableOpacity 
+                style={styles.viewAllButton}
+                onPress={() => setShowAllRecent(!showAllRecent)}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.viewAllButtonText}>
+                  {showAllRecent ? 'Show Less' : `View All (${recentlyVisited.length})`}
+                </Text>
+              </TouchableOpacity>
+            )}
+          </>
         ) : (
           <View style={styles.emptyStateContainer}>
             <Text style={styles.emptyStateText}>{t.home.noRecentlyVisited}</Text>
@@ -187,40 +167,6 @@ export default function HomeScreen() {
         )}
       </View>
       
-      {/* Backend Data Demo */}
-      {backendStats && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Backend Stats</Text>
-          <View style={styles.statsContainer}>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{backendStats.totalBusinesses}</Text>
-              <Text style={styles.statLabel}>Businesses</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{backendStats.totalAppointments}</Text>
-              <Text style={styles.statLabel}>Appointments</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{backendStats.averageRating}</Text>
-              <Text style={styles.statLabel}>Avg Rating</Text>
-            </View>
-          </View>
-        </View>
-      )}
-      
-      {/* Backend Businesses */}
-      {backendBusinesses && backendBusinesses.businesses.length > 0 && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>From Backend API</Text>
-          {backendBusinesses.businesses.map((business) => (
-            <BusinessCard
-              key={business.id}
-              business={business}
-              onPress={handleBusinessPress}
-            />
-          ))}
-        </View>
-      )}
       
       {/* Recommendations */}
       <View style={styles.section}>
@@ -362,17 +308,19 @@ const styles = StyleSheet.create({
     padding: 16,
     marginTop: 8,
   },
-  statItem: {
+  viewAllButton: {
+    backgroundColor: colors.card,
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    marginTop: 12,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
   },
-  statNumber: {
-    fontSize: 24,
-    fontWeight: '700',
+  viewAllButtonText: {
     color: colors.primary,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    marginTop: 4,
+    fontSize: 14,
+    fontWeight: '500',
   },
 });

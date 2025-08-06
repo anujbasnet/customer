@@ -5,7 +5,16 @@ import {
   StyleSheet, 
   View
 } from 'react-native';
-import { Image } from 'expo-image';
+
+import { 
+  Scissors, 
+  Paintbrush, 
+  Bookmark, 
+  Flower2, 
+  Hand, 
+  Smile, 
+  Dumbbell
+} from 'lucide-react-native';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Category } from '@/types';
 import { colors } from '@/constants/colors';
@@ -32,6 +41,30 @@ export const CategoryCircle: React.FC<CategoryCircleProps> = ({
     return t.categories[category.name as keyof typeof t.categories] || category.name;
   };
   
+  const getCategoryIcon = () => {
+    const iconSize = 32;
+    const iconColor = selected ? '#FFFFFF' : colors.primary;
+    
+    switch (category.icon) {
+      case 'scissors':
+        return <Scissors size={iconSize} color={iconColor} />;
+      case 'paintbrush':
+        return <Paintbrush size={iconSize} color={iconColor} />;
+      case 'football':
+        return <Bookmark size={iconSize} color={iconColor} />;
+      case 'flower2':
+        return <Flower2 size={iconSize} color={iconColor} />;
+      case 'hand':
+        return <Hand size={iconSize} color={iconColor} />;
+      case 'smile':
+        return <Smile size={iconSize} color={iconColor} />;
+      case 'dumbbell':
+        return <Dumbbell size={iconSize} color={iconColor} />;
+      default:
+        return <Scissors size={iconSize} color={iconColor} />;
+    }
+  };
+  
   return (
     <TouchableOpacity 
       style={styles.container}
@@ -40,15 +73,10 @@ export const CategoryCircle: React.FC<CategoryCircleProps> = ({
       hitSlop={{ top: 5, bottom: 5, left: 5, right: 5 }}
     >
       <View style={[
-        styles.imageContainer,
-        selected && styles.selectedImageContainer
+        styles.iconContainer,
+        selected && styles.selectedIconContainer
       ]}>
-        <Image
-          source={{ uri: category.image }}
-          style={styles.image}
-          contentFit="cover"
-          transition={200}
-        />
+        {getCategoryIcon()}
       </View>
       <Text style={[
         styles.name, 
@@ -65,22 +93,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: 80,
   },
-  imageContainer: {
+  iconContainer: {
     width: 70,
     height: 70,
     borderRadius: 35,
-    overflow: 'hidden',
     backgroundColor: colors.card,
     marginBottom: 8,
     borderWidth: 2,
     borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  selectedImageContainer: {
+  selectedIconContainer: {
+    backgroundColor: colors.primary,
     borderColor: colors.primary,
-  },
-  image: {
-    width: '100%',
-    height: '100%',
   },
   name: {
     fontSize: 12,
