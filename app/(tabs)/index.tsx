@@ -307,6 +307,7 @@ const styles = StyleSheet.create({
   viewAll: {
     fontSize: 14,
     color: colors.primary,
+    fontWeight: '500',
   },
   categoriesList: {
     paddingHorizontal: 16,
@@ -334,7 +335,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   expandButton: {
-    fontSize: 13,
+    fontSize: 14,
     color: colors.primary,
     fontWeight: '500',
   },
