@@ -35,6 +35,8 @@ export default function HomeScreen() {
   const currentCity = cities.find(city => city.id === selectedCity);
   
   const [showAllRecent, setShowAllRecent] = useState(false);
+  const [showAllCategories, setShowAllCategories] = useState(false);
+  const [showAllRecommended, setShowAllRecommended] = useState(false);
   
   const recentlyVisited = getRecentlyVisitedBusinesses();
   const recommendedBusinesses = getRecommendedBusinesses();
@@ -114,29 +116,61 @@ export default function HomeScreen() {
       {/* Service Types */}
       <View style={styles.categoryHeader}>
         <Text style={styles.sectionTitle}>{t.home.categories}</Text>
+        <TouchableOpacity 
+          onPress={() => setShowAllCategories(!showAllCategories)}
+          activeOpacity={0.7}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <Text style={styles.expandButton}>
+            {showAllCategories ? 'Collapse' : 'Expand'}
+          </Text>
+        </TouchableOpacity>
       </View>
       
-      {/* Service Types - Horizontal Scroll */}
-      <FlatList
-        data={categories}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <CategoryCircle 
-            category={item} 
-            onPress={handleCategoryPress} 
-          />
-        )}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.categoriesList}
-        ItemSeparatorComponent={() => <View style={{ width: 16 }} />}
-        scrollEventThrottle={16}
-      />
+      {/* Service Types - Horizontal Scroll or Grid */}
+      {showAllCategories ? (
+        <View style={styles.categoriesGrid}>
+          {categories.map((item) => (
+            <CategoryCircle 
+              key={item.id}
+              category={item} 
+              onPress={handleCategoryPress} 
+            />
+          ))}
+        </View>
+      ) : (
+        <FlatList
+          data={categories.slice(0, 4)}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <CategoryCircle 
+              category={item} 
+              onPress={handleCategoryPress} 
+            />
+          )}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.categoriesList}
+          ItemSeparatorComponent={() => <View style={{ width: 16 }} />}
+          scrollEventThrottle={16}
+        />
+      )}
       
       {/* Recently Visited */}
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>{t.home.recentlyVisited}</Text>
+          {recentlyVisited.length > 1 && (
+            <TouchableOpacity 
+              onPress={() => setShowAllRecent(!showAllRecent)}
+              activeOpacity={0.7}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <Text style={styles.viewAll}>
+                {showAllRecent ? 'Show Less' : 'View All'}
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
         
         {recentlyVisited.length > 0 ? (
@@ -148,17 +182,6 @@ export default function HomeScreen() {
                 onPress={handleBusinessPress}
               />
             ))}
-            {recentlyVisited.length > 1 && (
-              <TouchableOpacity 
-                style={styles.viewAllButton}
-                onPress={() => setShowAllRecent(!showAllRecent)}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.viewAllButtonText}>
-                  {showAllRecent ? 'Show Less' : `View All (${recentlyVisited.length})`}
-                </Text>
-              </TouchableOpacity>
-            )}
           </>
         ) : (
           <View style={styles.emptyStateContainer}>
@@ -173,15 +196,17 @@ export default function HomeScreen() {
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>{t.home.recommendations}</Text>
           <TouchableOpacity 
-            onPress={() => router.push('/search')}
+            onPress={() => setShowAllRecommended(!showAllRecommended)}
             activeOpacity={0.7}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
-            <Text style={styles.viewAll}>{t.home.viewAll}</Text>
+            <Text style={styles.viewAll}>
+              {showAllRecommended ? 'Show Less' : 'View All'}
+            </Text>
           </TouchableOpacity>
         </View>
         
-        {recommendedBusinesses.map((business) => (
+        {(showAllRecommended ? recommendedBusinesses.slice(0, 4) : recommendedBusinesses.slice(0, 1)).map((business) => (
           <BusinessCard
             key={business.id}
             business={business}
@@ -308,19 +333,16 @@ const styles = StyleSheet.create({
     padding: 16,
     marginTop: 8,
   },
-  viewAllButton: {
-    backgroundColor: colors.card,
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    marginTop: 12,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  viewAllButtonText: {
+  expandButton: {
+    fontSize: 13,
     color: colors.primary,
-    fontSize: 14,
     fontWeight: '500',
+  },
+  categoriesGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    justifyContent: 'space-between',
   },
 });

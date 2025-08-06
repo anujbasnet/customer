@@ -5,16 +5,7 @@ import {
   StyleSheet, 
   View
 } from 'react-native';
-
-import { 
-  Scissors, 
-  Paintbrush, 
-  Bookmark, 
-  Flower2, 
-  Hand, 
-  Smile, 
-  Dumbbell
-} from 'lucide-react-native';
+import { Image } from 'expo-image';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Category } from '@/types';
 import { colors } from '@/constants/colors';
@@ -41,29 +32,7 @@ export const CategoryCircle: React.FC<CategoryCircleProps> = ({
     return t.categories[category.name as keyof typeof t.categories] || category.name;
   };
   
-  const getCategoryIcon = () => {
-    const iconSize = 32;
-    const iconColor = selected ? '#FFFFFF' : colors.primary;
-    
-    switch (category.icon) {
-      case 'scissors':
-        return <Scissors size={iconSize} color={iconColor} />;
-      case 'paintbrush':
-        return <Paintbrush size={iconSize} color={iconColor} />;
-      case 'football':
-        return <Bookmark size={iconSize} color={iconColor} />;
-      case 'flower2':
-        return <Flower2 size={iconSize} color={iconColor} />;
-      case 'hand':
-        return <Hand size={iconSize} color={iconColor} />;
-      case 'smile':
-        return <Smile size={iconSize} color={iconColor} />;
-      case 'dumbbell':
-        return <Dumbbell size={iconSize} color={iconColor} />;
-      default:
-        return <Scissors size={iconSize} color={iconColor} />;
-    }
-  };
+
   
   return (
     <TouchableOpacity 
@@ -76,7 +45,12 @@ export const CategoryCircle: React.FC<CategoryCircleProps> = ({
         styles.iconContainer,
         selected && styles.selectedIconContainer
       ]}>
-        {getCategoryIcon()}
+        <Image
+          source={{ uri: category.image }}
+          style={styles.categoryImage}
+          contentFit="cover"
+        />
+        {selected && <View style={styles.selectedOverlay} />}
       </View>
       <Text style={[
         styles.name, 
@@ -101,8 +75,20 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     borderWidth: 2,
     borderColor: colors.border,
-    alignItems: 'center',
-    justifyContent: 'center',
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  categoryImage: {
+    width: '100%',
+    height: '100%',
+  },
+  selectedOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 122, 255, 0.3)',
   },
   selectedIconContainer: {
     backgroundColor: colors.primary,
