@@ -28,6 +28,7 @@ export default function SearchScreen() {
   const [filteredBusinesses, setFilteredBusinesses] = useState<Business[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showAllCategories, setShowAllCategories] = useState(false);
   
   const { t, language } = useTranslation();
   const router = useRouter();
@@ -150,22 +151,48 @@ export default function SearchScreen() {
       </View>
       
       <View style={styles.filtersContainer}>
-        <FlatList
-          data={[{ id: 'all', name: 'All', nameRu: 'Все', nameUz: 'Hammasi', icon: 'grid-3x3', image: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=100&h=100&fit=crop&crop=center' }, ...categories]}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <CategoryCircle 
-              category={item}
-              onPress={handleCategoryPress}
-              selected={selectedCategory === item.id || (selectedCategory === null && item.id === 'all')}
-            />
-          )}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.categoriesList}
-          ItemSeparatorComponent={() => <View style={{ width: 16 }} />}
-          scrollEventThrottle={16}
-        />
+        <View style={styles.filtersHeader}>
+          <Text style={styles.filtersTitle}>Service Types</Text>
+          <TouchableOpacity 
+            onPress={() => setShowAllCategories(!showAllCategories)}
+            activeOpacity={0.7}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <Text style={styles.expandButton}>
+              {showAllCategories ? 'Collapse' : 'Expand'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+        
+        {showAllCategories ? (
+          <View style={styles.categoriesGrid}>
+            {[{ id: 'all', name: 'All', nameRu: 'Все', nameUz: 'Hammasi', icon: 'grid-3x3', image: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=100&h=100&fit=crop&crop=center' }, ...categories].map((item) => (
+              <CategoryCircle 
+                key={item.id}
+                category={item}
+                onPress={handleCategoryPress}
+                selected={selectedCategory === item.id || (selectedCategory === null && item.id === 'all')}
+              />
+            ))}
+          </View>
+        ) : (
+          <FlatList
+            data={[{ id: 'all', name: 'All', nameRu: 'Все', nameUz: 'Hammasi', icon: 'grid-3x3', image: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=100&h=100&fit=crop&crop=center' }, ...categories]}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <CategoryCircle 
+                category={item}
+                onPress={handleCategoryPress}
+                selected={selectedCategory === item.id || (selectedCategory === null && item.id === 'all')}
+              />
+            )}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.categoriesList}
+            ItemSeparatorComponent={() => <View style={{ width: 16 }} />}
+            scrollEventThrottle={16}
+          />
+        )}
       </View>
       
       {loading ? (
@@ -291,6 +318,30 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
+  },
+  filtersHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingBottom: 8,
+  },
+  filtersTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  expandButton: {
+    fontSize: 14,
+    color: colors.primary,
+    fontWeight: '500',
+  },
+  categoriesGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    justifyContent: 'space-between',
   },
 
   categoriesList: {

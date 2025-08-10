@@ -11,7 +11,7 @@ import {
 
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Search, MapPin } from 'lucide-react-native';
+import { Search, MapPin, Scissors } from 'lucide-react-native';
 import { Image } from 'expo-image';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAppStore } from '@/hooks/useAppStore';
@@ -73,12 +73,10 @@ export default function HomeScreen() {
     >
       {/* Logo and App Name */}
       <View style={styles.logoContainer}>
-        <Image
-          source={{ uri: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80' }}
-          style={styles.logo}
-          contentFit="cover"
-        />
-        <Text style={styles.appName}>Timely.uz</Text>
+        <View style={styles.logoIcon}>
+          <Scissors size={24} color={colors.primary} />
+        </View>
+        <Text style={styles.appName}>Rejaly.uz</Text>
         
         {/* City Display */}
         <TouchableOpacity 
@@ -140,7 +138,7 @@ export default function HomeScreen() {
         </View>
       ) : (
         <FlatList
-          data={categories.slice(0, 4)}
+          data={categories}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <CategoryCircle 
@@ -233,10 +231,13 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 12,
   },
-  logo: {
+  logoIcon: {
     width: 40,
     height: 40,
     borderRadius: 20,
+    backgroundColor: colors.card,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   appName: {
     fontSize: 22,

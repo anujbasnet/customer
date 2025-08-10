@@ -34,7 +34,8 @@ import { categories } from '@/mocks/categories';
 import { useTranslation } from '@/hooks/useTranslation';
 
 interface FormData {
-  name: string;
+  firstName: string;
+  lastName: string;
   phone: string;
   email: string;
   cityId: string;
@@ -51,7 +52,8 @@ export default function EditProfileScreen() {
   const router = useRouter();
   
   const [formData, setFormData] = useState<FormData>({
-    name: user?.name || '',
+    firstName: user?.name?.split(' ')[0] || '',
+    lastName: user?.name?.split(' ').slice(1).join(' ') || '',
     phone: user?.phone || '',
     email: user?.email || '',
     cityId: user?.cityId || '1',
@@ -208,8 +210,8 @@ export default function EditProfileScreen() {
   };
   
   const handleSave = async () => {
-    if (!formData.name.trim()) {
-      Alert.alert('Error', 'Name is required');
+    if (!formData.firstName.trim() || !formData.lastName.trim()) {
+      Alert.alert('Error', 'First name and last name are required');
       return;
     }
     
@@ -222,7 +224,7 @@ export default function EditProfileScreen() {
     
     try {
       const updates = {
-        name: formData.name.trim(),
+        name: `${formData.firstName.trim()} ${formData.lastName.trim()}`,
         phone: formData.phone.trim(),
         email: formData.email.trim(),
         cityId: formData.cityId,
@@ -281,11 +283,21 @@ export default function EditProfileScreen() {
           {/* Form Fields */}
           <View style={styles.formSection}>
             <View style={styles.fieldGroup}>
-              <Text style={styles.label}>Name *</Text>
+              <Text style={styles.label}>First Name *</Text>
               <Input
-                value={formData.name}
-                onChangeText={(text) => setFormData(prev => ({ ...prev, name: text }))}
-                placeholder="Enter your full name"
+                value={formData.firstName}
+                onChangeText={(text) => setFormData(prev => ({ ...prev, firstName: text }))}
+                placeholder="Enter your first name"
+                style={styles.input}
+              />
+            </View>
+            
+            <View style={styles.fieldGroup}>
+              <Text style={styles.label}>Last Name *</Text>
+              <Input
+                value={formData.lastName}
+                onChangeText={(text) => setFormData(prev => ({ ...prev, lastName: text }))}
+                placeholder="Enter your last name"
                 style={styles.input}
               />
             </View>

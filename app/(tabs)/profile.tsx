@@ -6,7 +6,8 @@ import {
   TouchableOpacity, 
   ScrollView,
   Image,
-  Switch
+  Switch,
+  Alert
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { 
@@ -38,8 +39,24 @@ export default function ProfileScreen() {
   const router = useRouter();
   
   const handleLogout = () => {
-    logout();
-    router.replace('/(tabs)');
+    Alert.alert(
+      'Confirm Logout',
+      'Are you sure you want to log out?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel'
+        },
+        {
+          text: 'Log Out',
+          style: 'destructive',
+          onPress: () => {
+            logout();
+            router.replace('/(tabs)');
+          }
+        }
+      ]
+    );
   };
 
   const handleLogin = () => {

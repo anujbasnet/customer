@@ -17,6 +17,7 @@ import { Button } from '@/components/Button';
 import { EmployeeCard } from '@/components/EmployeeCard';
 import { getBusinessById } from '@/mocks/businesses';
 import { Service, Employee, TimeSlot } from '@/types';
+import { trpc } from '@/lib/trpc';
 
 export default function BookingScreen() {
   const { id, serviceId, employeeId } = useLocalSearchParams<{ 
@@ -32,7 +33,7 @@ export default function BookingScreen() {
   
   const { t, language } = useTranslation();
   const router = useRouter();
-  const { isAuthenticated } = useAppStore();
+  const { isAuthenticated, user } = useAppStore();
   
   const business = getBusinessById(id);
   const service = business?.services.find(s => s.id === serviceId);
@@ -103,7 +104,7 @@ export default function BookingScreen() {
     setSelectedEmployee(employee);
   };
   
-  const handleConfirmBooking = () => {
+  const handleConfirmBooking = async () => {
     if (!isAuthenticated) {
       router.push('/(auth)/login');
       return;
@@ -121,20 +122,44 @@ export default function BookingScreen() {
     
     setLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      // Create the appointment
+      const appointmentData = {
+        businessId: business.id,
+        serviceId: service.id,
+        employeeId: selectedEmployee?.id || business.employees[0]?.id,
+        date: selectedDate,
+        time: selectedTime,
+        status: 'confirmed' as const,
+        userId: user?.id || '1',
+        notes: ''
+      };
+      
+      // Simulate API call - in real app this would be a tRPC mutation
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Show success alert and navigate to appointments
       Alert.alert(
-        t.booking.bookingSuccess,
-        `${getLocalizedServiceName()} with ${business.name} on ${selectedDate} at ${selectedTime}`,
+        'Booking Confirmed!',
+        `Your appointment for ${getLocalizedServiceName()} at ${business.name} has been booked for ${selectedDate} at ${selectedTime}.`,
         [
           {
-            text: 'OK',
+            text: 'View Appointments',
             onPress: () => router.push('/(tabs)/appointments')
+          },
+          {
+            text: 'Back to Home',
+            onPress: () => router.push('/(tabs)'),
+            style: 'default'
           }
         ]
       );
-    }, 1500);
+    } catch (error) {
+      console.error('Booking error:', error);
+      Alert.alert('Error', 'Failed to create booking. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
   
   // Generate dates for the next 7 days

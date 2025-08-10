@@ -18,7 +18,8 @@ import { colors } from '@/constants/colors';
 import { LanguageSelector } from '@/components/LanguageSelector';
 
 export default function RegisterScreen() {
-  const [name, setName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [phone, setPhone] = useState('');
@@ -34,7 +35,7 @@ export default function RegisterScreen() {
   const router = useRouter();
   
   const handleRegister = async () => {
-    if (!name || !email || !password) {
+    if (!firstName || !lastName || !email || !password) {
       setError('Please fill required fields');
       return;
     }
@@ -43,7 +44,7 @@ export default function RegisterScreen() {
     setError('');
     
     try {
-      await register(name, email, password, {
+      await register(`${firstName} ${lastName}`, email, password, {
         phone,
         gender: gender || undefined,
         birthday: birthday?.toISOString().split('T')[0],
@@ -87,10 +88,18 @@ export default function RegisterScreen() {
         
         <View style={styles.form}>
           <Input
-            label={t.auth.name}
-            placeholder="John Doe"
-            value={name}
-            onChangeText={setName}
+            label="First Name"
+            placeholder="John"
+            value={firstName}
+            onChangeText={setFirstName}
+            autoCapitalize="words"
+          />
+          
+          <Input
+            label="Last Name"
+            placeholder="Doe"
+            value={lastName}
+            onChangeText={setLastName}
             autoCapitalize="words"
           />
           
