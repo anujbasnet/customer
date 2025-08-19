@@ -22,7 +22,17 @@ const mockLogin = async (email: string, password: string): Promise<User> => {
   throw new Error('Invalid credentials');
 };
 
-const mockRegister = async (name: string, email: string, password: string): Promise<User> => {
+const mockRegister = async (
+  name: string, 
+  email: string, 
+  password: string, 
+  additionalInfo?: {
+    phone?: string;
+    gender?: 'male' | 'female' | 'other';
+    birthday?: string;
+    address?: string;
+  }
+): Promise<User> => {
   // Simulate API call
   await new Promise(resolve => setTimeout(resolve, 1000));
   
@@ -32,7 +42,8 @@ const mockRegister = async (name: string, email: string, password: string): Prom
       name: name,
       email: email,
       avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-      cityId: '1' // Default to Tashkent
+      cityId: '1', // Default to Tashkent
+      ...additionalInfo
     };
   }
   
@@ -41,15 +52,15 @@ const mockRegister = async (name: string, email: string, password: string): Prom
 
 export const useAppStore = create<AppState>()(
   persist(
-    (set) => ({
-      language: 'en',
+    (set, get) => ({
+      language: 'en' as Language,
       setLanguage: (language: Language) => set({ language }),
       user: null,
       setUser: (user: User | null) => set({ user, isAuthenticated: !!user }),
       isAuthenticated: false,
       selectedCity: '1', // Default to Tashkent
       setSelectedCity: (cityId: string | null) => set({ selectedCity: cityId }),
-      login: async (email: string, password: string) => {
+      login: async (email: string, password: string): Promise<void> => {
         try {
           const user = await mockLogin(email, password);
           set({ user, isAuthenticated: true });
@@ -58,16 +69,26 @@ export const useAppStore = create<AppState>()(
         }
       },
       logout: () => set({ user: null, isAuthenticated: false }),
-      register: async (name: string, email: string, password: string) => {
+      register: async (
+        name: string, 
+        email: string, 
+        password: string, 
+        additionalInfo?: {
+          phone?: string;
+          gender?: 'male' | 'female' | 'other';
+          birthday?: string;
+          address?: string;
+        }
+      ): Promise<void> => {
         try {
-          const user = await mockRegister(name, email, password);
+          const user = await mockRegister(name, email, password, additionalInfo);
           set({ user, isAuthenticated: true });
         } catch (error) {
           throw error;
         }
       },
-      updateUserProfile: async (updates: Partial<User>) => {
-        const currentUser = useAppStore.getState().user;
+      updateUserProfile: async (updates: Partial<User>): Promise<void> => {
+        const currentUser = get().user;
         if (currentUser) {
           const updatedUser = { ...currentUser, ...updates };
           set({ user: updatedUser });
@@ -75,18 +96,18 @@ export const useAppStore = create<AppState>()(
       },
       favorites: [],
       addToFavorites: (business: Business) => {
-        const currentFavorites = useAppStore.getState().favorites;
-        if (!currentFavorites.find(fav => fav.id === business.id)) {
+        const currentFavorites = get().favorites;
+        if (!currentFavorites.find((fav: Business) => fav.id === business.id)) {
           set({ favorites: [...currentFavorites, business] });
         }
       },
       removeFromFavorites: (businessId: string) => {
-        const currentFavorites = useAppStore.getState().favorites;
-        set({ favorites: currentFavorites.filter(fav => fav.id !== businessId) });
+        const currentFavorites = get().favorites;
+        set({ favorites: currentFavorites.filter((fav: Business) => fav.id !== businessId) });
       },
-      isFavorite: (businessId: string) => {
-        const currentFavorites = useAppStore.getState().favorites;
-        return currentFavorites.some(fav => fav.id === businessId);
+      isFavorite: (businessId: string): boolean => {
+        const currentFavorites = get().favorites;
+        return currentFavorites.some((fav: Business) => fav.id === businessId);
       },
     }),
     {
