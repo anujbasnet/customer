@@ -16,7 +16,7 @@ import { useAppStore } from '@/hooks/useAppStore';
 import { colors } from '@/constants/colors';
 import { BusinessCard } from '@/components/BusinessCard';
 import { CategoryCircle } from '@/components/CategoryCircle';
-import { CitySelector } from '@/components/CitySelector';
+import { CitySelectionModal } from '@/components/CitySelectionModal';
 import { businesses } from '@/mocks/businesses';
 import { categories } from '@/mocks/categories';
 import { cities } from '@/mocks/cities';
@@ -29,6 +29,7 @@ export default function SearchScreen() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [showAllCategories, setShowAllCategories] = useState(false);
+  const [showCityModal, setShowCityModal] = useState(false);
   
   const { t, language } = useTranslation();
   const router = useRouter();
@@ -113,10 +114,14 @@ export default function SearchScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
-        <View style={styles.cityContainer}>
+        <TouchableOpacity 
+          style={styles.cityContainer}
+          onPress={() => setShowCityModal(true)}
+          activeOpacity={0.7}
+        >
           <MapPin size={16} color={colors.textSecondary} style={styles.cityIcon} />
           <Text style={styles.cityText}>{selectedCityName}</Text>
-        </View>
+        </TouchableOpacity>
         <TouchableOpacity 
           style={styles.mapsButton} 
           activeOpacity={0.7}
@@ -227,6 +232,11 @@ export default function SearchScreen() {
           )}
         </>
       )}
+      
+      <CitySelectionModal
+        visible={showCityModal}
+        onClose={() => setShowCityModal(false)}
+      />
     </View>
   );
 }

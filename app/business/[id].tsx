@@ -16,7 +16,8 @@ import {
   MapPin, 
   Clock, 
   Phone,
-  Mail
+  Mail,
+  Heart
 } from 'lucide-react-native';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAppStore } from '@/hooks/useAppStore';
@@ -37,7 +38,7 @@ export default function BusinessScreen() {
   
   const { t, language } = useTranslation();
   const router = useRouter();
-  const { isAuthenticated } = useAppStore();
+  const { isAuthenticated, isFavorite, addToFavorites, removeFromFavorites } = useAppStore();
   
   const business = getBusinessById(id);
   
@@ -159,7 +160,27 @@ export default function BusinessScreen() {
           />
           
           <View style={styles.header}>
-            <Text style={styles.name}>{business.name}</Text>
+            <View style={styles.nameRow}>
+              <Text style={styles.name}>{business.name}</Text>
+              <TouchableOpacity 
+                style={styles.favoriteButton}
+                onPress={() => {
+                  if (isFavorite(business.id)) {
+                    removeFromFavorites(business.id);
+                  } else {
+                    addToFavorites(business);
+                  }
+                }}
+                activeOpacity={0.7}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Heart 
+                  size={24} 
+                  color={isFavorite(business.id) ? colors.error : colors.textSecondary}
+                  fill={isFavorite(business.id) ? colors.error : 'transparent'}
+                />
+              </TouchableOpacity>
+            </View>
             <Text style={styles.category}>
               {t.categories[business.category as keyof typeof t.categories]}
             </Text>
@@ -372,11 +393,21 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
+  nameRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
   name: {
     fontSize: 24,
     fontWeight: '600',
     color: colors.text,
-    marginBottom: 4,
+    flex: 1,
+  },
+  favoriteButton: {
+    padding: 4,
+    marginLeft: 12,
   },
   category: {
     fontSize: 16,

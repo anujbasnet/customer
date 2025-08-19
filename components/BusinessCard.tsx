@@ -54,22 +54,8 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({ business, onPress, s
         transition={200}
       />
       <View style={styles.content}>
-        <Text style={styles.name}>{business.name}</Text>
-        <Text style={styles.category}>
-          {t.categories[business.category as keyof typeof t.categories]}
-        </Text>
-        <View style={styles.addressContainer}>
-          <MapPin size={14} color={colors.textSecondary} />
-          <Text style={styles.address} numberOfLines={1}>
-            {getLocalizedAddress()}
-          </Text>
-        </View>
-        <View style={styles.bottomRow}>
-          <View style={styles.ratingContainer}>
-            <Star size={16} color={colors.warning} fill={colors.warning} />
-            <Text style={styles.rating}>{business.rating}</Text>
-            <Text style={styles.reviewCount}>({business.reviewCount})</Text>
-          </View>
+        <View style={styles.nameRow}>
+          <Text style={styles.name}>{business.name}</Text>
           {showFavoriteButton && (
             <TouchableOpacity 
               style={styles.favoriteButton}
@@ -84,6 +70,20 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({ business, onPress, s
               />
             </TouchableOpacity>
           )}
+        </View>
+        <Text style={styles.category}>
+          {t.categories[business.category as keyof typeof t.categories]}
+        </Text>
+        <View style={styles.addressContainer}>
+          <MapPin size={14} color={colors.textSecondary} />
+          <Text style={styles.address} numberOfLines={1}>
+            {getLocalizedAddress()}
+          </Text>
+        </View>
+        <View style={styles.ratingContainer}>
+          <Star size={16} color={colors.warning} fill={colors.warning} />
+          <Text style={styles.rating}>{business.rating}</Text>
+          <Text style={styles.reviewCount}>({business.reviewCount})</Text>
         </View>
       </View>
     </TouchableOpacity>
@@ -109,11 +109,17 @@ const styles = StyleSheet.create({
   content: {
     padding: 12,
   },
+  nameRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
   name: {
     fontSize: 16,
     fontWeight: '600',
     color: colors.text,
-    marginBottom: 4,
+    flex: 1,
   },
   category: {
     fontSize: 14,
@@ -131,17 +137,13 @@ const styles = StyleSheet.create({
     marginLeft: 4,
     flex: 1,
   },
-  bottomRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
   ratingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   favoriteButton: {
     padding: 4,
+    marginLeft: 8,
   },
   rating: {
     fontSize: 14,

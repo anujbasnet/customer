@@ -26,6 +26,7 @@ import { getPromotions } from '@/mocks/promotions';
 import { Business, Category, Appointment } from '@/types';
 import { AppointmentReminder } from '@/components/AppointmentReminder';
 import { PromotionCard } from '@/components/PromotionCard';
+import { CitySelectionModal } from '@/components/CitySelectionModal';
 
 
 
@@ -42,6 +43,7 @@ export default function HomeScreen() {
   const [showAllCategories, setShowAllCategories] = useState(false);
   const [showAllRecommended, setShowAllRecommended] = useState(false);
   const [showAllPromotions, setShowAllPromotions] = useState(false);
+  const [showCityModal, setShowCityModal] = useState(false);
   
   const recentlyVisited = getRecentlyVisitedBusinesses();
   const recommendedBusinesses = getRecommendedBusinesses();
@@ -80,8 +82,7 @@ export default function HomeScreen() {
   };
 
   const handleCityPress = () => {
-    // You can implement city selection modal here if needed
-    console.log('City pressed:', currentCity?.name);
+    setShowCityModal(true);
   };
   
   return (
@@ -276,6 +277,11 @@ export default function HomeScreen() {
           />
         ))}
       </View>
+      
+      <CitySelectionModal
+        visible={showCityModal}
+        onClose={() => setShowCityModal(false)}
+      />
     </ScrollView>
   );
 }
