@@ -148,4 +148,8 @@ export interface AppState {
     }
   ) => Promise<void>;
   updateUserProfile: (updates: Partial<User>) => Promise<void>;
+  favorites: Business[];
+  addToFavorites: (business: Business) => void;
+  removeFromFavorites: (businessId: string) => void;
+  isFavorite: (businessId: string) => boolean;
 }

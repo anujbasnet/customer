@@ -209,6 +209,7 @@ export default function SearchScreen() {
                 <BusinessCard
                   business={item}
                   onPress={handleBusinessPress}
+                  showFavoriteButton={true}
                 />
               )}
               contentContainerStyle={styles.businessesList}

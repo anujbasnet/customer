@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Language } from '@/constants/languages';
-import { AppState, User } from '@/types';
+import { AppState, User, Business } from '@/types';
 
 // Mock authentication functions
 const mockLogin = async (email: string, password: string): Promise<User> => {
@@ -72,6 +72,21 @@ export const useAppStore = create<AppState>()(
           const updatedUser = { ...currentUser, ...updates };
           set({ user: updatedUser });
         }
+      },
+      favorites: [],
+      addToFavorites: (business: Business) => {
+        const currentFavorites = useAppStore.getState().favorites;
+        if (!currentFavorites.find(fav => fav.id === business.id)) {
+          set({ favorites: [...currentFavorites, business] });
+        }
+      },
+      removeFromFavorites: (businessId: string) => {
+        const currentFavorites = useAppStore.getState().favorites;
+        set({ favorites: currentFavorites.filter(fav => fav.id !== businessId) });
+      },
+      isFavorite: (businessId: string) => {
+        const currentFavorites = useAppStore.getState().favorites;
+        return currentFavorites.some(fav => fav.id === businessId);
       },
     }),
     {

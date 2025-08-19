@@ -21,14 +21,18 @@ import { BusinessCard } from '@/components/BusinessCard';
 import { categories } from '@/mocks/categories';
 import { getRecentlyVisitedBusinesses, getRecommendedBusinesses } from '@/mocks/businesses';
 import { cities } from '@/mocks/cities';
-import { Business, Category } from '@/types';
+import { getUpcomingAppointments } from '@/mocks/appointments';
+import { getPromotions } from '@/mocks/promotions';
+import { Business, Category, Appointment } from '@/types';
+import { AppointmentReminder } from '@/components/AppointmentReminder';
+import { PromotionCard } from '@/components/PromotionCard';
 
 
 
 export default function HomeScreen() {
   const { t } = useTranslation();
   const router = useRouter();
-  const { selectedCity } = useAppStore();
+  const { selectedCity, favorites } = useAppStore();
   const [searchQuery, setSearchQuery] = useState('');
   
   // Get current city name
@@ -37,9 +41,17 @@ export default function HomeScreen() {
   const [showAllRecent, setShowAllRecent] = useState(false);
   const [showAllCategories, setShowAllCategories] = useState(false);
   const [showAllRecommended, setShowAllRecommended] = useState(false);
+  const [showAllPromotions, setShowAllPromotions] = useState(false);
   
   const recentlyVisited = getRecentlyVisitedBusinesses();
   const recommendedBusinesses = getRecommendedBusinesses();
+  const upcomingAppointments = getUpcomingAppointments();
+  const promotions = getPromotions();
+  
+  // Combine recently visited and favorites
+  const visitedAndFavorites = [...recentlyVisited, ...favorites].filter(
+    (business, index, self) => self.findIndex(b => b.id === business.id) === index
+  );
 
   
   const handleCategoryPress = (category: Category) => {
@@ -48,6 +60,14 @@ export default function HomeScreen() {
   
   const handleBusinessPress = (business: Business) => {
     router.push(`/business/${business.id}`);
+  };
+  
+  const handleAppointmentPress = (appointment: Appointment) => {
+    router.push(`/appointment/${appointment.id}`);
+  };
+  
+  const handlePromotionPress = (promotion: any) => {
+    router.push(`/business/${promotion.businessId}`);
   };
   
   const handleSearch = () => {
@@ -154,11 +174,29 @@ export default function HomeScreen() {
         />
       )}
       
-      {/* Recently Visited */}
+      {/* My Appointments */}
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>{t.home.recentlyVisited}</Text>
-          {recentlyVisited.length > 1 && (
+          <Text style={styles.sectionTitle}>{t.home.myAppointments}</Text>
+        </View>
+        
+        {upcomingAppointments.length > 0 ? (
+          <AppointmentReminder
+            appointment={upcomingAppointments[0]}
+            onPress={handleAppointmentPress}
+          />
+        ) : (
+          <View style={styles.emptyStateContainer}>
+            <Text style={styles.emptyStateText}>{t.home.noUpcomingAppointments}</Text>
+          </View>
+        )}
+      </View>
+      
+      {/* Visited and Favorites */}
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>{t.home.visitedAndFavorites}</Text>
+          {visitedAndFavorites.length > 1 && (
             <TouchableOpacity 
               onPress={() => setShowAllRecent(!showAllRecent)}
               activeOpacity={0.7}
@@ -171,13 +209,14 @@ export default function HomeScreen() {
           )}
         </View>
         
-        {recentlyVisited.length > 0 ? (
+        {visitedAndFavorites.length > 0 ? (
           <>
-            {(showAllRecent ? recentlyVisited : recentlyVisited.slice(0, 1)).map((business) => (
+            {(showAllRecent ? visitedAndFavorites : visitedAndFavorites.slice(0, 1)).map((business) => (
               <BusinessCard
                 key={business.id}
                 business={business}
                 onPress={handleBusinessPress}
+                showFavoriteButton={true}
               />
             ))}
           </>
@@ -209,6 +248,31 @@ export default function HomeScreen() {
             key={business.id}
             business={business}
             onPress={handleBusinessPress}
+            showFavoriteButton={true}
+          />
+        ))}
+      </View>
+      
+      {/* Promotions and Discounts */}
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>{t.home.promotions}</Text>
+          <TouchableOpacity 
+            onPress={() => setShowAllPromotions(!showAllPromotions)}
+            activeOpacity={0.7}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <Text style={styles.viewAll}>
+              {showAllPromotions ? 'Show Less' : 'View All'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+        
+        {(showAllPromotions ? promotions.slice(0, 4) : promotions.slice(0, 1)).map((promotion) => (
+          <PromotionCard
+            key={promotion.id}
+            promotion={promotion}
+            onPress={handlePromotionPress}
           />
         ))}
       </View>

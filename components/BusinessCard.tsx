@@ -6,18 +6,21 @@ import {
   View 
 } from 'react-native';
 import { Image } from 'expo-image';
-import { Star, MapPin } from 'lucide-react-native';
+import { Star, MapPin, Heart } from 'lucide-react-native';
 import { Business } from '@/types';
 import { colors } from '@/constants/colors';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useAppStore } from '@/hooks/useAppStore';
 
 interface BusinessCardProps {
   business: Business;
   onPress: (business: Business) => void;
+  showFavoriteButton?: boolean;
 }
 
-export const BusinessCard: React.FC<BusinessCardProps> = ({ business, onPress }) => {
+export const BusinessCard: React.FC<BusinessCardProps> = ({ business, onPress, showFavoriteButton = false }) => {
   const { t, language } = useTranslation();
+  const { isFavorite, addToFavorites, removeFromFavorites } = useAppStore();
   
   const getLocalizedAddress = () => {
     switch (language) {
@@ -27,6 +30,14 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({ business, onPress })
         return business.addressUz;
       default:
         return business.address;
+    }
+  };
+  
+  const handleFavoritePress = () => {
+    if (isFavorite(business.id)) {
+      removeFromFavorites(business.id);
+    } else {
+      addToFavorites(business);
     }
   };
   
@@ -53,10 +64,26 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({ business, onPress })
             {getLocalizedAddress()}
           </Text>
         </View>
-        <View style={styles.ratingContainer}>
-          <Star size={16} color={colors.warning} fill={colors.warning} />
-          <Text style={styles.rating}>{business.rating}</Text>
-          <Text style={styles.reviewCount}>({business.reviewCount})</Text>
+        <View style={styles.bottomRow}>
+          <View style={styles.ratingContainer}>
+            <Star size={16} color={colors.warning} fill={colors.warning} />
+            <Text style={styles.rating}>{business.rating}</Text>
+            <Text style={styles.reviewCount}>({business.reviewCount})</Text>
+          </View>
+          {showFavoriteButton && (
+            <TouchableOpacity 
+              style={styles.favoriteButton}
+              onPress={handleFavoritePress}
+              activeOpacity={0.7}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <Heart 
+                size={20} 
+                color={isFavorite(business.id) ? colors.error : colors.textSecondary}
+                fill={isFavorite(business.id) ? colors.error : 'transparent'}
+              />
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     </TouchableOpacity>
@@ -104,9 +131,17 @@ const styles = StyleSheet.create({
     marginLeft: 4,
     flex: 1,
   },
+  bottomRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   ratingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  favoriteButton: {
+    padding: 4,
   },
   rating: {
     fontSize: 14,

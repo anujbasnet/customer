@@ -36,6 +36,10 @@ type TranslationKeys = {
     recommendations: string;
     noRecentlyVisited: string;
     selectCity: string;
+    myAppointments: string;
+    noUpcomingAppointments: string;
+    promotions: string;
+    visitedAndFavorites: string;
   };
   categories: {
     hairSalon: string;
@@ -170,6 +174,10 @@ export const translations: Translations = {
       recommendations: "Recommendations",
       noRecentlyVisited: "No recently visited services",
       selectCity: "Select City",
+      myAppointments: "My Appointments",
+      noUpcomingAppointments: "No upcoming appointments",
+      promotions: "Promotions and Discounts",
+      visitedAndFavorites: "Visited and Favorites",
     },
     categories: {
       hairSalon: "Hair Salon",
@@ -298,6 +306,10 @@ export const translations: Translations = {
       recommendations: "Рекомендации",
       noRecentlyVisited: "Нет недавно посещенных услуг",
       selectCity: "Выбрать город",
+      myAppointments: "Мои записи",
+      noUpcomingAppointments: "Нет предстоящих записей",
+      promotions: "Акции и скидки",
+      visitedAndFavorites: "Посещенные и избранные",
     },
     categories: {
       hairSalon: "Парикмахерская",
@@ -426,6 +438,10 @@ export const translations: Translations = {
       recommendations: "Tavsiyalar",
       noRecentlyVisited: "Yaqinda tashrif buyurilgan xizmatlar yo'q",
       selectCity: "Shaharni tanlang",
+      myAppointments: "Mening bandlarim",
+      noUpcomingAppointments: "Kelayotgan bandlar yo'q",
+      promotions: "Aksiyalar va chegirmalar",
+      visitedAndFavorites: "Tashrif buyurilgan va sevimlilar",
     },
     categories: {
       hairSalon: "Soch saloni",
