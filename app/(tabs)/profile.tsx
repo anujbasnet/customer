@@ -42,11 +42,11 @@ export default function ProfileScreen() {
       'Are you sure you want to log out?',
       [
         {
-          text: 'Cancel',
+          text: 'No',
           style: 'cancel'
         },
         {
-          text: 'Log Out',
+          text: 'Yes',
           style: 'destructive',
           onPress: () => {
             logout();
@@ -94,7 +94,9 @@ export default function ProfileScreen() {
     {
       icon: <Star size={24} color={colors.primary} />,
       title: 'My Reviews',
-      onPress: () => {},
+      onPress: () => {
+        Alert.alert('Coming Soon', 'My Reviews feature is coming soon.');
+      },
     },
 
     {
@@ -340,17 +342,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 10,
     backgroundColor: '#FFF5F5',
     borderWidth: 1,
     borderColor: '#FED7D7',
+    alignSelf: 'center',
+    minWidth: 120,
   },
   logoutText: {
-    fontSize: 15,
+    fontSize: 14,
     color: colors.error,
-    marginLeft: 8,
+    marginLeft: 6,
     fontWeight: '500',
   },
 });

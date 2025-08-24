@@ -1,38 +1,27 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Switch, Alert, ScrollView, Platform } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Switch, Alert, ScrollView, Platform } from 'react-native';
 import { Stack } from 'expo-router';
 import { colors } from '@/constants/colors';
 import { useAppStore } from '@/hooks/useAppStore';
+import { Edit3 } from 'lucide-react-native';
 
 export default function LoginSecurityScreen() {
-  const { user, updateUserProfile, twoFactorEnabled, toggleTwoFactor, linkedAuthProviders, linkProvider, unlinkProvider } = useAppStore();
-  const [email, setEmail] = useState<string>(user?.email ?? '');
-  const [currentPassword, setCurrentPassword] = useState<string>('');
-  const [newPassword, setNewPassword] = useState<string>('');
-  const [confirmPassword, setConfirmPassword] = useState<string>('');
+  const { user, twoFactorEnabled, toggleTwoFactor, linkedAuthProviders, linkProvider, unlinkProvider } = useAppStore();
 
-  const handleSaveEmail = () => {
-    if (!email.includes('@')) {
-      Alert.alert('Invalid email', 'Please enter a valid email address.');
-      return;
-    }
-    updateUserProfile({ email });
-    Alert.alert('Updated', 'Email updated successfully.');
+  const handleEditCredentials = () => {
+    // Navigate to edit credentials screen
+    Alert.alert('Coming Soon', 'Edit credentials feature is coming soon.');
   };
 
-  const handleChangePassword = () => {
-    if (newPassword.length < 6) {
-      Alert.alert('Weak password', 'Use at least 6 characters.');
-      return;
-    }
-    if (newPassword !== confirmPassword) {
-      Alert.alert('Mismatch', 'New password and confirmation do not match.');
-      return;
-    }
-    Alert.alert('Updated', 'Password changed successfully.');
-    setCurrentPassword('');
-    setNewPassword('');
-    setConfirmPassword('');
+  const handleForgotPassword = () => {
+    Alert.alert(
+      'Reset Password',
+      'A password reset link will be sent to your email/phone number.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Send', onPress: () => Alert.alert('Sent', 'Password reset link sent successfully.') }
+      ]
+    );
   };
 
   return (
@@ -41,50 +30,32 @@ export default function LoginSecurityScreen() {
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
 
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>Login Email</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          autoCapitalize="none"
-          keyboardType="email-address"
-          value={email}
-          onChangeText={setEmail}
-          testID="email-input"
-        />
-        <TouchableOpacity style={styles.button} onPress={handleSaveEmail} testID="save-email">
-          <Text style={styles.buttonText}>Save Email</Text>
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Change Password</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Current password"
-          secureTextEntry
-          value={currentPassword}
-          onChangeText={setCurrentPassword}
-          testID="current-password"
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="New password"
-          secureTextEntry
-          value={newPassword}
-          onChangeText={setNewPassword}
-          testID="new-password"
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Confirm new password"
-          secureTextEntry
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-          testID="confirm-password"
-        />
-        <TouchableOpacity style={styles.button} onPress={handleChangePassword} testID="save-password">
-          <Text style={styles.buttonText}>Change Password</Text>
-        </TouchableOpacity>
+        <Text style={styles.cardTitle}>Login Credentials</Text>
+        
+        <View style={styles.credentialRow}>
+          <View style={styles.credentialInfo}>
+            <Text style={styles.credentialLabel}>Login</Text>
+            <Text style={styles.credentialValue}>{user?.email || user?.phone || 'user@example.com'}</Text>
+          </View>
+        </View>
+        
+        <View style={styles.credentialRow}>
+          <View style={styles.credentialInfo}>
+            <Text style={styles.credentialLabel}>Password</Text>
+            <Text style={styles.credentialValue}>••••••••</Text>
+          </View>
+        </View>
+        
+        <View style={styles.buttonRow}>
+          <TouchableOpacity style={styles.editButton} onPress={handleEditCredentials} testID="edit-credentials">
+            <Edit3 size={16} color={colors.primary} />
+            <Text style={styles.editButtonText}>Edit</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.forgotButton} onPress={handleForgotPassword} testID="forgot-password">
+            <Text style={styles.forgotButtonText}>Forgot Password?</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <View style={styles.card}>
@@ -138,7 +109,15 @@ const styles = StyleSheet.create({
   content: { padding: 24 },
   card: { backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: colors.border, borderRadius: 12, padding: 16, marginBottom: 16 },
   cardTitle: { fontSize: 16, fontWeight: '600', color: colors.text, marginBottom: 12 },
-  input: { borderWidth: 1, borderColor: colors.border, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 12, marginBottom: 12, fontSize: 15, color: colors.text },
+  credentialRow: { marginBottom: 16 },
+  credentialInfo: { marginBottom: 8 },
+  credentialLabel: { fontSize: 14, color: colors.textSecondary, marginBottom: 4 },
+  credentialValue: { fontSize: 16, color: colors.text, fontWeight: '500' },
+  buttonRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 },
+  editButton: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F0F9FF', paddingVertical: 8, paddingHorizontal: 16, borderRadius: 8, borderWidth: 1, borderColor: colors.primary },
+  editButtonText: { color: colors.primary, fontSize: 14, fontWeight: '600', marginLeft: 6 },
+  forgotButton: { paddingVertical: 8, paddingHorizontal: 16 },
+  forgotButtonText: { color: colors.primary, fontSize: 14, textDecorationLine: 'underline' },
   button: { backgroundColor: colors.primary, paddingVertical: 12, borderRadius: 10, alignItems: 'center' },
   buttonText: { color: '#FFFFFF', fontSize: 15, fontWeight: '600' },
   secondaryButton: { backgroundColor: '#F1F5F9', paddingVertical: 10, borderRadius: 10, alignItems: 'center', paddingHorizontal: 16 },
