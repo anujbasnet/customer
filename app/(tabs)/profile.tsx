@@ -6,8 +6,8 @@ import {
   TouchableOpacity, 
   ScrollView,
   Image,
-  Alert,
-  Switch
+  Switch,
+  Modal
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { 
@@ -35,26 +35,16 @@ export default function ProfileScreen() {
   const { user, logout, selectedCity, isAuthenticated } = useAppStore();
   const { t, language } = useTranslation();
   const router = useRouter();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   
   const handleLogout = () => {
-    Alert.alert(
-      'Confirm Logout',
-      'Are you sure you want to log out?',
-      [
-        {
-          text: 'No',
-          style: 'cancel'
-        },
-        {
-          text: 'Yes',
-          style: 'destructive',
-          onPress: () => {
-            logout();
-            router.replace('/(tabs)');
-          }
-        }
-      ]
-    );
+    setShowLogoutModal(true);
+  };
+  
+  const confirmLogout = () => {
+    logout();
+    setShowLogoutModal(false);
+    router.replace('/(tabs)');
   };
 
   const handleLogin = () => {
@@ -94,9 +84,7 @@ export default function ProfileScreen() {
     {
       icon: <Star size={24} color={colors.primary} />,
       title: 'My Reviews',
-      onPress: () => {
-        Alert.alert('Coming Soon', 'My Reviews feature is coming soon.');
-      },
+      onPress: () => router.push('/my-reviews'),
     },
 
     {
@@ -229,11 +217,44 @@ export default function ProfileScreen() {
             activeOpacity={0.7}
             testID="logout-button"
           >
-            <LogOut size={24} color={colors.error} />
+            <LogOut size={20} color={colors.error} />
             <Text style={styles.logoutText}>Log out</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
+      
+      {/* Logout Confirmation Modal */}
+      <Modal
+        visible={showLogoutModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowLogoutModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Confirm Logout</Text>
+            <Text style={styles.modalMessage}>
+              Are you sure you want to log out?
+            </Text>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.cancelButton]}
+                onPress={() => setShowLogoutModal(false)}
+                testID="cancel-logout"
+              >
+                <Text style={styles.cancelButtonText}>No</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.confirmButton]}
+                onPress={confirmLogout}
+                testID="confirm-logout"
+              >
+                <Text style={styles.confirmButtonText}>Yes</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -342,19 +363,77 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 8,
     backgroundColor: '#FFF5F5',
     borderWidth: 1,
     borderColor: '#FED7D7',
     alignSelf: 'center',
-    minWidth: 120,
+    minWidth: 100,
   },
   logoutText: {
-    fontSize: 14,
+    fontSize: 13,
     color: colors.error,
-    marginLeft: 6,
+    marginLeft: 4,
     fontWeight: '500',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 24,
+    width: '100%',
+    maxWidth: 320,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.text,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  modalMessage: {
+    fontSize: 16,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    marginBottom: 24,
+    lineHeight: 22,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    gap: 12,
+    width: '100%',
+  },
+  modalButton: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  cancelButton: {
+    backgroundColor: '#F1F5F9',
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  confirmButton: {
+    backgroundColor: colors.error,
+  },
+  cancelButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  confirmButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
 });

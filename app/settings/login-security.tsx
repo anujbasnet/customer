@@ -1,27 +1,20 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Switch, Alert, ScrollView, Platform } from 'react-native';
-import { Stack } from 'expo-router';
+import { View, Text, StyleSheet, TouchableOpacity, Switch, ScrollView, Platform } from 'react-native';
+import { Stack, useRouter } from 'expo-router';
 import { colors } from '@/constants/colors';
 import { useAppStore } from '@/hooks/useAppStore';
 import { Edit3 } from 'lucide-react-native';
 
 export default function LoginSecurityScreen() {
   const { user, twoFactorEnabled, toggleTwoFactor, linkedAuthProviders, linkProvider, unlinkProvider } = useAppStore();
+  const router = useRouter();
 
   const handleEditCredentials = () => {
-    // Navigate to edit credentials screen
-    Alert.alert('Coming Soon', 'Edit credentials feature is coming soon.');
+    router.push('/edit-credentials');
   };
 
   const handleForgotPassword = () => {
-    Alert.alert(
-      'Reset Password',
-      'A password reset link will be sent to your email/phone number.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Send', onPress: () => Alert.alert('Sent', 'Password reset link sent successfully.') }
-      ]
-    );
+    router.push('/forgot-password');
   };
 
   return (
