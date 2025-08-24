@@ -56,19 +56,21 @@ export const useAppStore = create<AppState>()(
       language: 'en' as Language,
       setLanguage: (language: Language) => set({ language }),
       user: null,
-      setUser: (user: User | null) => set({ user, isAuthenticated: !!user }),
+      setUser: (user: User | null) => set({ user, isAuthenticated: !!user, isGuestMode: false }),
       isAuthenticated: false,
+      isGuestMode: false,
       selectedCity: '1', // Default to Tashkent
       setSelectedCity: (cityId: string | null) => set({ selectedCity: cityId }),
       login: async (email: string, password: string): Promise<void> => {
         try {
           const user = await mockLogin(email, password);
-          set({ user, isAuthenticated: true });
+          set({ user, isAuthenticated: true, isGuestMode: false });
         } catch (error) {
           throw error;
         }
       },
-      logout: () => set({ user: null, isAuthenticated: false }),
+      logout: () => set({ user: null, isAuthenticated: false, isGuestMode: false }),
+      enterGuestMode: () => set({ isGuestMode: true, isAuthenticated: true, user: null }),
       register: async (
         name: string, 
         email: string, 
@@ -82,7 +84,7 @@ export const useAppStore = create<AppState>()(
       ): Promise<void> => {
         try {
           const user = await mockRegister(name, email, password, additionalInfo);
-          set({ user, isAuthenticated: true });
+          set({ user, isAuthenticated: true, isGuestMode: false });
         } catch (error) {
           throw error;
         }

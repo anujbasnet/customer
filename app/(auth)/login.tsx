@@ -23,7 +23,7 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   
-  const { login } = useAppStore();
+  const { login, enterGuestMode } = useAppStore();
   const { t } = useTranslation();
   const router = useRouter();
   
@@ -44,6 +44,11 @@ export default function LoginScreen() {
     } finally {
       setLoading(false);
     }
+  };
+  
+  const handleGuestMode = () => {
+    enterGuestMode();
+    router.replace('/(tabs)');
   };
   
   return (
@@ -114,6 +119,14 @@ export default function LoginScreen() {
               </TouchableOpacity>
             </Link>
           </View>
+          
+          <TouchableOpacity 
+            style={styles.guestModeButton}
+            onPress={handleGuestMode}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.guestModeText}>{t.auth.guestMode}</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -192,6 +205,21 @@ const styles = StyleSheet.create({
   },
   registerLink: {
     color: colors.primary,
+    fontWeight: '500',
+  },
+  guestModeButton: {
+    marginTop: 24,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: 'transparent',
+    alignItems: 'center',
+  },
+  guestModeText: {
+    color: colors.textSecondary,
+    fontSize: 16,
     fontWeight: '500',
   },
 });

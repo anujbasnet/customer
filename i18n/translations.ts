@@ -25,6 +25,7 @@ type TranslationKeys = {
     noAccount: string;
     hasAccount: string;
     logout: string;
+    guestMode: string;
   };
   home: {
     title: string;
@@ -163,6 +164,7 @@ export const translations: Translations = {
       noAccount: "Don't have an account? Register",
       hasAccount: "Already have an account? Login",
       logout: "Logout",
+      guestMode: "Try with Guest mode",
     },
     home: {
       title: "Find and book services",
@@ -295,6 +297,7 @@ export const translations: Translations = {
       noAccount: "Нет аккаунта? Зарегистрироваться",
       hasAccount: "Уже есть аккаунт? Войти",
       logout: "Выйти",
+      guestMode: "Попробовать в гостевом режиме",
     },
     home: {
       title: "Найти и забронировать услуги",
@@ -427,6 +430,7 @@ export const translations: Translations = {
       noAccount: "Hisobingiz yo'qmi? Ro'yxatdan o'ting",
       hasAccount: "Hisobingiz bormi? Kiring",
       logout: "Chiqish",
+      guestMode: "Mehmon rejimida sinab ko'ring",
     },
     home: {
       title: "Xizmatlarni toping va band qiling",

@@ -132,10 +132,12 @@ export interface AppState {
   user: User | null;
   setUser: (user: User | null) => void;
   isAuthenticated: boolean;
+  isGuestMode: boolean;
   selectedCity: string | null;
   setSelectedCity: (cityId: string | null) => void;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  enterGuestMode: () => void;
   register: (
     name: string, 
     email: string, 

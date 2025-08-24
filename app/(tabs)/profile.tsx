@@ -32,7 +32,7 @@ import { cities } from '@/mocks/cities';
 import { LanguageSelector } from '@/components/LanguageSelector';
 
 export default function ProfileScreen() {
-  const { user, logout, selectedCity, isAuthenticated } = useAppStore();
+  const { user, logout, selectedCity, isAuthenticated, isGuestMode } = useAppStore();
   const { t, language } = useTranslation();
   const router = useRouter();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -65,44 +65,60 @@ export default function ProfileScreen() {
     }
   };
   
-  const menuItems = useMemo(() => [
-    {
-      icon: <Edit3 size={24} color={colors.primary} />,
-      title: 'Edit profile',
-      onPress: () => router.push('/edit-profile'),
-    },
-    {
-      icon: <Settings size={24} color={colors.primary} />,
-      title: 'Settings',
-      onPress: () => router.push('/settings'),
-    },
-    {
-      icon: <Globe size={24} color={colors.primary} />,
-      title: t.profile.language,
-      type: 'language',
-    },
-    {
-      icon: <Star size={24} color={colors.primary} />,
-      title: 'My Reviews',
-      onPress: () => router.push('/my-reviews'),
-    },
-
-    {
-      icon: <HelpCircle size={24} color={colors.primary} />,
-      title: 'Help & Support',
-      onPress: () => router.push('/help-support'),
-    },
-    {
-      icon: <Info size={24} color={colors.primary} />,
-      title: 'About',
-      onPress: () => router.push('/about'),
-    },
-    {
-      icon: <Info size={24} color={colors.primary} />,
-      title: 'Try Rejaly Business App',
-      onPress: () => router.push('/business-app-info'),
-    },
-  ], [router, t]);
+  const menuItems = useMemo(() => {
+    const baseItems = [
+      {
+        icon: <Globe size={24} color={colors.primary} />,
+        title: t.profile.language,
+        type: 'language',
+      },
+      {
+        icon: <HelpCircle size={24} color={colors.primary} />,
+        title: 'Help & Support',
+        onPress: () => router.push('/help-support'),
+      },
+      {
+        icon: <Info size={24} color={colors.primary} />,
+        title: 'About',
+        onPress: () => router.push('/about'),
+      },
+      {
+        icon: <Info size={24} color={colors.primary} />,
+        title: 'Try Rejaly Business App',
+        onPress: () => router.push('/business-app-info'),
+      },
+    ];
+    
+    if (isGuestMode) {
+      return [
+        {
+          icon: <User size={24} color={colors.primary} />,
+          title: 'Login / Register',
+          onPress: () => router.push('/(auth)'),
+        },
+        ...baseItems
+      ];
+    }
+    
+    return [
+      {
+        icon: <Edit3 size={24} color={colors.primary} />,
+        title: 'Edit profile',
+        onPress: () => router.push('/edit-profile'),
+      },
+      {
+        icon: <Settings size={24} color={colors.primary} />,
+        title: 'Settings',
+        onPress: () => router.push('/settings'),
+      },
+      ...baseItems,
+      {
+        icon: <Star size={24} color={colors.primary} />,
+        title: 'My Reviews',
+        onPress: () => router.push('/my-reviews'),
+      },
+    ];
+  }, [router, t, isGuestMode]);
 
   const renderMenuItem = (item: any, index: number) => {
     switch (item.type) {
@@ -149,8 +165,8 @@ export default function ProfileScreen() {
     }
   };
 
-  // If not authenticated, show login prompt
-  if (!isAuthenticated) {
+  // If not authenticated and not in guest mode, show login prompt
+  if (!isAuthenticated && !isGuestMode) {
     return (
       <View style={styles.notAuthContainer}>
         <View style={styles.avatarPlaceholder}>
@@ -191,15 +207,26 @@ export default function ProfileScreen() {
             )}
             
             <View style={styles.profileInfo}>
-              <Text style={styles.name}>{user?.name || 'User'}</Text>
-              <View style={styles.contactRow}>
-                <Phone size={14} color={colors.textSecondary} />
-                <Text style={styles.contactText}>{user?.phone || '+1 234 567 8900'}</Text>
-              </View>
-              <View style={styles.contactRow}>
-                <MapPin size={14} color={colors.textSecondary} />
-                <Text style={styles.contactText}>{getCurrentCityName()}</Text>
-              </View>
+              <Text style={styles.name}>
+                {isGuestMode ? 'Guest User' : (user?.name || 'User')}
+              </Text>
+              {!isGuestMode && (
+                <>
+                  <View style={styles.contactRow}>
+                    <Phone size={14} color={colors.textSecondary} />
+                    <Text style={styles.contactText}>{user?.phone || '+1 234 567 8900'}</Text>
+                  </View>
+                  <View style={styles.contactRow}>
+                    <MapPin size={14} color={colors.textSecondary} />
+                    <Text style={styles.contactText}>{getCurrentCityName()}</Text>
+                  </View>
+                </>
+              )}
+              {isGuestMode && (
+                <Text style={styles.guestModeText}>
+                  You're browsing in guest mode. Login to access all features.
+                </Text>
+              )}
             </View>
           </View>
         </View>
@@ -210,17 +237,21 @@ export default function ProfileScreen() {
         </View>
 
         {/* Logout Button */}
-        <View style={styles.logoutContainer}>
-          <TouchableOpacity 
-            style={styles.logoutButton}
-            onPress={handleLogout}
-            activeOpacity={0.7}
-            testID="logout-button"
-          >
-            <LogOut size={20} color={colors.error} />
-            <Text style={styles.logoutText}>Log out</Text>
-          </TouchableOpacity>
-        </View>
+        {(isAuthenticated || isGuestMode) && (
+          <View style={styles.logoutContainer}>
+            <TouchableOpacity 
+              style={styles.logoutButton}
+              onPress={handleLogout}
+              activeOpacity={0.7}
+              testID="logout-button"
+            >
+              <LogOut size={20} color={colors.error} />
+              <Text style={styles.logoutText}>
+                {isGuestMode ? 'Exit Guest Mode' : 'Log out'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </ScrollView>
       
       {/* Logout Confirmation Modal */}
@@ -232,9 +263,14 @@ export default function ProfileScreen() {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Confirm Logout</Text>
+            <Text style={styles.modalTitle}>
+              {isGuestMode ? 'Exit Guest Mode' : 'Confirm Logout'}
+            </Text>
             <Text style={styles.modalMessage}>
-              Are you sure you want to log out?
+              {isGuestMode 
+                ? 'Are you sure you want to exit guest mode?' 
+                : 'Are you sure you want to log out?'
+              }
             </Text>
             <View style={styles.modalButtons}>
               <TouchableOpacity
@@ -435,5 +471,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#FFFFFF',
+  },
+  guestModeText: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    fontStyle: 'italic',
+    marginTop: 4,
   },
 });

@@ -33,7 +33,7 @@ import { CitySelectionModal } from '@/components/CitySelectionModal';
 export default function HomeScreen() {
   const { t } = useTranslation();
   const router = useRouter();
-  const { selectedCity, favorites } = useAppStore();
+  const { selectedCity, favorites, isAuthenticated, isGuestMode } = useAppStore();
   const [searchQuery, setSearchQuery] = useState('');
   
   // Get current city name
@@ -176,22 +176,43 @@ export default function HomeScreen() {
       )}
       
       {/* My Appointments */}
-      <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>{t.home.myAppointments}</Text>
-        </View>
-        
-        {upcomingAppointments.length > 0 ? (
-          <AppointmentReminder
-            appointment={upcomingAppointments[0]}
-            onPress={handleAppointmentPress}
-          />
-        ) : (
-          <View style={styles.emptyStateContainer}>
-            <Text style={styles.emptyStateText}>{t.home.noUpcomingAppointments}</Text>
+      {!isGuestMode && (
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>{t.home.myAppointments}</Text>
           </View>
-        )}
-      </View>
+          
+          {upcomingAppointments.length > 0 ? (
+            <AppointmentReminder
+              appointment={upcomingAppointments[0]}
+              onPress={handleAppointmentPress}
+            />
+          ) : (
+            <View style={styles.emptyStateContainer}>
+              <Text style={styles.emptyStateText}>{t.home.noUpcomingAppointments}</Text>
+            </View>
+          )}
+        </View>
+      )}
+      
+      {/* Guest Mode Notice */}
+      {isGuestMode && (
+        <View style={styles.section}>
+          <View style={styles.guestNoticeContainer}>
+            <Text style={styles.guestNoticeTitle}>Welcome, Guest!</Text>
+            <Text style={styles.guestNoticeText}>
+              You're browsing in guest mode. Login or register to book appointments and access all features.
+            </Text>
+            <TouchableOpacity 
+              style={styles.guestLoginButton}
+              onPress={() => router.push('/(auth)')}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.guestLoginButtonText}>Login / Register</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
       
       {/* Visited and Favorites */}
       <View style={styles.section}>
@@ -416,5 +437,36 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     justifyContent: 'space-between',
+  },
+  guestNoticeContainer: {
+    backgroundColor: '#F0F9FF',
+    borderRadius: 12,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: '#BAE6FD',
+  },
+  guestNoticeTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.primary,
+    marginBottom: 8,
+  },
+  guestNoticeText: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    lineHeight: 20,
+    marginBottom: 16,
+  },
+  guestLoginButton: {
+    backgroundColor: colors.primary,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+  },
+  guestLoginButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
   },
 });

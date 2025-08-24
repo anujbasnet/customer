@@ -20,7 +20,7 @@ export default function AppointmentsScreen() {
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
   const { t } = useTranslation();
   const router = useRouter();
-  const { isAuthenticated } = useAppStore();
+  const { isAuthenticated, isGuestMode } = useAppStore();
   
   const upcomingAppointments = getUpcomingAppointments();
   const pastAppointments = getPastAppointments();
@@ -35,8 +35,8 @@ export default function AppointmentsScreen() {
     router.push('/(auth)');
   };
 
-  // If not authenticated, show login prompt
-  if (!isAuthenticated) {
+  // If not authenticated and not in guest mode, show login prompt
+  if (!isAuthenticated && !isGuestMode) {
     return (
       <View style={styles.notAuthContainer}>
         <Text style={styles.notAuthTitle}>{t.appointments.noAppointments}</Text>
@@ -45,6 +45,23 @@ export default function AppointmentsScreen() {
         </Text>
         <Button
           title={t.auth.login}
+          onPress={handleLogin}
+          style={styles.loginButton}
+        />
+      </View>
+    );
+  }
+  
+  // If in guest mode, show guest mode message
+  if (isGuestMode) {
+    return (
+      <View style={styles.notAuthContainer}>
+        <Text style={styles.notAuthTitle}>Guest Mode</Text>
+        <Text style={styles.notAuthText}>
+          Appointments are not available in guest mode. Please login or register to book and manage appointments.
+        </Text>
+        <Button
+          title="Login / Register"
           onPress={handleLogin}
           style={styles.loginButton}
         />

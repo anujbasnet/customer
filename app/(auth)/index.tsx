@@ -3,10 +3,10 @@ import { Redirect } from 'expo-router';
 import { useAppStore } from '@/hooks/useAppStore';
 
 export default function AuthIndex() {
-  const { isAuthenticated } = useAppStore();
+  const { isAuthenticated, isGuestMode } = useAppStore();
   
   // Redirect to the appropriate screen based on authentication status
-  if (isAuthenticated) {
+  if (isAuthenticated || isGuestMode) {
     return <Redirect href="/(tabs)" />;
   }
   
