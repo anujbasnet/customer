@@ -1,11 +1,14 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, Linking, ScrollView } from 'react-native';
+import { Stack } from 'expo-router';
 import { colors } from '@/constants/colors';
 
 export default function BusinessAppInfoScreen() {
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>Rejaly Business</Text>
+    <>
+      <Stack.Screen options={{ title: 'Try Rejaly Business App' }} />
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+        <Text style={styles.title}>Rejaly Business</Text>
       <View style={styles.row}>
         <Image
           source={{ uri: 'https://images.unsplash.com/photo-1593702207404-1bad1076d2d3?q=80&w=1887&auto=format&fit=crop' }}
@@ -32,7 +35,8 @@ export default function BusinessAppInfoScreen() {
           </View>
         </View>
       </View>
-    </ScrollView>
+      </ScrollView>
+    </>
   );
 }
 

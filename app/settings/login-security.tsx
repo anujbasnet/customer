@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Switch, Alert, ScrollView, Platform } from 'react-native';
+import { Stack } from 'expo-router';
 import { colors } from '@/constants/colors';
 import { useAppStore } from '@/hooks/useAppStore';
 
@@ -35,8 +36,9 @@ export default function LoginSecurityScreen() {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>Login & Security</Text>
+    <>
+      <Stack.Screen options={{ title: 'Login & Security' }} />
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
 
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Login Email</Text>
@@ -126,14 +128,14 @@ export default function LoginSecurityScreen() {
           )}
         </View>
       </View>
-    </ScrollView>
+      </ScrollView>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FFFFFF' },
   content: { padding: 24 },
-  title: { fontSize: 22, fontWeight: '600', color: colors.text, marginBottom: 16 },
   card: { backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: colors.border, borderRadius: 12, padding: 16, marginBottom: 16 },
   cardTitle: { fontSize: 16, fontWeight: '600', color: colors.text, marginBottom: 12 },
   input: { borderWidth: 1, borderColor: colors.border, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 12, marginBottom: 12, fontSize: 15, color: colors.text },

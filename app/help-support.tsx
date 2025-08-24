@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Linking, Alert, ScrollView } from 'react-native';
+import { Stack } from 'expo-router';
 import { colors } from '@/constants/colors';
 
 export default function HelpSupportScreen() {
@@ -19,8 +20,10 @@ export default function HelpSupportScreen() {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>How can we help?</Text>
+    <>
+      <Stack.Screen options={{ title: 'Help & Support' }} />
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+        <Text style={styles.title}>How can we help?</Text>
       <Text style={styles.subtitle}>Send us your suggestion or a problem you&apos;re facing and we will get back to you shortly.</Text>
 
       <View style={styles.row}>
@@ -59,7 +62,8 @@ export default function HelpSupportScreen() {
       <TouchableOpacity style={styles.button} onPress={handleSend} testID="hs-send">
         <Text style={styles.buttonText}>Send</Text>
       </TouchableOpacity>
-    </ScrollView>
+      </ScrollView>
+    </>
   );
 }
 
