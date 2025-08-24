@@ -86,6 +86,15 @@ function RootLayoutNav() {
       <Stack.Screen name="appointment/[id]" options={{ headerShown: true }} />
       <Stack.Screen name="category/[id]" options={{ headerShown: true }} />
       <Stack.Screen name="business/[id]" options={{ headerShown: true }} />
+      <Stack.Screen name="edit-profile" options={{ headerShown: true }} />
+      <Stack.Screen name="map" options={{ headerShown: true }} />
+      <Stack.Screen name="booking-confirmed" options={{ headerShown: true }} />
+      <Stack.Screen name="settings/index" options={{ headerShown: true }} />
+      <Stack.Screen name="settings/login-security" options={{ headerShown: true }} />
+      <Stack.Screen name="settings/payment" options={{ headerShown: true }} />
+      <Stack.Screen name="help-support" options={{ headerShown: true }} />
+      <Stack.Screen name="about" options={{ headerShown: true }} />
+      <Stack.Screen name="business-app-info" options={{ headerShown: true }} />
     </Stack>
   );
 }
