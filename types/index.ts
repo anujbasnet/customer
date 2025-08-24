@@ -152,4 +152,9 @@ export interface AppState {
   addToFavorites: (business: Business) => void;
   removeFromFavorites: (businessId: string) => void;
   isFavorite: (businessId: string) => boolean;
+  twoFactorEnabled: boolean;
+  toggleTwoFactor: (enabled: boolean) => void;
+  linkedAuthProviders: { google: boolean; facebook: boolean };
+  linkProvider: (provider: 'google' | 'facebook') => void;
+  unlinkProvider: (provider: 'google' | 'facebook') => void;
 }

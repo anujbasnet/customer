@@ -94,6 +94,17 @@ export const useAppStore = create<AppState>()(
           set({ user: updatedUser });
         }
       },
+      twoFactorEnabled: false,
+      toggleTwoFactor: (enabled: boolean) => set({ twoFactorEnabled: enabled }),
+      linkedAuthProviders: { google: false, facebook: false },
+      linkProvider: (provider: 'google' | 'facebook') => {
+        const current = get().linkedAuthProviders;
+        set({ linkedAuthProviders: { ...current, [provider]: true } as { google: boolean; facebook: boolean } });
+      },
+      unlinkProvider: (provider: 'google' | 'facebook') => {
+        const current = get().linkedAuthProviders;
+        set({ linkedAuthProviders: { ...current, [provider]: false } as { google: boolean; facebook: boolean } });
+      },
       favorites: [],
       addToFavorites: (business: Business) => {
         const currentFavorites = get().favorites;
@@ -111,7 +122,7 @@ export const useAppStore = create<AppState>()(
       },
     }),
     {
-      name: 'timely-storage',
+      name: 'rejaly-storage',
       storage: createJSONStorage(() => AsyncStorage),
     }
   )

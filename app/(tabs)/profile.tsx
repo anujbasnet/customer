@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { 
   View, 
   Text, 
@@ -6,7 +6,6 @@ import {
   TouchableOpacity, 
   ScrollView,
   Image,
-  Switch,
   Alert
 } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -32,8 +31,6 @@ import { cities } from '@/mocks/cities';
 import { LanguageSelector } from '@/components/LanguageSelector';
 
 export default function ProfileScreen() {
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  
   const { user, logout, selectedCity, isAuthenticated } = useAppStore();
   const { t, language } = useTranslation();
   const router = useRouter();
@@ -77,7 +74,7 @@ export default function ProfileScreen() {
     }
   };
   
-  const menuItems = [
+  const menuItems = useMemo(() => [
     {
       icon: <Edit3 size={24} color={colors.primary} />,
       title: 'Edit profile',
@@ -85,8 +82,8 @@ export default function ProfileScreen() {
     },
     {
       icon: <Settings size={24} color={colors.primary} />,
-      title: 'Profile settings',
-      onPress: () => {},
+      title: 'Settings',
+      onPress: () => router.push('/settings'),
     },
     {
       icon: <Globe size={24} color={colors.primary} />,
@@ -98,24 +95,23 @@ export default function ProfileScreen() {
       title: 'My Reviews',
       onPress: () => {},
     },
-    {
-      icon: <Bell size={24} color={colors.primary} />,
-      title: 'App settings',
-      type: 'switch',
-      value: notificationsEnabled,
-      onValueChange: setNotificationsEnabled,
-    },
+
     {
       icon: <HelpCircle size={24} color={colors.primary} />,
       title: 'Help & Support',
-      onPress: () => {},
+      onPress: () => router.push('/help-support'),
     },
     {
       icon: <Info size={24} color={colors.primary} />,
       title: 'About',
-      onPress: () => {},
+      onPress: () => router.push('/about'),
     },
-  ];
+    {
+      icon: <Info size={24} color={colors.primary} />,
+      title: 'Try Rejaly Business App',
+      onPress: () => router.push('/business-app-info'),
+    },
+  ], [router, t]);
 
   const renderMenuItem = (item: any, index: number) => {
     switch (item.type) {
@@ -221,13 +217,14 @@ export default function ProfileScreen() {
         <View style={styles.menuContainer}>
           {menuItems.map((item, index) => renderMenuItem(item, index))}
         </View>
-        
+
         {/* Logout Button */}
         <View style={styles.logoutContainer}>
           <TouchableOpacity 
             style={styles.logoutButton}
             onPress={handleLogout}
             activeOpacity={0.7}
+            testID="logout-button"
           >
             <LogOut size={24} color={colors.error} />
             <Text style={styles.logoutText}>Log out</Text>
@@ -342,15 +339,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 24,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
     borderRadius: 12,
     backgroundColor: '#FFF5F5',
     borderWidth: 1,
     borderColor: '#FED7D7',
   },
   logoutText: {
-    fontSize: 16,
+    fontSize: 15,
     color: colors.error,
     marginLeft: 8,
     fontWeight: '500',
