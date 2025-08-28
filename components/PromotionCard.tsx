@@ -28,10 +28,15 @@ export const PromotionCard: React.FC<PromotionCardProps> = ({ promotion, onPress
     });
   };
   
+  const handlePress = () => {
+    // Navigate to booking with promotion ID
+    onPress(promotion);
+  };
+  
   return (
     <TouchableOpacity 
       style={styles.card}
-      onPress={() => onPress(promotion)}
+      onPress={handlePress}
       activeOpacity={0.7}
     >
       <Image

@@ -69,7 +69,8 @@ export default function HomeScreen() {
   };
   
   const handlePromotionPress = (promotion: any) => {
-    router.push(`/business/${promotion.businessId}`);
+    // Navigate to business with promotion context
+    router.push(`/business/${promotion.businessId}?promotionId=${promotion.id}`);
   };
   
   const handleSearch = () => {

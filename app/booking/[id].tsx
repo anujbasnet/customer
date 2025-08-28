@@ -106,8 +106,8 @@ export default function BookingScreen() {
   };
   
   const handleConfirmBooking = async () => {
-    // Check if user is in guest mode
-    if (isGuestMode) {
+    // Check if user is in guest mode or not authenticated
+    if (isGuestMode || !isAuthenticated) {
       Alert.alert(
         "Login Required",
         "You need to login or register to book an appointment.",
@@ -122,11 +122,6 @@ export default function BookingScreen() {
           }
         ]
       );
-      return;
-    }
-
-    if (!isAuthenticated) {
-      router.push('/(auth)/login');
       return;
     }
 
@@ -198,8 +193,38 @@ export default function BookingScreen() {
   
   const dates = generateDates();
   
+  // Calculate discount if promotion is applied
+  const getDiscountInfo = () => {
+    if (!promotionId) return null;
+    
+    // Find promotion by ID
+    const promotion = {
+      id: '1',
+      discount: '30%',
+      businessId: '1'
+    }; // This would normally come from promotions data
+    
+    if (promotion && promotion.businessId === business.id) {
+      const discountPercent = parseInt(promotion.discount.replace('%', ''));
+      const discountAmount = Math.round((service.price * discountPercent) / 100);
+      const finalPrice = service.price - discountAmount;
+      
+      return {
+        originalPrice: service.price,
+        discountPercent,
+        discountAmount,
+        finalPrice
+      };
+    }
+    
+    return null;
+  };
+  
+  const discountInfo = getDiscountInfo();
+  
   // Format price to include thousands separators
-  const formattedPrice = service.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+  const formattedPrice = (discountInfo ? discountInfo.finalPrice : service.price).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+  const formattedOriginalPrice = service.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
   
   return (
     <>
@@ -328,7 +353,15 @@ export default function BookingScreen() {
         
         <View style={styles.footer}>
           <View style={styles.summaryContainer}>
-            <Text style={styles.summaryTitle}>{t.booking.price}</Text>
+            <View style={styles.priceContainer}>
+              <Text style={styles.summaryTitle}>{t.booking.price}</Text>
+              {discountInfo && (
+                <View style={styles.discountInfo}>
+                  <Text style={styles.originalPrice}>{formattedOriginalPrice} {t.common.sum}</Text>
+                  <Text style={styles.discountText}>-{discountInfo.discountPercent}% ({discountInfo.discountAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} {t.common.sum})</Text>
+                </View>
+              )}
+            </View>
             <Text style={styles.summaryPrice}>{formattedPrice} {t.common.sum}</Text>
           </View>
           <Button
@@ -488,12 +521,29 @@ const styles = StyleSheet.create({
   summaryContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     marginBottom: 16,
+  },
+  priceContainer: {
+    flex: 1,
   },
   summaryTitle: {
     fontSize: 16,
     color: colors.text,
+    marginBottom: 4,
+  },
+  discountInfo: {
+    marginTop: 4,
+  },
+  originalPrice: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    textDecorationLine: 'line-through',
+  },
+  discountText: {
+    fontSize: 12,
+    color: colors.error,
+    fontWeight: '500',
   },
   summaryPrice: {
     fontSize: 18,

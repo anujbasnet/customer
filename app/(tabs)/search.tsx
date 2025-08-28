@@ -119,7 +119,7 @@ export default function SearchScreen() {
           onPress={() => setShowCityModal(true)}
           activeOpacity={0.7}
         >
-          <MapPin size={16} color={colors.textSecondary} style={styles.cityIcon} />
+          <MapPin size={16} color={colors.primary} style={styles.cityIcon} />
           <Text style={styles.cityText}>{selectedCityName}</Text>
         </TouchableOpacity>
         <TouchableOpacity 
@@ -265,7 +265,7 @@ const styles = StyleSheet.create({
   cityText: {
     fontSize: 16,
     fontWeight: '500',
-    color: colors.text,
+    color: colors.primary,
   },
   mapsButton: {
     flexDirection: 'row',
