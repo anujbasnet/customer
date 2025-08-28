@@ -20,10 +20,11 @@ import { Service, Employee, TimeSlot } from '@/types';
 import { trpc } from '@/lib/trpc';
 
 export default function BookingScreen() {
-  const { id, serviceId, employeeId } = useLocalSearchParams<{ 
+  const { id, serviceId, employeeId, promotionId } = useLocalSearchParams<{ 
     id: string, 
     serviceId: string,
-    employeeId?: string 
+    employeeId?: string,
+    promotionId?: string
   }>();
   
   const [selectedDate, setSelectedDate] = useState<string>('');
@@ -33,7 +34,7 @@ export default function BookingScreen() {
   
   const { t, language } = useTranslation();
   const router = useRouter();
-  const { isAuthenticated, user } = useAppStore();
+  const { isAuthenticated, user, isGuestMode } = useAppStore();
   
   const business = getBusinessById(id);
   const service = business?.services.find(s => s.id === serviceId);
@@ -105,6 +106,25 @@ export default function BookingScreen() {
   };
   
   const handleConfirmBooking = async () => {
+    // Check if user is in guest mode
+    if (isGuestMode) {
+      Alert.alert(
+        "Login Required",
+        "You need to login or register to book an appointment.",
+        [
+          {
+            text: "Cancel",
+            style: "cancel"
+          },
+          {
+            text: "Login / Register",
+            onPress: () => router.push('/(auth)/login')
+          }
+        ]
+      );
+      return;
+    }
+
     if (!isAuthenticated) {
       router.push('/(auth)/login');
       return;
@@ -138,22 +158,18 @@ export default function BookingScreen() {
       // Simulate API call - in real app this would be a tRPC mutation
       await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // Show success alert and navigate to appointments
-      Alert.alert(
-        'Booking Confirmed!',
-        `Your appointment for ${getLocalizedServiceName()} at ${business.name} has been booked for ${selectedDate} at ${selectedTime}.`,
-        [
-          {
-            text: 'View Appointments',
-            onPress: () => router.push('/(tabs)/appointments')
-          },
-          {
-            text: 'Back to Home',
-            onPress: () => router.push('/(tabs)'),
-            style: 'default'
-          }
-        ]
-      );
+      // Navigate to booking confirmed screen with details
+      router.push({
+        pathname: '/booking-confirmed',
+        params: {
+          businessName: business.name,
+          serviceName: getLocalizedServiceName(),
+          date: selectedDate,
+          time: selectedTime,
+          employeeName: selectedEmployee?.name || business.employees[0]?.name || '',
+          price: service.price.toString()
+        }
+      });
     } catch (error) {
       console.error('Booking error:', error);
       Alert.alert('Error', 'Failed to create booking. Please try again.');

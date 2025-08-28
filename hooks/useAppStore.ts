@@ -69,7 +69,9 @@ export const useAppStore = create<AppState>()(
           throw error;
         }
       },
-      logout: () => set({ user: null, isAuthenticated: false, isGuestMode: false }),
+      logout: () => {
+        set({ user: null, isAuthenticated: false, isGuestMode: false });
+      },
       enterGuestMode: () => set({ isGuestMode: true, isAuthenticated: true, user: null }),
       register: async (
         name: string, 

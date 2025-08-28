@@ -44,7 +44,7 @@ export default function ProfileScreen() {
   const confirmLogout = () => {
     logout();
     setShowLogoutModal(false);
-    router.replace('/(tabs)');
+    router.replace('/(auth)/login');
   };
 
   const handleLogin = () => {

@@ -184,14 +184,7 @@ export default function RegisterScreen() {
             />
           )}
           
-          <Input
-            label={t.profile.address}
-            placeholder="Street, City, Country"
-            value={address}
-            onChangeText={setAddress}
-            multiline
-            numberOfLines={2}
-          />
+
           
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
           
