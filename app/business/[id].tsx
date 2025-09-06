@@ -31,7 +31,7 @@ import { Service, Employee } from '@/types';
 const { width } = Dimensions.get('window');
 
 export default function BusinessScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, promotionId } = useLocalSearchParams<{ id: string; promotionId?: string }>();
   const [activeTab, setActiveTab] = useState<'services' | 'about' | 'reviews'>('services');
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
@@ -122,7 +122,12 @@ export default function BusinessScreen() {
     }
 
     if (selectedService) {
-      router.push(`/booking/${business.id}?serviceId=${selectedService.id}${selectedEmployee ? `&employeeId=${selectedEmployee.id}` : ''}`);
+      const params = new URLSearchParams({
+        serviceId: selectedService.id,
+        ...(selectedEmployee && { employeeId: selectedEmployee.id }),
+        ...(promotionId && { promotionId })
+      });
+      router.push(`/booking/${business.id}?${params.toString()}`);
     }
   };
   
@@ -279,20 +284,32 @@ export default function BusinessScreen() {
                 )}
                 
                 <Text style={styles.sectionTitle}>{t.business.services}</Text>
+                {promotionId && (
+                  <View style={styles.promotionNotice}>
+                    <Text style={styles.promotionNoticeText}>
+                      🎉 Special promotion applied! Select a service to see discounted pricing.
+                    </Text>
+                  </View>
+                )}
                 {business.services.length > 0 ? (
-                  business.services.map((service) => (
-                    <ServiceCard
-                      key={service.id}
-                      service={{
-                        ...service,
-                        name: getLocalizedServiceName(service),
-                        description: getLocalizedServiceDescription(service)
-                      }}
-                      selected={selectedService?.id === service.id}
-                      onPress={handleServicePress}
-                      currencySymbol={t.common.sum}
-                    />
-                  ))
+                  business.services.map((service) => {
+                    // Check if this service is part of the promotion
+                    const isPromotionalService = service.isPromotion && service.promotionId === promotionId;
+                    
+                    return (
+                      <ServiceCard
+                        key={service.id}
+                        service={{
+                          ...service,
+                          name: getLocalizedServiceName(service),
+                          description: getLocalizedServiceDescription(service)
+                        }}
+                        selected={selectedService?.id === service.id || isPromotionalService}
+                        onPress={handleServicePress}
+                        currencySymbol={t.common.sum}
+                      />
+                    );
+                  })
                 ) : (
                   <Text style={styles.emptyText}>{t.business.noServices}</Text>
                 )}
@@ -586,5 +603,18 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.textSecondary,
     lineHeight: 20,
+  },
+  promotionNotice: {
+    backgroundColor: colors.primary + '15',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+    borderLeftWidth: 4,
+    borderLeftColor: colors.primary,
+  },
+  promotionNoticeText: {
+    fontSize: 14,
+    color: colors.primary,
+    fontWeight: '500',
   },
 });

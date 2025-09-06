@@ -345,6 +345,20 @@ export const businesses: Business[] = [
         descriptionUz: 'Dam olish pedikür lak bilan',
         duration: 60,
         price: 100000
+      },
+      {
+        id: '4004',
+        name: 'Manicure + Pedicure Combo',
+        nameRu: 'Комбо маникюр + педикюр',
+        nameUz: 'Manikür + pedikür kombinatsiyasi',
+        description: 'Free manicure with pedicure - Special promotion offer',
+        descriptionRu: 'Бесплатный маникюр с педикюром - Специальное предложение',
+        descriptionUz: 'Pedikür bilan bepul manikür - Maxsus aksiya taklifi',
+        duration: 105,
+        price: 100000,
+        originalPrice: 180000,
+        isPromotion: true,
+        promotionId: '2'
       }
     ]
   },

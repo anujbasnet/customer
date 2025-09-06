@@ -24,6 +24,7 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
 }) => {
   // Format price to include thousands separators
   const formattedPrice = service.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+  const formattedOriginalPrice = service.originalPrice?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
   
   return (
     <TouchableOpacity 
@@ -45,11 +46,27 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
               {service.duration} min
             </Text>
           </View>
-          <View style={styles.detail}>
+          <View style={styles.priceDetail}>
             <DollarSign size={16} color={selected ? '#FFFFFF' : colors.textSecondary} />
-            <Text style={[styles.detailText, selected && styles.selectedText]}>
-              {formattedPrice} {currencySymbol}
-            </Text>
+            <View style={styles.priceContainer}>
+              {service.isPromotion && service.originalPrice ? (
+                <>
+                  <Text style={[styles.originalPrice, selected && styles.selectedOriginalPrice]}>
+                    {formattedOriginalPrice} {currencySymbol}
+                  </Text>
+                  <Text style={[styles.detailText, selected && styles.selectedText]}>
+                    {formattedPrice} {currencySymbol}
+                  </Text>
+                  <Text style={[styles.promotionBadge, selected && styles.selectedPromotionBadge]}>
+                    SPECIAL OFFER
+                  </Text>
+                </>
+              ) : (
+                <Text style={[styles.detailText, selected && styles.selectedText]}>
+                  {formattedPrice} {currencySymbol}
+                </Text>
+              )}
+            </View>
           </View>
         </View>
       </View>
@@ -95,9 +112,37 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  priceDetail: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    justifyContent: 'flex-end',
+  },
+  priceContainer: {
+    alignItems: 'flex-end',
+    marginLeft: 4,
+  },
   detailText: {
     fontSize: 14,
     color: colors.textSecondary,
     marginLeft: 4,
+  },
+  originalPrice: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    textDecorationLine: 'line-through',
+    marginBottom: 2,
+  },
+  selectedOriginalPrice: {
+    color: 'rgba(255, 255, 255, 0.7)',
+  },
+  promotionBadge: {
+    fontSize: 10,
+    color: colors.primary,
+    fontWeight: '600',
+    marginTop: 2,
+  },
+  selectedPromotionBadge: {
+    color: '#FFFFFF',
   },
 });

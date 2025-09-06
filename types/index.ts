@@ -82,6 +82,9 @@ export interface Service {
   descriptionUz?: string;
   duration: number; // in minutes
   price: number;
+  originalPrice?: number; // for promotional services
+  isPromotion?: boolean;
+  promotionId?: string;
 }
 
 export interface PortfolioItem {

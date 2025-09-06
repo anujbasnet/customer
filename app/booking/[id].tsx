@@ -16,6 +16,7 @@ import { colors } from '@/constants/colors';
 import { Button } from '@/components/Button';
 import { EmployeeCard } from '@/components/EmployeeCard';
 import { getBusinessById } from '@/mocks/businesses';
+import { getPromotions } from '@/mocks/promotions';
 import { Service, Employee, TimeSlot } from '@/types';
 import { trpc } from '@/lib/trpc';
 
@@ -195,26 +196,49 @@ export default function BookingScreen() {
   
   // Calculate discount if promotion is applied
   const getDiscountInfo = () => {
-    if (!promotionId) return null;
-    
-    // Find promotion by ID
-    const promotion = {
-      id: '1',
-      discount: '30%',
-      businessId: '1'
-    }; // This would normally come from promotions data
-    
-    if (promotion && promotion.businessId === business.id) {
-      const discountPercent = parseInt(promotion.discount.replace('%', ''));
-      const discountAmount = Math.round((service.price * discountPercent) / 100);
-      const finalPrice = service.price - discountAmount;
+    // Check if service itself is a promotion
+    if (service.isPromotion && service.originalPrice) {
+      const discountAmount = service.originalPrice - service.price;
+      const discountPercent = Math.round((discountAmount / service.originalPrice) * 100);
       
       return {
-        originalPrice: service.price,
+        originalPrice: service.originalPrice,
         discountPercent,
         discountAmount,
-        finalPrice
+        finalPrice: service.price,
+        isServicePromotion: true
       };
+    }
+    
+    // Check if promotion is applied via promotionId
+    if (!promotionId) return null;
+    
+    const promotions = getPromotions();
+    const promotion = promotions.find(p => p.id === promotionId);
+    
+    if (promotion && promotion.businessId === business.id) {
+      if (promotion.discount === 'Free Service') {
+        // Handle "Free Manicure with Pedicure" type promotions
+        return {
+          originalPrice: service.price,
+          discountPercent: 0,
+          discountAmount: 0,
+          finalPrice: service.price,
+          promotionText: promotion.title
+        };
+      } else {
+        // Handle percentage discounts
+        const discountPercent = parseInt(promotion.discount.replace('%', ''));
+        const discountAmount = Math.round((service.price * discountPercent) / 100);
+        const finalPrice = service.price - discountAmount;
+        
+        return {
+          originalPrice: service.price,
+          discountPercent,
+          discountAmount,
+          finalPrice
+        };
+      }
     }
     
     return null;
@@ -358,7 +382,14 @@ export default function BookingScreen() {
               {discountInfo && (
                 <View style={styles.discountInfo}>
                   <Text style={styles.originalPrice}>{formattedOriginalPrice} {t.common.sum}</Text>
-                  <Text style={styles.discountText}>-{discountInfo.discountPercent}% ({discountInfo.discountAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} {t.common.sum})</Text>
+                  {discountInfo.promotionText ? (
+                    <Text style={styles.promotionText}>{discountInfo.promotionText}</Text>
+                  ) : discountInfo.discountPercent > 0 ? (
+                    <Text style={styles.discountText}>-{discountInfo.discountPercent}% ({discountInfo.discountAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} {t.common.sum})</Text>
+                  ) : null}
+                  {discountInfo.isServicePromotion && (
+                    <Text style={styles.promotionText}>Special Offer Applied!</Text>
+                  )}
                 </View>
               )}
             </View>
@@ -543,6 +574,11 @@ const styles = StyleSheet.create({
   discountText: {
     fontSize: 12,
     color: colors.error,
+    fontWeight: '500',
+  },
+  promotionText: {
+    fontSize: 12,
+    color: colors.primary,
     fontWeight: '500',
   },
   summaryPrice: {
