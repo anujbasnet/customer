@@ -26,6 +26,10 @@ import { getProviderProcedure } from "./routes/providers/get/route";
 // Auth routes
 import { loginProcedure } from "./routes/auth/login/route";
 import { registerProcedure } from "./routes/auth/register/route";
+import { oauthProcedure } from "./routes/auth/oauth/route";
+import { logoutProcedure } from "./routes/auth/logout/route";
+import { forgotPasswordProcedure } from "./routes/auth/forgot-password/route";
+import { resetPasswordProcedure } from "./routes/auth/reset-password/route";
 
 // Stats routes
 import { getStatsOverviewProcedure } from "./routes/stats/overview/route";
@@ -62,6 +66,10 @@ export const appRouter = createTRPCRouter({
   auth: createTRPCRouter({
     login: loginProcedure,
     register: registerProcedure,
+    oauth: oauthProcedure,
+    logout: logoutProcedure,
+    forgotPassword: forgotPasswordProcedure,
+    resetPassword: resetPasswordProcedure,
   }),
   stats: createTRPCRouter({
     overview: getStatsOverviewProcedure,
