@@ -21,7 +21,7 @@ import {
   Phone,
   Globe,
   Star,
-  Bell,
+
   LogOut
 } from 'lucide-react-native';
 import { useAppStore } from '@/hooks/useAppStore';
@@ -170,7 +170,7 @@ export default function ProfileScreen() {
     return (
       <View style={styles.notAuthContainer}>
         <View style={styles.avatarPlaceholder}>
-          <User size={40} color="#FFFFFF" />
+          <User size={50} color="#FFFFFF" />
         </View>
         <Text style={styles.notAuthTitle}>{t.auth.noAccount}</Text>
         <Text style={styles.notAuthText}>
@@ -202,7 +202,7 @@ export default function ProfileScreen() {
               />
             ) : (
               <View style={styles.avatarPlaceholder}>
-                <User size={40} color="#FFFFFF" />
+                <User size={50} color="#FFFFFF" />
               </View>
             )}
             
@@ -213,18 +213,18 @@ export default function ProfileScreen() {
               {!isGuestMode && (
                 <>
                   <View style={styles.contactRow}>
-                    <Phone size={14} color={colors.textSecondary} />
+                    <Phone size={16} color={colors.primary} />
                     <Text style={styles.contactText}>{user?.phone || '+1 234 567 8900'}</Text>
                   </View>
                   <View style={styles.contactRow}>
-                    <MapPin size={14} color={colors.textSecondary} />
+                    <MapPin size={16} color={colors.primary} />
                     <Text style={styles.contactText}>{getCurrentCityName()}</Text>
                   </View>
                 </>
               )}
               {isGuestMode && (
                 <Text style={styles.guestModeText}>
-                  You're browsing in guest mode. Login to access all features.
+                  You&apos;re browsing in guest mode. Login to access all features.
                 </Text>
               )}
             </View>
