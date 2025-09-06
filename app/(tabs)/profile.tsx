@@ -1,28 +1,28 @@
 import React, { useMemo, useState } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  TouchableOpacity, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
   ScrollView,
   Image,
   Switch,
-  Modal
+  Modal,
+  Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { 
-  User, 
+import {
+  User,
   Edit3,
   Settings,
-  HelpCircle, 
-  Info, 
+  HelpCircle,
+  Info,
   ChevronRight,
   MapPin,
   Phone,
   Globe,
   Star,
-
-  LogOut
+  LogOut,
 } from 'lucide-react-native';
 import { useAppStore } from '@/hooks/useAppStore';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -31,30 +31,42 @@ import { Button } from '@/components/Button';
 import { cities } from '@/mocks/cities';
 import { LanguageSelector } from '@/components/LanguageSelector';
 
+interface BaseMenuItem {
+  icon: React.ReactNode;
+  title: string;
+  onPress?: () => void;
+  type?: 'language' | 'switch' | 'default';
+  value?: boolean;
+  onValueChange?: (v: boolean) => void;
+}
+
 export default function ProfileScreen() {
   const { user, logout, selectedCity, isAuthenticated, isGuestMode } = useAppStore();
   const { t, language } = useTranslation();
   const router = useRouter();
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
-  
+  const [showLogoutModal, setShowLogoutModal] = useState<boolean>(false);
+
   const handleLogout = () => {
+    console.log('[Profile] Logout pressed');
     setShowLogoutModal(true);
   };
-  
+
   const confirmLogout = () => {
+    console.log('[Profile] Logout confirmed');
     logout();
     setShowLogoutModal(false);
     router.replace('/(auth)/login');
   };
 
   const handleLogin = () => {
+    console.log('[Profile] Navigate to auth');
     router.push('/(auth)');
   };
-  
+
   const getCurrentCityName = () => {
-    const currentCity = cities.find(c => c.id === selectedCity);
+    const currentCity = cities.find((c) => c.id === selectedCity);
     if (!currentCity) return '';
-    
+
     switch (language) {
       case 'ru':
         return currentCity.nameRu;
@@ -64,9 +76,9 @@ export default function ProfileScreen() {
         return currentCity.name;
     }
   };
-  
-  const menuItems = useMemo(() => {
-    const baseItems = [
+
+  const menuItems: BaseMenuItem[] = useMemo(() => {
+    const baseItems: BaseMenuItem[] = [
       {
         icon: <Globe size={24} color={colors.primary} />,
         title: t.profile.language,
@@ -88,7 +100,7 @@ export default function ProfileScreen() {
         onPress: () => router.push('/business-app-info'),
       },
     ];
-    
+
     if (isGuestMode) {
       return [
         {
@@ -96,10 +108,10 @@ export default function ProfileScreen() {
           title: 'Login / Register',
           onPress: () => router.push('/(auth)'),
         },
-        ...baseItems
+        ...baseItems,
       ];
     }
-    
+
     return [
       {
         icon: <Edit3 size={24} color={colors.primary} />,
@@ -120,11 +132,11 @@ export default function ProfileScreen() {
     ];
   }, [router, t, isGuestMode]);
 
-  const renderMenuItem = (item: any, index: number) => {
+  const renderMenuItem = (item: BaseMenuItem, index: number) => {
     switch (item.type) {
       case 'language':
         return (
-          <View key={index} style={styles.menuItem}>
+          <View key={`menu-${index}`} style={styles.menuItem} testID={`menu-language`}>
             <View style={styles.menuItemLeft}>
               {item.icon}
               <Text style={styles.menuItemTitle}>{item.title}</Text>
@@ -134,13 +146,13 @@ export default function ProfileScreen() {
         );
       case 'switch':
         return (
-          <View key={index} style={styles.menuItem}>
+          <View key={`menu-${index}`} style={styles.menuItem}>
             <View style={styles.menuItemLeft}>
               {item.icon}
               <Text style={styles.menuItemTitle}>{item.title}</Text>
             </View>
             <Switch
-              value={item.value}
+              value={item.value ?? false}
               onValueChange={item.onValueChange}
               trackColor={{ false: colors.border, true: colors.primary }}
               thumbColor="#FFFFFF"
@@ -150,10 +162,11 @@ export default function ProfileScreen() {
       default:
         return (
           <TouchableOpacity
-            key={index}
+            key={`menu-${index}`}
             style={styles.menuItem}
             onPress={item.onPress}
             activeOpacity={0.7}
+            testID={`menu-${index}`}
           >
             <View style={styles.menuItemLeft}>
               {item.icon}
@@ -165,126 +178,100 @@ export default function ProfileScreen() {
     }
   };
 
-  // If not authenticated and not in guest mode, show login prompt
   if (!isAuthenticated && !isGuestMode) {
     return (
       <View style={styles.notAuthContainer}>
-        <View style={styles.avatarPlaceholder}>
-          <User size={50} color="#FFFFFF" />
+        <View style={styles.largeAvatarPlaceholder}>
+          <User size={56} color="#FFFFFF" />
         </View>
         <Text style={styles.notAuthTitle}>{t.auth.noAccount}</Text>
         <Text style={styles.notAuthText}>
           Please login or register to view your profile and appointments
         </Text>
-        <Button
-          title={t.auth.login}
-          onPress={handleLogin}
-          style={styles.loginButton}
-        />
+        <Button title={t.auth.login} onPress={handleLogin} style={styles.loginButton} />
       </View>
     );
   }
-  
+
   return (
     <View style={styles.container}>
-      <ScrollView 
-        style={styles.scrollContainer}
-        showsVerticalScrollIndicator={false}
-        scrollEventThrottle={16}
-      >
-        {/* Profile Header */}
-        <View style={styles.header}>
-          <View style={styles.profileRow}>
-            {user?.avatar ? (
-              <Image
-                source={{ uri: user.avatar }}
-                style={styles.avatar}
-              />
-            ) : (
-              <View style={styles.avatarPlaceholder}>
-                <User size={50} color="#FFFFFF" />
-              </View>
-            )}
-            
-            <View style={styles.profileInfo}>
-              <Text style={styles.name}>
-                {isGuestMode ? 'Guest User' : (user?.name || 'User')}
-              </Text>
-              {!isGuestMode && (
-                <>
-                  <View style={styles.contactRow}>
-                    <Phone size={16} color={colors.primary} />
-                    <Text style={styles.contactText}>{user?.phone || '+1 234 567 8900'}</Text>
+      <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false} scrollEventThrottle={16}>
+        <View style={styles.topWrap}>
+          <View style={styles.headerCard}>
+            <View style={styles.profileRow}>
+              {user?.avatar ? (
+                <Image source={{ uri: user.avatar }} style={styles.avatarLarge} />
+              ) : (
+                <View style={styles.avatarDecorWrap}>
+                  <View style={styles.avatarRing} />
+                  <View style={styles.avatarLargePlaceholder}>
+                    <User size={64} color="#FFFFFF" />
                   </View>
-                  <View style={styles.contactRow}>
-                    <MapPin size={16} color={colors.primary} />
-                    <Text style={styles.contactText}>{getCurrentCityName()}</Text>
-                  </View>
-                </>
+                </View>
               )}
-              {isGuestMode && (
-                <Text style={styles.guestModeText}>
-                  You&apos;re browsing in guest mode. Login to access all features.
+
+              <View style={styles.profileInfo}>
+                <Text style={styles.nameLarge} numberOfLines={1}>
+                  {isGuestMode ? 'Guest User' : user?.name ?? 'User'}
                 </Text>
-              )}
+                {!isGuestMode && (
+                  <>
+                    <View style={styles.contactRowLg}>
+                      <Phone size={18} color={colors.primary} />
+                      <Text style={styles.contactTextLg}>{user?.phone ?? ''}</Text>
+                    </View>
+                    <View style={styles.contactRowLg}>
+                      <MapPin size={18} color={colors.primary} />
+                      <Text style={styles.contactTextLg}>{getCurrentCityName()}</Text>
+                    </View>
+                  </>
+                )}
+                {isGuestMode && (
+                  <Text style={styles.guestModeText}>
+                    You&apos;re browsing in guest mode. Login to access all features.
+                  </Text>
+                )}
+              </View>
             </View>
           </View>
         </View>
-        
-        {/* Menu Items */}
-        <View style={styles.menuContainer}>
-          {menuItems.map((item, index) => renderMenuItem(item, index))}
+
+        <View style={styles.sectionCard}>
+          {menuItems.map((item, index) => (
+            <View key={`wrap-${index}`}>
+              {renderMenuItem(item, index)}
+              {index < menuItems.length - 1 && <View style={styles.itemDivider} />}
+            </View>
+          ))}
         </View>
 
-        {/* Logout Button */}
         {(isAuthenticated || isGuestMode) && (
           <View style={styles.logoutContainer}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.logoutButton}
               onPress={handleLogout}
               activeOpacity={0.7}
               testID="logout-button"
             >
-              <LogOut size={20} color={colors.error} />
-              <Text style={styles.logoutText}>
-                {isGuestMode ? 'Exit Guest Mode' : 'Log out'}
-              </Text>
+              <LogOut size={18} color={colors.error} />
+              <Text style={styles.logoutText}>{isGuestMode ? 'Exit Guest Mode' : 'Log out'}</Text>
             </TouchableOpacity>
           </View>
         )}
       </ScrollView>
-      
-      {/* Logout Confirmation Modal */}
-      <Modal
-        visible={showLogoutModal}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setShowLogoutModal(false)}
-      >
+
+      <Modal visible={showLogoutModal} transparent animationType="fade" onRequestClose={() => setShowLogoutModal(false)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>
-              {isGuestMode ? 'Exit Guest Mode' : 'Confirm Logout'}
-            </Text>
+            <Text style={styles.modalTitle}>{isGuestMode ? 'Exit Guest Mode' : 'Confirm Logout'}</Text>
             <Text style={styles.modalMessage}>
-              {isGuestMode 
-                ? 'Are you sure you want to exit guest mode?' 
-                : 'Are you sure you want to log out?'
-              }
+              {isGuestMode ? 'Are you sure you want to exit guest mode?' : 'Are you sure you want to log out?'}
             </Text>
             <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.cancelButton]}
-                onPress={() => setShowLogoutModal(false)}
-                testID="cancel-logout"
-              >
+              <TouchableOpacity style={[styles.modalButton, styles.cancelButton]} onPress={() => setShowLogoutModal(false)} testID="cancel-logout">
                 <Text style={styles.cancelButtonText}>No</Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.confirmButton]}
-                onPress={confirmLogout}
-                testID="confirm-logout"
-              >
+              <TouchableOpacity style={[styles.modalButton, styles.confirmButton]} onPress={confirmLogout} testID="confirm-logout">
                 <Text style={styles.confirmButtonText}>Yes</Text>
               </TouchableOpacity>
             </View>
@@ -298,7 +285,144 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#F7F8FA',
+  },
+  scrollContainer: {
+    flex: 1,
+  },
+  topWrap: {
+    backgroundColor: colors.primary,
+    paddingBottom: 32,
+  },
+  headerCard: {
+    marginHorizontal: 20,
+    marginTop: 20,
     backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 20,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOpacity: 0.08,
+        shadowRadius: 12,
+        shadowOffset: { width: 0, height: 6 },
+      },
+      android: { elevation: 3 },
+      default: {},
+    }),
+  },
+  profileRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  avatarLarge: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+  },
+  avatarDecorWrap: {
+    width: 96,
+    height: 96,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  avatarRing: {
+    position: 'absolute',
+    width: 112,
+    height: 112,
+    borderRadius: 56,
+    backgroundColor: 'rgba(59,130,246,0.12)',
+  },
+  avatarLargePlaceholder: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  profileInfo: {
+    flex: 1,
+    marginLeft: 16,
+  },
+  nameLarge: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: 8,
+  },
+  contactRowLg: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  contactTextLg: {
+    fontSize: 15,
+    color: colors.textSecondary,
+    marginLeft: 6,
+  },
+  sectionCard: {
+    backgroundColor: '#FFFFFF',
+    marginHorizontal: 20,
+    marginTop: -12,
+    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOpacity: 0.06,
+        shadowRadius: 10,
+        shadowOffset: { width: 0, height: 4 },
+      },
+      android: { elevation: 2 },
+      default: {},
+    }),
+  },
+  itemDivider: {
+    height: 1,
+    backgroundColor: colors.border,
+    marginLeft: 56,
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 18,
+    paddingHorizontal: 12,
+  },
+  menuItemLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  menuItemTitle: {
+    fontSize: 16,
+    color: colors.text,
+    marginLeft: 16,
+    fontWeight: '500',
+  },
+  logoutContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 24,
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 10,
+    backgroundColor: '#FFF5F5',
+    borderWidth: 1,
+    borderColor: '#FED7D7',
+    alignSelf: 'center',
+    minWidth: 120,
+  },
+  logoutText: {
+    fontSize: 14,
+    color: colors.error,
+    marginLeft: 6,
+    fontWeight: '600',
   },
   notAuthContainer: {
     flex: 1,
@@ -324,95 +448,13 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 300,
   },
-  scrollContainer: {
-    flex: 1,
-  },
-  header: {
-    padding: 24,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  profileRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-  },
-  avatarPlaceholder: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+  largeAvatarPlaceholder: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
     backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  profileInfo: {
-    flex: 1,
-    marginLeft: 16,
-  },
-  name: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: colors.text,
-    marginBottom: 8,
-  },
-  contactRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  contactText: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    marginLeft: 6,
-  },
-  menuContainer: {
-    marginTop: 8,
-  },
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  menuItemLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  menuItemTitle: {
-    fontSize: 16,
-    color: colors.text,
-    marginLeft: 16,
-  },
-  logoutContainer: {
-    padding: 24,
-    marginTop: 16,
-    marginBottom: 24,
-  },
-  logoutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-    borderRadius: 8,
-    backgroundColor: '#FFF5F5',
-    borderWidth: 1,
-    borderColor: '#FED7D7',
-    alignSelf: 'center',
-    minWidth: 100,
-  },
-  logoutText: {
-    fontSize: 13,
-    color: colors.error,
-    marginLeft: 4,
-    fontWeight: '500',
   },
   modalOverlay: {
     flex: 1,
@@ -426,7 +468,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 24,
     width: '100%',
-    maxWidth: 320,
+    maxWidth: 340,
     alignItems: 'center',
   },
   modalTitle: {
@@ -445,7 +487,6 @@ const styles = StyleSheet.create({
   },
   modalButtons: {
     flexDirection: 'row',
-    gap: 12,
     width: '100%',
   },
   modalButton: {
@@ -458,9 +499,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#F1F5F9',
     borderWidth: 1,
     borderColor: colors.border,
+    marginRight: 10,
   },
   confirmButton: {
     backgroundColor: colors.error,
+    marginLeft: 10,
   },
   cancelButtonText: {
     fontSize: 16,
