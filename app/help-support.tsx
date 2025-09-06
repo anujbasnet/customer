@@ -2,18 +2,20 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Linking, Alert, ScrollView } from 'react-native';
 import { Stack } from 'expo-router';
 import { colors } from '@/constants/colors';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function HelpSupportScreen() {
+  const { t } = useTranslation();
   const [title, setTitle] = useState<string>('');
   const [details, setDetails] = useState<string>('');
   const [contacts, setContacts] = useState<string>('');
 
   const handleSend = () => {
     if (!title || !details || !contacts) {
-      Alert.alert('Missing info', 'Please fill all fields before sending.');
+      Alert.alert(t.helpSupport.missingInfo, t.helpSupport.missingInfoMessage);
       return;
     }
-    Alert.alert('Sent', 'Thanks! We will contact you shortly.');
+    Alert.alert(t.helpSupport.sent, t.helpSupport.sentMessage);
     setTitle('');
     setDetails('');
     setContacts('');
@@ -21,31 +23,31 @@ export default function HelpSupportScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ title: 'Help & Support' }} />
+      <Stack.Screen options={{ title: t.helpSupport.title }} />
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-        <Text style={styles.title}>How can we help?</Text>
-      <Text style={styles.subtitle}>Send us your suggestion or a problem you&apos;re facing and we will get back to you shortly.</Text>
+        <Text style={styles.title}>{t.helpSupport.howCanWeHelp}</Text>
+      <Text style={styles.subtitle}>{t.helpSupport.subtitle}</Text>
 
       <View style={styles.row}>
         <TouchableOpacity style={styles.button} onPress={() => Linking.openURL('mailto:help@rejaly.uz')} testID="email-help">
-          <Text style={styles.buttonText}>Email to help@rejaly.uz</Text>
+          <Text style={styles.buttonText}>{t.helpSupport.emailHelp}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.secondaryButton} onPress={() => Linking.openURL('https://t.me/rejaly_support')} testID="telegram-chat">
-          <Text style={styles.secondaryButtonText}>Open Telegram chat</Text>
+          <Text style={styles.secondaryButtonText}>{t.helpSupport.telegramChat}</Text>
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.formLabel}>Write here and we will contact you</Text>
+      <Text style={styles.formLabel}>{t.helpSupport.writeHere}</Text>
       <TextInput
         style={styles.input}
-        placeholder="Title"
+        placeholder={t.helpSupport.titlePlaceholder}
         value={title}
         onChangeText={setTitle}
         testID="hs-title"
       />
       <TextInput
         style={[styles.input, styles.textarea]}
-        placeholder="Details"
+        placeholder={t.helpSupport.detailsPlaceholder}
         value={details}
         onChangeText={setDetails}
         multiline
@@ -54,13 +56,13 @@ export default function HelpSupportScreen() {
       />
       <TextInput
         style={styles.input}
-        placeholder="Your contacts"
+        placeholder={t.helpSupport.contactsPlaceholder}
         value={contacts}
         onChangeText={setContacts}
         testID="hs-contacts"
       />
       <TouchableOpacity style={styles.button} onPress={handleSend} testID="hs-send">
-        <Text style={styles.buttonText}>Send</Text>
+        <Text style={styles.buttonText}>{t.helpSupport.send}</Text>
       </TouchableOpacity>
       </ScrollView>
     </>

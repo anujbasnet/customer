@@ -3,13 +3,15 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-nati
 import { useRouter, Stack } from 'expo-router';
 import { Shield, CreditCard, ChevronRight } from 'lucide-react-native';
 import { colors } from '@/constants/colors';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function SettingsScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
 
   return (
     <>
-      <Stack.Screen options={{ title: 'Settings' }} />
+      <Stack.Screen options={{ title: t.settings.title }} />
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
 
       <TouchableOpacity
@@ -20,7 +22,7 @@ export default function SettingsScreen() {
       >
         <View style={styles.itemLeft}>
           <Shield size={22} color={colors.primary} />
-          <Text style={styles.itemTitle}>Login & Security</Text>
+          <Text style={styles.itemTitle}>{t.settings.loginSecurity}</Text>
         </View>
         <ChevronRight size={18} color={colors.textSecondary} />
       </TouchableOpacity>
@@ -33,7 +35,7 @@ export default function SettingsScreen() {
       >
         <View style={styles.itemLeft}>
           <CreditCard size={22} color={colors.primary} />
-          <Text style={styles.itemTitle}>Payment Settings</Text>
+          <Text style={styles.itemTitle}>{t.settings.paymentSettings}</Text>
         </View>
         <ChevronRight size={18} color={colors.textSecondary} />
       </TouchableOpacity>

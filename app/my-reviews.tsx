@@ -2,20 +2,23 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Stack } from 'expo-router';
 import { colors } from '@/constants/colors';
+import { useTranslation } from '@/hooks/useTranslation';
 import { Star } from 'lucide-react-native';
 
 export default function MyReviewsScreen() {
+  const { t } = useTranslation();
+  
   return (
     <>
-      <Stack.Screen options={{ title: 'My Reviews' }} />
+      <Stack.Screen options={{ title: t.myReviews.title }} />
       <View style={styles.container}>
         <View style={styles.content}>
           <View style={styles.iconContainer}>
             <Star size={64} color={colors.primary} />
           </View>
-          <Text style={styles.title}>My Reviews</Text>
+          <Text style={styles.title}>{t.myReviews.comingSoon}</Text>
           <Text style={styles.description}>
-            This feature is coming soon! You will be able to view and manage all your reviews here.
+            {t.myReviews.description}
           </Text>
         </View>
       </View>

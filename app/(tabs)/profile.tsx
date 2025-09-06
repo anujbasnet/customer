@@ -88,17 +88,17 @@ export default function ProfileScreen() {
     const otherBaseItems: BaseMenuItem[] = [
       {
         icon: <HelpCircle size={24} color={colors.primary} />,
-        title: 'Help & Support',
+        title: t.profile.help,
         onPress: () => router.push('/help-support'),
       },
       {
         icon: <Info size={24} color={colors.primary} />,
-        title: 'About',
+        title: t.profile.about,
         onPress: () => router.push('/about'),
       },
       {
         icon: <Info size={24} color={colors.primary} />,
-        title: 'Try Rejaly Business App',
+        title: t.profile.businessApp,
         onPress: () => router.push('/business-app-info'),
       },
     ];
@@ -107,14 +107,14 @@ export default function ProfileScreen() {
       return [
         {
           icon: <User size={24} color={colors.primary} />,
-          title: 'Login / Register',
+          title: t.profile.loginRegisterPrompt,
           onPress: () => router.push('/(auth)'),
         },
         languageItem,
         ...otherBaseItems,
         {
           icon: <LogOut size={24} color={colors.error} />,
-          title: 'Exit Guest Mode',
+          title: t.profile.exitGuestMode,
           onPress: () => handleLogout(),
           variant: 'danger',
         },
@@ -124,24 +124,24 @@ export default function ProfileScreen() {
     return [
       {
         icon: <Edit3 size={24} color={colors.primary} />,
-        title: 'Edit profile',
+        title: t.profile.editProfile,
         onPress: () => router.push('/edit-profile'),
       },
       {
         icon: <Settings size={24} color={colors.primary} />,
-        title: 'Settings',
+        title: t.profile.settings,
         onPress: () => router.push('/settings'),
       },
       languageItem,
       {
         icon: <Star size={24} color={colors.primary} />,
-        title: 'My Reviews',
+        title: t.profile.myReviews,
         onPress: () => router.push('/my-reviews'),
       },
       ...otherBaseItems,
       {
         icon: <LogOut size={24} color={colors.error} />,
-        title: 'Log out',
+        title: t.auth.logout,
         onPress: () => handleLogout(),
         variant: 'danger',
       },
@@ -207,7 +207,7 @@ export default function ProfileScreen() {
         </View>
         <Text style={styles.notAuthTitle}>{t.auth.noAccount}</Text>
         <Text style={styles.notAuthText}>
-          Please login or register to view your profile and appointments
+          {t.profile.loginToAccess}
         </Text>
         <Button title={t.auth.login} onPress={handleLogin} style={styles.loginButton} />
       </View>
@@ -231,7 +231,7 @@ export default function ProfileScreen() {
             )}
             <View style={styles.profileInfo}>
               <Text style={styles.nameLarge} numberOfLines={1}>
-                {isGuestMode ? 'Guest User' : user?.name ?? 'User'}
+                {isGuestMode ? t.profile.guestUser : user?.name ?? t.profile.defaultUser}
               </Text>
               {!isGuestMode && (
                 <>
@@ -247,7 +247,7 @@ export default function ProfileScreen() {
               )}
               {isGuestMode && (
                 <Text style={styles.guestModeText}>
-                  You&apos;re browsing in guest mode. Login to access all features.
+                  {t.profile.guestModeText}
                 </Text>
               )}
             </View>
@@ -267,16 +267,16 @@ export default function ProfileScreen() {
       <Modal visible={showLogoutModal} transparent animationType="fade" onRequestClose={() => setShowLogoutModal(false)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>{isGuestMode ? 'Exit Guest Mode' : 'Confirm Logout'}</Text>
+            <Text style={styles.modalTitle}>{isGuestMode ? t.profile.exitGuestMode : t.profile.confirmLogout}</Text>
             <Text style={styles.modalMessage}>
-              {isGuestMode ? 'Are you sure you want to exit guest mode?' : 'Are you sure you want to log out?'}
+              {isGuestMode ? t.profile.exitGuestModeConfirm : t.profile.logoutConfirm}
             </Text>
             <View style={styles.modalButtons}>
               <TouchableOpacity style={[styles.modalButton, styles.cancelButton]} onPress={() => setShowLogoutModal(false)} testID="cancel-logout">
-                <Text style={styles.cancelButtonText}>No</Text>
+                <Text style={styles.cancelButtonText}>{t.common.cancel}</Text>
               </TouchableOpacity>
               <TouchableOpacity style={[styles.modalButton, styles.confirmButton]} onPress={confirmLogout} testID="confirm-logout">
-                <Text style={styles.confirmButtonText}>Yes</Text>
+                <Text style={styles.confirmButtonText}>{t.common.confirm}</Text>
               </TouchableOpacity>
             </View>
           </View>

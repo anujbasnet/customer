@@ -3,16 +3,19 @@ import { View, Text, StyleSheet, TouchableOpacity, Linking, ScrollView } from 'r
 import { Stack } from 'expo-router';
 import { Globe, Smartphone, Play } from 'lucide-react-native';
 import { colors } from '@/constants/colors';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function BusinessAppInfoScreen() {
+  const { t } = useTranslation();
+  
   return (
     <>
-      <Stack.Screen options={{ title: 'Try Rejaly Business App' }} />
+      <Stack.Screen options={{ title: t.businessApp.title }} />
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-        <Text style={styles.title}>Rejaly Business</Text>
+        <Text style={styles.title}>{t.businessApp.appTitle}</Text>
         <View style={styles.textContainer}>
           <Text style={styles.desc}>
-            If you are offering similar services, we can help you find customers and manage bookings. Write to us at support@rejaly.uz and check our app.
+            {t.businessApp.description}
           </Text>
           
           <View style={styles.linksContainer}>
@@ -23,7 +26,7 @@ export default function BusinessAppInfoScreen() {
               activeOpacity={0.7}
             >
               <Globe size={20} color={colors.primary} />
-              <Text style={styles.linkText}>Open Web</Text>
+              <Text style={styles.linkText}>{t.businessApp.openWeb}</Text>
             </TouchableOpacity>
             
             <TouchableOpacity 
@@ -33,7 +36,7 @@ export default function BusinessAppInfoScreen() {
               activeOpacity={0.7}
             >
               <Smartphone size={20} color={colors.primary} />
-              <Text style={styles.linkText}>App Store (iOS)</Text>
+              <Text style={styles.linkText}>{t.businessApp.appStore}</Text>
             </TouchableOpacity>
             
             <TouchableOpacity 
@@ -43,7 +46,7 @@ export default function BusinessAppInfoScreen() {
               activeOpacity={0.7}
             >
               <Play size={20} color={colors.primary} />
-              <Text style={styles.linkText}>Play Store (Android)</Text>
+              <Text style={styles.linkText}>{t.businessApp.playStore}</Text>
             </TouchableOpacity>
           </View>
         </View>

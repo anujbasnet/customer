@@ -2,20 +2,22 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Stack } from 'expo-router';
 import { colors } from '@/constants/colors';
+import { useTranslation } from '@/hooks/useTranslation';
 import appJson from '../app.json';
 
 export default function AboutScreen() {
+  const { t } = useTranslation();
   const version: string = (appJson as any).expo?.version ?? '1.0.0';
 
   return (
     <>
-      <Stack.Screen options={{ title: 'About' }} />
+      <Stack.Screen options={{ title: t.about.title }} />
       <View style={styles.container}>
-        <Text style={styles.title}>About Rejaly.uz</Text>
+        <Text style={styles.title}>{t.about.appTitle}</Text>
         <Text style={styles.desc}>
-          Rejaly.uz helps you discover nearby beauty and wellness services, compare providers, and book appointments seamlessly.
+          {t.about.description}
         </Text>
-        <Text style={styles.version}>App version: {version}</Text>
+        <Text style={styles.version}>{t.about.version}: {version}</Text>
       </View>
     </>
   );

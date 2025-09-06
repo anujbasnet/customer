@@ -48,6 +48,7 @@ type TranslationKeys = {
     noUpcomingAppointments: string;
     promotions: string;
     visitedAndFavorites: string;
+    services: string;
   };
   categories: {
     hairSalon: string;
@@ -114,6 +115,17 @@ type TranslationKeys = {
     male: string;
     female: string;
     other: string;
+    myReviews: string;
+    businessApp: string;
+    exitGuestMode: string;
+    confirmLogout: string;
+    exitGuestModeConfirm: string;
+    logoutConfirm: string;
+    guestModeText: string;
+    loginToAccess: string;
+    loginRegisterPrompt: string;
+    guestUser: string;
+    defaultUser: string;
   };
   search: {
     title: string;
@@ -138,6 +150,46 @@ type TranslationKeys = {
     friday: string;
     saturday: string;
     sunday: string;
+  };
+  settings: {
+    title: string;
+    loginSecurity: string;
+    paymentSettings: string;
+  };
+  helpSupport: {
+    title: string;
+    howCanWeHelp: string;
+    subtitle: string;
+    emailHelp: string;
+    telegramChat: string;
+    writeHere: string;
+    titlePlaceholder: string;
+    detailsPlaceholder: string;
+    contactsPlaceholder: string;
+    send: string;
+    missingInfo: string;
+    missingInfoMessage: string;
+    sent: string;
+    sentMessage: string;
+  };
+  about: {
+    title: string;
+    appTitle: string;
+    description: string;
+    version: string;
+  };
+  businessApp: {
+    title: string;
+    appTitle: string;
+    description: string;
+    openWeb: string;
+    appStore: string;
+    playStore: string;
+  };
+  myReviews: {
+    title: string;
+    comingSoon: string;
+    description: string;
   };
 };
 
@@ -194,6 +246,7 @@ export const translations: Translations = {
       noUpcomingAppointments: "No upcoming appointments",
       promotions: "Promotions and Discounts",
       visitedAndFavorites: "Visited and Favorites",
+      services: "Services",
     },
     categories: {
       hairSalon: "Hair Salon",
@@ -260,6 +313,17 @@ export const translations: Translations = {
       male: "Male",
       female: "Female",
       other: "Other",
+      myReviews: "My Reviews",
+      businessApp: "Try Rejaly Business App",
+      exitGuestMode: "Exit Guest Mode",
+      confirmLogout: "Confirm Logout",
+      exitGuestModeConfirm: "Are you sure you want to exit guest mode?",
+      logoutConfirm: "Are you sure you want to log out?",
+      guestModeText: "You're browsing in guest mode. Login to access all features.",
+      loginToAccess: "Please login or register to view your profile and appointments",
+      loginRegisterPrompt: "Login / Register",
+      guestUser: "Guest User",
+      defaultUser: "User",
     },
     search: {
       title: "Search",
@@ -284,6 +348,46 @@ export const translations: Translations = {
       friday: "Friday",
       saturday: "Saturday",
       sunday: "Sunday",
+    },
+    settings: {
+      title: "Settings",
+      loginSecurity: "Login & Security",
+      paymentSettings: "Payment Settings",
+    },
+    helpSupport: {
+      title: "Help & Support",
+      howCanWeHelp: "How can we help?",
+      subtitle: "Send us your suggestion or a problem you're facing and we will get back to you shortly.",
+      emailHelp: "Email to help@rejaly.uz",
+      telegramChat: "Open Telegram chat",
+      writeHere: "Write here and we will contact you",
+      titlePlaceholder: "Title",
+      detailsPlaceholder: "Details",
+      contactsPlaceholder: "Your contacts",
+      send: "Send",
+      missingInfo: "Missing info",
+      missingInfoMessage: "Please fill all fields before sending.",
+      sent: "Sent",
+      sentMessage: "Thanks! We will contact you shortly.",
+    },
+    about: {
+      title: "About",
+      appTitle: "About Rejaly.uz",
+      description: "Rejaly.uz helps you discover nearby beauty and wellness services, compare providers, and book appointments seamlessly.",
+      version: "App version",
+    },
+    businessApp: {
+      title: "Try Rejaly Business App",
+      appTitle: "Rejaly Business",
+      description: "If you are offering similar services, we can help you find customers and manage bookings. Write to us at support@rejaly.uz and check our app.",
+      openWeb: "Open Web",
+      appStore: "App Store (iOS)",
+      playStore: "Play Store (Android)",
+    },
+    myReviews: {
+      title: "My Reviews",
+      comingSoon: "Coming Soon!",
+      description: "This feature is coming soon! You will be able to view and manage all your reviews here.",
     },
   },
   ru: {
@@ -334,6 +438,7 @@ export const translations: Translations = {
       noUpcomingAppointments: "Нет предстоящих записей",
       promotions: "Акции и скидки",
       visitedAndFavorites: "Посещенные и избранные",
+      services: "Услуги",
     },
     categories: {
       hairSalon: "Парикмахерская",
@@ -400,6 +505,17 @@ export const translations: Translations = {
       male: "Мужской",
       female: "Женский",
       other: "Другой",
+      myReviews: "Мои отзывы",
+      businessApp: "Попробовать Rejaly Business",
+      exitGuestMode: "Выйти из гостевого режима",
+      confirmLogout: "Подтвердить выход",
+      exitGuestModeConfirm: "Вы уверены, что хотите выйти из гостевого режима?",
+      logoutConfirm: "Вы уверены, что хотите выйти?",
+      guestModeText: "Вы просматриваете в гостевом режиме. Войдите, чтобы получить доступ ко всем функциям.",
+      loginToAccess: "Пожалуйста, войдите или зарегистрируйтесь, чтобы просмотреть свой профиль и записи",
+      loginRegisterPrompt: "Войти / Регистрация",
+      guestUser: "Гость",
+      defaultUser: "Пользователь",
     },
     search: {
       title: "Поиск",
@@ -424,6 +540,46 @@ export const translations: Translations = {
       friday: "Пятница",
       saturday: "Суббота",
       sunday: "Воскресенье",
+    },
+    settings: {
+      title: "Настройки",
+      loginSecurity: "Вход и безопасность",
+      paymentSettings: "Настройки платежей",
+    },
+    helpSupport: {
+      title: "Помощь и поддержка",
+      howCanWeHelp: "Как мы можем помочь?",
+      subtitle: "Отправьте нам ваше предложение или проблему, с которой вы столкнулись, и мы свяжемся с вами в ближайшее время.",
+      emailHelp: "Написать на help@rejaly.uz",
+      telegramChat: "Открыть чат в Telegram",
+      writeHere: "Напишите здесь, и мы свяжемся с вами",
+      titlePlaceholder: "Заголовок",
+      detailsPlaceholder: "Подробности",
+      contactsPlaceholder: "Ваши контакты",
+      send: "Отправить",
+      missingInfo: "Недостающая информация",
+      missingInfoMessage: "Пожалуйста, заполните все поля перед отправкой.",
+      sent: "Отправлено",
+      sentMessage: "Спасибо! Мы свяжемся с вами в ближайшее время.",
+    },
+    about: {
+      title: "О приложении",
+      appTitle: "О Rejaly.uz",
+      description: "Rejaly.uz поможет вам найти ближайшие услуги красоты и здоровья, сравнить поставщиков и легко забронировать встречи.",
+      version: "Версия приложения",
+    },
+    businessApp: {
+      title: "Попробовать Rejaly Business",
+      appTitle: "Rejaly Business",
+      description: "Если вы предлагаете подобные услуги, мы можем помочь вам найти клиентов и управлять бронированием. Напишите нам на support@rejaly.uz и ознакомьтесь с нашим приложением.",
+      openWeb: "Открыть веб-сайт",
+      appStore: "App Store (iOS)",
+      playStore: "Play Store (Android)",
+    },
+    myReviews: {
+      title: "Мои отзывы",
+      comingSoon: "Скоро!",
+      description: "Эта функция скоро появится! Здесь вы сможете просматривать и управлять всеми своими отзывами.",
     },
   },
   uz: {
@@ -474,6 +630,7 @@ export const translations: Translations = {
       noUpcomingAppointments: "Kelayotgan bandlar yo'q",
       promotions: "Aksiyalar va chegirmalar",
       visitedAndFavorites: "Tashrif buyurilgan va sevimlilar",
+      services: "Xizmatlar",
     },
     categories: {
       hairSalon: "Soch saloni",
@@ -540,6 +697,17 @@ export const translations: Translations = {
       male: "Erkak",
       female: "Ayol",
       other: "Boshqa",
+      myReviews: "Mening sharhlarim",
+      businessApp: "Rejaly Business ilovasini sinab ko'ring",
+      exitGuestMode: "Mehmon rejimidan chiqish",
+      confirmLogout: "Chiqishni tasdiqlash",
+      exitGuestModeConfirm: "Mehmon rejimidan chiqishni xohlaysizmi?",
+      logoutConfirm: "Chiqishni xohlaysizmi?",
+      guestModeText: "Siz mehmon rejimidasiz. Barcha imkoniyatlarga kirish uchun tizimga kiring.",
+      loginToAccess: "Profilingiz va bandlaringizni ko'rish uchun tizimga kiring yoki ro'yxatdan o'ting",
+      loginRegisterPrompt: "Kirish / Ro'yxatdan o'tish",
+      guestUser: "Mehmon foydalanuvchi",
+      defaultUser: "Foydalanuvchi",
     },
     search: {
       title: "Qidirish",
@@ -564,6 +732,46 @@ export const translations: Translations = {
       friday: "Juma",
       saturday: "Shanba",
       sunday: "Yakshanba",
+    },
+    settings: {
+      title: "Sozlamalar",
+      loginSecurity: "Kirish va xavfsizlik",
+      paymentSettings: "To'lov sozlamalari",
+    },
+    helpSupport: {
+      title: "Yordam va qo'llab-quvvatlash",
+      howCanWeHelp: "Qanday yordam bera olamiz?",
+      subtitle: "Bizga taklifingizni yoki duch kelgan muammoingizni yuboring, biz tez orada siz bilan bog'lanamiz.",
+      emailHelp: "help@rejaly.uz ga email yuboring",
+      telegramChat: "Telegram chatini ochish",
+      writeHere: "Bu yerga yozing, biz siz bilan bog'lanamiz",
+      titlePlaceholder: "Sarlavha",
+      detailsPlaceholder: "Tafsilotlar",
+      contactsPlaceholder: "Sizning kontaktlaringiz",
+      send: "Yuborish",
+      missingInfo: "Ma'lumot yetishmayapti",
+      missingInfoMessage: "Yuborishdan oldin barcha maydonlarni to'ldiring.",
+      sent: "Yuborildi",
+      sentMessage: "Rahmat! Biz tez orada siz bilan bog'lanamiz.",
+    },
+    about: {
+      title: "Ilova haqida",
+      appTitle: "Rejaly.uz haqida",
+      description: "Rejaly.uz sizga yaqin atrofdagi go'zallik va salomatlik xizmatlarini topishga, provayderlarni solishtirishga va uchrashuvlarni oson band qilishga yordam beradi.",
+      version: "Ilova versiyasi",
+    },
+    businessApp: {
+      title: "Rejaly Business ilovasini sinab ko'ring",
+      appTitle: "Rejaly Business",
+      description: "Agar siz shunga o'xshash xizmatlarni taklif qilsangiz, biz sizga mijozlar topishga va bandlashni boshqarishga yordam bera olamiz. Bizga support@rejaly.uz manziliga yozing va ilovamizni tekshiring.",
+      openWeb: "Veb-saytni ochish",
+      appStore: "App Store (iOS)",
+      playStore: "Play Store (Android)",
+    },
+    myReviews: {
+      title: "Mening sharhlarim",
+      comingSoon: "Tez orada!",
+      description: "Bu funksiya tez orada paydo bo'ladi! Bu yerda barcha sharhlaringizni ko'rish va boshqarish imkoniyatiga ega bo'lasiz.",
     },
   },
 };
