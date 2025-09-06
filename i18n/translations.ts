@@ -13,6 +13,13 @@ type TranslationKeys = {
     back: string;
     next: string;
     sum: string; // Uzbekistan currency
+    expand: string;
+    collapse: string;
+    viewAll: string;
+    showLess: string;
+    welcomeGuestTitle: string;
+    welcomeGuestText: string;
+    loginRegisterCta: string;
   };
   auth: {
     login: string;
@@ -152,6 +159,13 @@ export const translations: Translations = {
       back: "Back",
       next: "Next",
       sum: "UZS",
+      expand: "Expand",
+      collapse: "Collapse",
+      viewAll: "View All",
+      showLess: "Show Less",
+      welcomeGuestTitle: "Welcome, Guest!",
+      welcomeGuestText: "You're browsing in guest mode. Login or register to book appointments and access all features.",
+      loginRegisterCta: "Login / Register",
     },
     auth: {
       login: "Login",
@@ -285,6 +299,13 @@ export const translations: Translations = {
       back: "Назад",
       next: "Далее",
       sum: "сум",
+      expand: "Развернуть",
+      collapse: "Свернуть",
+      viewAll: "Показать все",
+      showLess: "Показать меньше",
+      welcomeGuestTitle: "Добро пожаловать, гость!",
+      welcomeGuestText: "Вы просматриваете в гостевом режиме. Войдите или зарегистрируйтесь, чтобы бронировать и получить полный доступ.",
+      loginRegisterCta: "Войти / Регистрация",
     },
     auth: {
       login: "Вход",
@@ -418,6 +439,13 @@ export const translations: Translations = {
       back: "Orqaga",
       next: "Keyingi",
       sum: "so'm",
+      expand: "Yozib ko'rsatish",
+      collapse: "Yig'ish",
+      viewAll: "Hammasini ko'rish",
+      showLess: "Kamroq ko'rsatish",
+      welcomeGuestTitle: "Xush kelibsiz, mehmon!",
+      welcomeGuestText: "Siz mehmon rejimidasiz. Band qilish va barcha imkoniyatlarga kirish uchun tizimga kiring yoki ro'yxatdan o'ting.",
+      loginRegisterCta: "Kirish / Ro'yxatdan o'tish",
     },
     auth: {
       login: "Kirish",

@@ -98,7 +98,7 @@ export default function HomeScreen() {
         <View style={styles.logoIcon}>
           <Scissors size={24} color={colors.primary} />
         </View>
-        <Text style={styles.appName}>Rejaly.uz</Text>
+        <Text style={styles.appName}>{t.common.appName}</Text>
         
         {/* City Display */}
         <TouchableOpacity 
@@ -109,7 +109,7 @@ export default function HomeScreen() {
         >
           <MapPin size={18} color={colors.primary} />
           <Text style={styles.cityButtonText}>
-            {currentCity?.name || 'Tashkent'}
+            {currentCity?.name || t.profile.city}
           </Text>
         </TouchableOpacity>
       </View>
@@ -142,7 +142,7 @@ export default function HomeScreen() {
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
           <Text style={styles.expandButton}>
-            {showAllCategories ? 'Collapse' : 'Expand'}
+            {showAllCategories ? t.common.collapse : t.common.expand}
           </Text>
         </TouchableOpacity>
       </View>
@@ -200,16 +200,16 @@ export default function HomeScreen() {
       {isGuestMode && (
         <View style={styles.section}>
           <View style={styles.guestNoticeContainer}>
-            <Text style={styles.guestNoticeTitle}>Welcome, Guest!</Text>
+            <Text style={styles.guestNoticeTitle}>{t.common.welcomeGuestTitle}</Text>
             <Text style={styles.guestNoticeText}>
-              You're browsing in guest mode. Login or register to book appointments and access all features.
+              {t.common.welcomeGuestText}
             </Text>
             <TouchableOpacity 
               style={styles.guestLoginButton}
               onPress={() => router.push('/(auth)')}
               activeOpacity={0.7}
             >
-              <Text style={styles.guestLoginButtonText}>Login / Register</Text>
+              <Text style={styles.guestLoginButtonText}>{t.common.loginRegisterCta}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -226,7 +226,7 @@ export default function HomeScreen() {
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
               <Text style={styles.viewAll}>
-                {showAllRecent ? 'Show Less' : 'View All'}
+                {showAllRecent ? t.common.showLess : t.common.viewAll}
               </Text>
             </TouchableOpacity>
           )}
@@ -261,7 +261,7 @@ export default function HomeScreen() {
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
             <Text style={styles.viewAll}>
-              {showAllRecommended ? 'Show Less' : 'View All'}
+              {showAllRecommended ? t.common.showLess : t.common.viewAll}
             </Text>
           </TouchableOpacity>
         </View>
@@ -286,7 +286,7 @@ export default function HomeScreen() {
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
             <Text style={styles.viewAll}>
-              {showAllPromotions ? 'Show Less' : 'View All'}
+              {showAllPromotions ? t.common.showLess : t.common.viewAll}
             </Text>
           </TouchableOpacity>
         </View>
