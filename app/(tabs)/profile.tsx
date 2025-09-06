@@ -38,6 +38,7 @@ interface BaseMenuItem {
   type?: 'language' | 'switch' | 'default';
   value?: boolean;
   onValueChange?: (v: boolean) => void;
+  variant?: 'default' | 'danger';
 }
 
 export default function ProfileScreen() {
@@ -109,6 +110,12 @@ export default function ProfileScreen() {
           onPress: () => router.push('/(auth)'),
         },
         ...baseItems,
+        {
+          icon: <LogOut size={24} color={colors.error} />,
+          title: 'Exit Guest Mode',
+          onPress: () => handleLogout(),
+          variant: 'danger',
+        },
       ];
     }
 
@@ -129,17 +136,28 @@ export default function ProfileScreen() {
         title: 'My Reviews',
         onPress: () => router.push('/my-reviews'),
       },
+      {
+        icon: <LogOut size={24} color={colors.error} />,
+        title: 'Log out',
+        onPress: () => handleLogout(),
+        variant: 'danger',
+      },
     ];
   }, [router, t, isGuestMode]);
 
   const renderMenuItem = (item: BaseMenuItem, index: number) => {
+    const titleStyle = [
+      styles.menuItemTitle,
+      item.variant === 'danger' ? { color: colors.error } : null,
+    ];
+
     switch (item.type) {
       case 'language':
         return (
           <View key={`menu-${index}`} style={styles.menuItem} testID={`menu-language`}>
             <View style={styles.menuItemLeft}>
               {item.icon}
-              <Text style={styles.menuItemTitle}>{item.title}</Text>
+              <Text style={titleStyle as any}>{item.title}</Text>
             </View>
             <LanguageSelector />
           </View>
@@ -149,7 +167,7 @@ export default function ProfileScreen() {
           <View key={`menu-${index}`} style={styles.menuItem}>
             <View style={styles.menuItemLeft}>
               {item.icon}
-              <Text style={styles.menuItemTitle}>{item.title}</Text>
+              <Text style={titleStyle as any}>{item.title}</Text>
             </View>
             <Switch
               value={item.value ?? false}
@@ -170,7 +188,7 @@ export default function ProfileScreen() {
           >
             <View style={styles.menuItemLeft}>
               {item.icon}
-              <Text style={styles.menuItemTitle}>{item.title}</Text>
+              <Text style={titleStyle as any}>{item.title}</Text>
             </View>
             <ChevronRight size={20} color={colors.textSecondary} />
           </TouchableOpacity>
@@ -196,47 +214,42 @@ export default function ProfileScreen() {
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false} scrollEventThrottle={16}>
-        <View style={styles.topWrap}>
-          <View style={styles.headerCard}>
-            <View style={styles.profileRow}>
-              {user?.avatar ? (
-                <Image source={{ uri: user.avatar }} style={styles.avatarLarge} />
-              ) : (
-                <View style={styles.avatarDecorWrap}>
-                  <View style={styles.avatarRing} />
-                  <View style={styles.avatarLargePlaceholder}>
-                    <User size={64} color="#FFFFFF" />
-                  </View>
-                </View>
-              )}
-
-              <View style={styles.profileInfo}>
-                <Text style={styles.nameLarge} numberOfLines={1}>
-                  {isGuestMode ? 'Guest User' : user?.name ?? 'User'}
-                </Text>
-                {!isGuestMode && (
-                  <>
-                    <View style={styles.contactRowLg}>
-                      <Phone size={18} color={colors.primary} />
-                      <Text style={styles.contactTextLg}>{user?.phone ?? ''}</Text>
-                    </View>
-                    <View style={styles.contactRowLg}>
-                      <MapPin size={18} color={colors.primary} />
-                      <Text style={styles.contactTextLg}>{getCurrentCityName()}</Text>
-                    </View>
-                  </>
-                )}
-                {isGuestMode && (
-                  <Text style={styles.guestModeText}>
-                    You&apos;re browsing in guest mode. Login to access all features.
-                  </Text>
-                )}
-              </View>
-            </View>
-          </View>
-        </View>
-
         <View style={styles.sectionCard}>
+          <View style={styles.profileHeader}>
+            {user?.avatar ? (
+              <Image source={{ uri: user.avatar }} style={styles.avatarLarge} />
+            ) : (
+              <View style={styles.avatarDecorWrap}>
+                <View style={styles.avatarRing} />
+                <View style={styles.avatarLargePlaceholder}>
+                  <User size={64} color="#FFFFFF" />
+                </View>
+              </View>
+            )}
+            <Text style={styles.nameLarge} numberOfLines={1}>
+              {isGuestMode ? 'Guest User' : user?.name ?? 'User'}
+            </Text>
+            {!isGuestMode && (
+              <>
+                <View style={styles.contactRowLgCenter}>
+                  <Phone size={18} color={colors.primary} />
+                  <Text style={styles.contactTextLg}>{user?.phone ?? ''}</Text>
+                </View>
+                <View style={styles.contactRowLgCenter}>
+                  <MapPin size={18} color={colors.primary} />
+                  <Text style={styles.contactTextLg}>{getCurrentCityName()}</Text>
+                </View>
+              </>
+            )}
+            {isGuestMode && (
+              <Text style={styles.guestModeText}>
+                You&apos;re browsing in guest mode. Login to access all features.
+              </Text>
+            )}
+          </View>
+
+          <View style={styles.itemDividerFull} />
+
           {menuItems.map((item, index) => (
             <View key={`wrap-${index}`}>
               {renderMenuItem(item, index)}
@@ -244,20 +257,6 @@ export default function ProfileScreen() {
             </View>
           ))}
         </View>
-
-        {(isAuthenticated || isGuestMode) && (
-          <View style={styles.logoutContainer}>
-            <TouchableOpacity
-              style={styles.logoutButton}
-              onPress={handleLogout}
-              activeOpacity={0.7}
-              testID="logout-button"
-            >
-              <LogOut size={18} color={colors.error} />
-              <Text style={styles.logoutText}>{isGuestMode ? 'Exit Guest Mode' : 'Log out'}</Text>
-            </TouchableOpacity>
-          </View>
-        )}
       </ScrollView>
 
       <Modal visible={showLogoutModal} transparent animationType="fade" onRequestClose={() => setShowLogoutModal(false)}>
@@ -290,30 +289,11 @@ const styles = StyleSheet.create({
   scrollContainer: {
     flex: 1,
   },
-  topWrap: {
-    backgroundColor: colors.primary,
-    paddingBottom: 32,
-  },
-  headerCard: {
-    marginHorizontal: 20,
-    marginTop: 20,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 20,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOpacity: 0.08,
-        shadowRadius: 12,
-        shadowOffset: { width: 0, height: 6 },
-      },
-      android: { elevation: 3 },
-      default: {},
-    }),
-  },
-  profileRow: {
-    flexDirection: 'row',
+  profileHeader: {
     alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 20,
+    paddingBottom: 8,
   },
   avatarLarge: {
     width: 96,
@@ -346,14 +326,22 @@ const styles = StyleSheet.create({
     marginLeft: 16,
   },
   nameLarge: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: '700',
     color: colors.text,
+    marginTop: 12,
     marginBottom: 8,
+    textAlign: 'center',
   },
   contactRowLg: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 6,
+  },
+  contactRowLgCenter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 6,
   },
   contactTextLg: {
@@ -364,7 +352,7 @@ const styles = StyleSheet.create({
   sectionCard: {
     backgroundColor: '#FFFFFF',
     marginHorizontal: 20,
-    marginTop: -12,
+    marginTop: 20,
     borderRadius: 16,
     paddingHorizontal: 12,
     paddingVertical: 4,
@@ -384,6 +372,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.border,
     marginLeft: 56,
   },
+  itemDividerFull: {
+    height: 1,
+    backgroundColor: colors.border,
+    marginHorizontal: -12,
+    marginBottom: 4,
+  },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -400,29 +394,6 @@ const styles = StyleSheet.create({
     color: colors.text,
     marginLeft: 16,
     fontWeight: '500',
-  },
-  logoutContainer: {
-    paddingHorizontal: 20,
-    paddingVertical: 24,
-  },
-  logoutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 10,
-    backgroundColor: '#FFF5F5',
-    borderWidth: 1,
-    borderColor: '#FED7D7',
-    alignSelf: 'center',
-    minWidth: 120,
-  },
-  logoutText: {
-    fontSize: 14,
-    color: colors.error,
-    marginLeft: 6,
-    fontWeight: '600',
   },
   notAuthContainer: {
     flex: 1,
