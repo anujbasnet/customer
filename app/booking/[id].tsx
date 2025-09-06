@@ -155,6 +155,7 @@ export default function BookingScreen() {
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       // Navigate to booking confirmed screen with details
+      const finalPrice = discountInfo ? discountInfo.finalPrice : service.price;
       router.push({
         pathname: '/booking-confirmed',
         params: {
@@ -163,7 +164,11 @@ export default function BookingScreen() {
           date: selectedDate,
           time: selectedTime,
           employeeName: selectedEmployee?.name || business.employees[0]?.name || '',
-          price: service.price.toString()
+          price: finalPrice.toString(),
+          originalPrice: discountInfo?.originalPrice?.toString(),
+          discountAmount: discountInfo?.discountAmount?.toString(),
+          discountPercent: discountInfo?.discountPercent?.toString(),
+          promotionText: discountInfo?.promotionText
         }
       });
     } catch (error) {
@@ -206,7 +211,8 @@ export default function BookingScreen() {
         discountPercent,
         discountAmount,
         finalPrice: service.price,
-        isServicePromotion: true
+        isServicePromotion: true,
+        promotionText: 'Special Offer Applied!'
       };
     }
     
@@ -219,6 +225,21 @@ export default function BookingScreen() {
     if (promotion && promotion.businessId === business.id) {
       if (promotion.discount === 'Free Service') {
         // Handle "Free Manicure with Pedicure" type promotions
+        // Find the promotional service in the business
+        const promotionalService = business.services.find(s => s.isPromotion && s.promotionId === promotionId);
+        if (promotionalService && promotionalService.originalPrice) {
+          const discountAmount = promotionalService.originalPrice - promotionalService.price;
+          const discountPercent = Math.round((discountAmount / promotionalService.originalPrice) * 100);
+          
+          return {
+            originalPrice: promotionalService.originalPrice,
+            discountPercent,
+            discountAmount,
+            finalPrice: promotionalService.price,
+            promotionText: promotion.title
+          };
+        }
+        
         return {
           originalPrice: service.price,
           discountPercent: 0,
@@ -381,14 +402,16 @@ export default function BookingScreen() {
               <Text style={styles.summaryTitle}>{t.booking.price}</Text>
               {discountInfo && (
                 <View style={styles.discountInfo}>
-                  <Text style={styles.originalPrice}>{formattedOriginalPrice} {t.common.sum}</Text>
-                  {discountInfo.promotionText ? (
+                  <Text style={styles.originalPrice}>
+                    {discountInfo.originalPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} {t.common.sum}
+                  </Text>
+                  {discountInfo.discountPercent > 0 && (
+                    <Text style={styles.discountText}>
+                      -{discountInfo.discountPercent}% (-{discountInfo.discountAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} {t.common.sum})
+                    </Text>
+                  )}
+                  {discountInfo.promotionText && (
                     <Text style={styles.promotionText}>{discountInfo.promotionText}</Text>
-                  ) : discountInfo.discountPercent > 0 ? (
-                    <Text style={styles.discountText}>-{discountInfo.discountPercent}% ({discountInfo.discountAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} {t.common.sum})</Text>
-                  ) : null}
-                  {discountInfo.isServicePromotion && (
-                    <Text style={styles.promotionText}>Special Offer Applied!</Text>
                   )}
                 </View>
               )}

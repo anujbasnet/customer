@@ -19,6 +19,10 @@ export default function BookingConfirmedScreen() {
     time: string;
     employeeName: string;
     price: string;
+    originalPrice?: string;
+    discountAmount?: string;
+    discountPercent?: string;
+    promotionText?: string;
   }>();
   
   const router = useRouter();
@@ -111,7 +115,22 @@ export default function BookingConfirmedScreen() {
               <DollarSign size={20} color={colors.primary} />
               <View style={styles.detailContent}>
                 <Text style={styles.detailLabel}>Price</Text>
-                <Text style={styles.detailValue}>{formattedPrice} UZS</Text>
+                {params.originalPrice && params.discountAmount ? (
+                  <View>
+                    <Text style={styles.originalPriceText}>
+                      {params.originalPrice.replace(/\B(?=(\d{3})+(?!\d))/g, " ")} UZS
+                    </Text>
+                    <Text style={styles.discountText}>
+                      -{params.discountPercent}% (-{params.discountAmount.replace(/\B(?=(\d{3})+(?!\d))/g, " ")} UZS)
+                    </Text>
+                    <Text style={styles.detailValue}>{formattedPrice} UZS</Text>
+                    {params.promotionText && (
+                      <Text style={styles.promotionText}>{params.promotionText}</Text>
+                    )}
+                  </View>
+                ) : (
+                  <Text style={styles.detailValue}>{formattedPrice} UZS</Text>
+                )}
               </View>
             </View>
           </View>
@@ -261,5 +280,23 @@ const styles = StyleSheet.create({
   },
   primaryButton: {
     marginTop: 0,
+  },
+  originalPriceText: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    textDecorationLine: 'line-through',
+    marginBottom: 2,
+  },
+  discountText: {
+    fontSize: 12,
+    color: colors.error,
+    fontWeight: '500',
+    marginBottom: 2,
+  },
+  promotionText: {
+    fontSize: 12,
+    color: colors.primary,
+    fontWeight: '500',
+    marginTop: 2,
   },
 });

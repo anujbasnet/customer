@@ -103,6 +103,20 @@ export const businesses: Business[] = [
         descriptionUz: 'An\'anaviy issiq sochiq bilan to\'g\'ri ustara soqol olish',
         duration: 45,
         price: 100000
+      },
+      {
+        id: '1004',
+        name: 'Premium Haircut - 30% Off',
+        nameRu: 'Премиум стрижка - скидка 30%',
+        nameUz: 'Premium soch turmagi - 30% chegirma',
+        description: 'Premium haircut with styling - Special 30% discount for first visit',
+        descriptionRu: 'Премиум стрижка с укладкой - Специальная скидка 30% для первого визита',
+        descriptionUz: 'Premium soch turmagi uslublash bilan - Birinchi tashrif uchun maxsus 30% chegirma',
+        duration: 45,
+        price: 84000,
+        originalPrice: 120000,
+        isPromotion: true,
+        promotionId: '1'
       }
     ]
   },

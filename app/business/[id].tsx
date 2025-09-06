@@ -42,6 +42,16 @@ export default function BusinessScreen() {
   
   const business = getBusinessById(id);
   
+  // Auto-select promotional service if promotionId is provided
+  React.useEffect(() => {
+    if (promotionId && business) {
+      const promotionalService = business.services.find(s => s.isPromotion && s.promotionId === promotionId);
+      if (promotionalService) {
+        setSelectedService(promotionalService);
+      }
+    }
+  }, [promotionId, business]);
+  
   if (!business) {
     return (
       <View style={styles.notFoundContainer}>
