@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { publicProcedure } from "../../../create-context";
-import { businesses } from "../../../../../mocks/businesses";
+import { supabaseAdmin } from "../../../../../lib/supabase";
 
 export const listBusinessesProcedure = publicProcedure
   .input(z.object({ 
@@ -9,22 +9,38 @@ export const listBusinessesProcedure = publicProcedure
     limit: z.number().optional().default(10),
     offset: z.number().optional().default(0)
   }))
-  .query(({ input }) => {
-    let filteredBusinesses = businesses;
+  .query(async ({ input }) => {
+    let query = supabaseAdmin
+      .from('businesses')
+      .select(`
+        *,
+        categories(name, icon),
+        cities(name, name_ru, name_uz),
+        employees(*),
+        services(*),
+        portfolio_items(*)
+      `);
     
     if (input.cityId) {
-      filteredBusinesses = filteredBusinesses.filter(b => b.cityId === input.cityId);
+      query = query.eq('city_id', input.cityId);
     }
     
     if (input.category) {
-      filteredBusinesses = filteredBusinesses.filter(b => b.category === input.category);
+      query = query.eq('category_id', input.category);
     }
     
-    const total = filteredBusinesses.length;
-    const paginatedBusinesses = filteredBusinesses.slice(input.offset, input.offset + input.limit);
+    const { data: businesses, error, count } = await query
+      .range(input.offset, input.offset + input.limit - 1)
+      .order('rating', { ascending: false });
+    
+    if (error) {
+      throw new Error(`Failed to fetch businesses: ${error.message}`);
+    }
+    
+    const total = count || 0;
     
     return {
-      businesses: paginatedBusinesses,
+      businesses: businesses || [],
       total,
       hasMore: input.offset + input.limit < total
     };

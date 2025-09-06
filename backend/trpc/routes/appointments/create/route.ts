@@ -1,31 +1,46 @@
 import { z } from "zod";
-import { publicProcedure } from "../../../create-context";
-import { appointments } from "../../../../../mocks/appointments";
+import { protectedProcedure } from "../../../create-context";
+import { supabaseAdmin } from "../../../../../lib/supabase";
 
 const createAppointmentSchema = z.object({
   businessId: z.string(),
-  businessName: z.string(),
   serviceId: z.string(),
-  serviceName: z.string(),
   employeeId: z.string(),
-  employeeName: z.string(),
   date: z.string(),
   time: z.string(),
   duration: z.number(),
-  price: z.number()
+  price: z.number(),
+  discountAmount: z.number().optional().default(0)
 });
 
-export const createAppointmentProcedure = publicProcedure
+export const createAppointmentProcedure = protectedProcedure
   .input(createAppointmentSchema)
-  .mutation(({ input }) => {
-    const newAppointment = {
-      id: (appointments.length + 1).toString(),
-      ...input,
-      status: 'pending' as const
-    };
+  .mutation(async ({ input, ctx }) => {
+    const { data: appointment, error } = await supabaseAdmin
+      .from('appointments')
+      .insert({
+        user_id: ctx.user.id,
+        business_id: input.businessId,
+        service_id: input.serviceId,
+        employee_id: input.employeeId,
+        date: input.date,
+        time: input.time,
+        duration: input.duration,
+        price: input.price,
+        discount_amount: input.discountAmount,
+        status: 'pending'
+      })
+      .select(`
+        *,
+        businesses(name, image),
+        services(name, name_ru, name_uz),
+        employees(name, position)
+      `)
+      .single();
     
-    // In a real app, you'd save this to a database
-    appointments.push(newAppointment);
+    if (error) {
+      throw new Error(`Failed to create appointment: ${error.message}`);
+    }
     
-    return newAppointment;
+    return appointment;
   });
