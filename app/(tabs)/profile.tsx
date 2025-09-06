@@ -79,12 +79,13 @@ export default function ProfileScreen() {
   };
 
   const menuItems: BaseMenuItem[] = useMemo(() => {
-    const baseItems: BaseMenuItem[] = [
-      {
-        icon: <Globe size={24} color={colors.primary} />,
-        title: t.profile.language,
-        type: 'language',
-      },
+    const languageItem: BaseMenuItem = {
+      icon: <Globe size={24} color={colors.primary} />,
+      title: t.profile.language,
+      type: 'language',
+    };
+
+    const otherBaseItems: BaseMenuItem[] = [
       {
         icon: <HelpCircle size={24} color={colors.primary} />,
         title: 'Help & Support',
@@ -109,7 +110,8 @@ export default function ProfileScreen() {
           title: 'Login / Register',
           onPress: () => router.push('/(auth)'),
         },
-        ...baseItems,
+        languageItem,
+        ...otherBaseItems,
         {
           icon: <LogOut size={24} color={colors.error} />,
           title: 'Exit Guest Mode',
@@ -130,12 +132,13 @@ export default function ProfileScreen() {
         title: 'Settings',
         onPress: () => router.push('/settings'),
       },
-      ...baseItems,
+      languageItem,
       {
         icon: <Star size={24} color={colors.primary} />,
         title: 'My Reviews',
         onPress: () => router.push('/my-reviews'),
       },
+      ...otherBaseItems,
       {
         icon: <LogOut size={24} color={colors.error} />,
         title: 'Log out',
@@ -294,31 +297,31 @@ const styles = StyleSheet.create({
   profileHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingTop: 12,
-    paddingBottom: 8,
+    paddingTop: 16,
+    paddingBottom: 12,
   },
   avatarLarge: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 88,
+    height: 88,
+    borderRadius: 44,
   },
   avatarDecorWrap: {
-    width: 80,
-    height: 80,
+    width: 88,
+    height: 88,
     justifyContent: 'center',
     alignItems: 'center',
   },
   avatarRing: {
     position: 'absolute',
-    width: 96,
-    height: 96,
-    borderRadius: 48,
+    width: 104,
+    height: 104,
+    borderRadius: 52,
     backgroundColor: 'rgba(59,130,246,0.12)',
   },
   avatarLargePlaceholder: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 88,
+    height: 88,
+    borderRadius: 44,
     backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
@@ -328,10 +331,10 @@ const styles = StyleSheet.create({
     marginLeft: 16,
   },
   nameLarge: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: '700',
     color: colors.text,
-    marginBottom: 6,
+    marginBottom: 8,
     textAlign: 'left',
   },
   contactRowLg: {
@@ -346,7 +349,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   contactTextLg: {
-    fontSize: 14,
+    fontSize: 15,
     color: colors.textSecondary,
     marginLeft: 6,
   },
@@ -377,13 +380,13 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: colors.border,
     marginHorizontal: -12,
-    marginBottom: 4,
+    marginBottom: 10,
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 12,
+    paddingVertical: 13,
     paddingHorizontal: 10,
   },
   menuItemLeft: {
@@ -391,7 +394,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   menuItemTitle: {
-    fontSize: 14,
+    fontSize: 15,
     color: colors.text,
     marginLeft: 12,
     fontWeight: '500',
