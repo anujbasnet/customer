@@ -190,7 +190,7 @@ export default function ProfileScreen() {
               {item.icon}
               <Text style={titleStyle as any}>{item.title}</Text>
             </View>
-            <ChevronRight size={20} color={colors.textSecondary} />
+            <ChevronRight size={18} color={colors.textSecondary} />
           </TouchableOpacity>
         );
     }
@@ -213,7 +213,7 @@ export default function ProfileScreen() {
 
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false} scrollEventThrottle={16}>
+      <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false} scrollEnabled={false}>
         <View style={styles.sectionCard}>
           <View style={styles.profileHeader}>
             {user?.avatar ? (
@@ -226,26 +226,28 @@ export default function ProfileScreen() {
                 </View>
               </View>
             )}
-            <Text style={styles.nameLarge} numberOfLines={1}>
-              {isGuestMode ? 'Guest User' : user?.name ?? 'User'}
-            </Text>
-            {!isGuestMode && (
-              <>
-                <View style={styles.contactRowLgCenter}>
-                  <Phone size={18} color={colors.primary} />
-                  <Text style={styles.contactTextLg}>{user?.phone ?? ''}</Text>
-                </View>
-                <View style={styles.contactRowLgCenter}>
-                  <MapPin size={18} color={colors.primary} />
-                  <Text style={styles.contactTextLg}>{getCurrentCityName()}</Text>
-                </View>
-              </>
-            )}
-            {isGuestMode && (
-              <Text style={styles.guestModeText}>
-                You&apos;re browsing in guest mode. Login to access all features.
+            <View style={styles.profileInfo}>
+              <Text style={styles.nameLarge} numberOfLines={1}>
+                {isGuestMode ? 'Guest User' : user?.name ?? 'User'}
               </Text>
-            )}
+              {!isGuestMode && (
+                <>
+                  <View style={styles.contactRowLg}>
+                    <Phone size={18} color={colors.primary} />
+                    <Text style={styles.contactTextLg}>{user?.phone ?? ''}</Text>
+                  </View>
+                  <View style={styles.contactRowLg}>
+                    <MapPin size={18} color={colors.primary} />
+                    <Text style={styles.contactTextLg}>{getCurrentCityName()}</Text>
+                  </View>
+                </>
+              )}
+              {isGuestMode && (
+                <Text style={styles.guestModeText}>
+                  You&apos;re browsing in guest mode. Login to access all features.
+                </Text>
+              )}
+            </View>
           </View>
 
           <View style={styles.itemDividerFull} />
@@ -290,33 +292,33 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   profileHeader: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingTop: 20,
+    paddingTop: 12,
     paddingBottom: 8,
   },
   avatarLarge: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
   },
   avatarDecorWrap: {
-    width: 96,
-    height: 96,
+    width: 80,
+    height: 80,
     justifyContent: 'center',
     alignItems: 'center',
   },
   avatarRing: {
     position: 'absolute',
-    width: 112,
-    height: 112,
-    borderRadius: 56,
-    backgroundColor: 'rgba(59,130,246,0.12)',
-  },
-  avatarLargePlaceholder: {
     width: 96,
     height: 96,
     borderRadius: 48,
+    backgroundColor: 'rgba(59,130,246,0.12)',
+  },
+  avatarLargePlaceholder: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
@@ -326,12 +328,11 @@ const styles = StyleSheet.create({
     marginLeft: 16,
   },
   nameLarge: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '700',
     color: colors.text,
-    marginTop: 12,
-    marginBottom: 8,
-    textAlign: 'center',
+    marginBottom: 6,
+    textAlign: 'left',
   },
   contactRowLg: {
     flexDirection: 'row',
@@ -341,36 +342,36 @@ const styles = StyleSheet.create({
   contactRowLgCenter: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     marginBottom: 6,
   },
   contactTextLg: {
-    fontSize: 15,
+    fontSize: 14,
     color: colors.textSecondary,
     marginLeft: 6,
   },
   sectionCard: {
     backgroundColor: '#FFFFFF',
-    marginHorizontal: 20,
-    marginTop: 20,
-    borderRadius: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
+    marginHorizontal: 16,
+    marginTop: 12,
+    borderRadius: 14,
+    paddingHorizontal: 10,
+    paddingVertical: 2,
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOpacity: 0.06,
-        shadowRadius: 10,
-        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.05,
+        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 3 },
       },
-      android: { elevation: 2 },
+      android: { elevation: 1 },
       default: {},
     }),
   },
   itemDivider: {
     height: 1,
     backgroundColor: colors.border,
-    marginLeft: 56,
+    marginLeft: 52,
   },
   itemDividerFull: {
     height: 1,
@@ -382,17 +383,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 18,
-    paddingHorizontal: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 10,
   },
   menuItemLeft: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   menuItemTitle: {
-    fontSize: 16,
+    fontSize: 14,
     color: colors.text,
-    marginLeft: 16,
+    marginLeft: 12,
     fontWeight: '500',
   },
   notAuthContainer: {
