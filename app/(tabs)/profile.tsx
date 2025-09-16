@@ -10,6 +10,7 @@ import {
   Modal,
   Platform,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import {
   User,
@@ -45,7 +46,8 @@ export default function ProfileScreen() {
   const { user, logout, selectedCity, isAuthenticated, isGuestMode } = useAppStore();
   const { t, language } = useTranslation();
   const router = useRouter();
-  const [showLogoutModal, setShowLogoutModal] = useState<boolean>(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const insets = useSafeAreaInsets();
 
   const handleLogout = () => {
     console.log('[Profile] Logout pressed');
@@ -201,7 +203,7 @@ export default function ProfileScreen() {
 
   if (!isAuthenticated && !isGuestMode) {
     return (
-      <View style={styles.notAuthContainer}>
+      <View style={[styles.notAuthContainer, { paddingTop: insets.top }]}>
         <View style={styles.largeAvatarPlaceholder}>
           <User size={56} color="#FFFFFF" />
         </View>
@@ -215,8 +217,8 @@ export default function ProfileScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false} scrollEnabled={false}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         <View style={styles.sectionCard}>
           <View style={styles.profileHeader}>
             {user?.avatar ? (
@@ -289,7 +291,7 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7F8FA',
+    backgroundColor: '#FFFFFF',
   },
   scrollContainer: {
     flex: 1,
@@ -356,10 +358,10 @@ const styles = StyleSheet.create({
   sectionCard: {
     backgroundColor: '#FFFFFF',
     marginHorizontal: 16,
-    marginTop: 12,
+    marginTop: 20,
     borderRadius: 14,
     paddingHorizontal: 10,
-    paddingVertical: 2,
+    paddingVertical: 8,
     ...Platform.select({
       ios: {
         shadowColor: '#000',

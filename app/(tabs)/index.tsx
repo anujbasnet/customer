@@ -7,12 +7,11 @@ import {
   TouchableOpacity,
   FlatList,
   TextInput,
-
-
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Search, MapPin, Scissors } from 'lucide-react-native';
-import { Image } from 'expo-image';
+
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAppStore } from '@/hooks/useAppStore';
 import { colors } from '@/constants/colors';
@@ -33,8 +32,9 @@ import { CitySelectionModal } from '@/components/CitySelectionModal';
 export default function HomeScreen() {
   const { t } = useTranslation();
   const router = useRouter();
-  const { selectedCity, favorites, isAuthenticated, isGuestMode } = useAppStore();
+  const { selectedCity, favorites, isGuestMode } = useAppStore();
   const [searchQuery, setSearchQuery] = useState('');
+  const insets = useSafeAreaInsets();
   
   // Get current city name
   const currentCity = cities.find(city => city.id === selectedCity);
@@ -88,7 +88,7 @@ export default function HomeScreen() {
   
   return (
     <ScrollView 
-      style={styles.container} 
+      style={[styles.container, { paddingTop: insets.top }]} 
       showsVerticalScrollIndicator={false}
       contentContainerStyle={styles.scrollContent}
       scrollEventThrottle={16}
@@ -171,7 +171,7 @@ export default function HomeScreen() {
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.categoriesList}
-          ItemSeparatorComponent={() => <View style={{ width: 16 }} />}
+          ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
           scrollEventThrottle={16}
         />
       )}
@@ -206,7 +206,7 @@ export default function HomeScreen() {
             </Text>
             <TouchableOpacity 
               style={styles.guestLoginButton}
-              onPress={() => router.push('/(auth)')}
+              onPress={() => router.push('/(auth)/login')}
               activeOpacity={0.7}
             >
               <Text style={styles.guestLoginButtonText}>{t.common.loginRegisterCta}</Text>
@@ -469,5 +469,8 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 14,
     fontWeight: '600',
+  },
+  itemSeparator: {
+    width: 16,
   },
 });
