@@ -54,11 +54,11 @@ type TranslationKeys = {
     hairSalon: string;
     barber: string;
     nailSalon: string;
-    spa: string;
-    massage: string;
+    spaAndMassage: string;
     dental: string;
-    fitness: string;
+    videogaming: string;
     football: string;
+    others: string;
   };
   business: {
     about: string;
@@ -200,7 +200,7 @@ type Translations = {
 export const translations: Translations = {
   en: {
     common: {
-      appName: "Timely.uz",
+      appName: "Rejaly.uz",
       loading: "Loading...",
       search: "Search",
       cancel: "Cancel",
@@ -252,11 +252,11 @@ export const translations: Translations = {
       hairSalon: "Hair Salon",
       barber: "Barber",
       nailSalon: "Nail Salon",
-      spa: "Spa",
-      massage: "Massage",
+      spaAndMassage: "Spa & Massage",
       dental: "Dental",
-      fitness: "Fitness",
+      videogaming: "Videogaming",
       football: "Football",
+      others: "Others",
     },
     business: {
       about: "About",
@@ -392,7 +392,7 @@ export const translations: Translations = {
   },
   ru: {
     common: {
-      appName: "Timely.uz",
+      appName: "Rejaly.uz",
       loading: "Загрузка...",
       search: "Поиск",
       cancel: "Отмена",
@@ -444,11 +444,11 @@ export const translations: Translations = {
       hairSalon: "Парикмахерская",
       barber: "Барбершоп",
       nailSalon: "Маникюр",
-      spa: "СПА",
-      massage: "Массаж",
+      spaAndMassage: "СПА и массаж",
       dental: "Стоматология",
-      fitness: "Фитнес",
+      videogaming: "Видеоигры",
       football: "Футбол",
+      others: "Другое",
     },
     business: {
       about: "О нас",
@@ -584,7 +584,7 @@ export const translations: Translations = {
   },
   uz: {
     common: {
-      appName: "Timely.uz",
+      appName: "Rejaly.uz",
       loading: "Yuklanmoqda...",
       search: "Qidirish",
       cancel: "Bekor qilish",
@@ -636,11 +636,11 @@ export const translations: Translations = {
       hairSalon: "Soch saloni",
       barber: "Sartarosh",
       nailSalon: "Tirnoq saloni",
-      spa: "SPA",
-      massage: "Massaj",
+      spaAndMassage: "SPA va massaj",
       dental: "Tish shifokori",
-      fitness: "Fitness",
+      videogaming: "Video o'yinlar",
       football: "Futbol",
+      others: "Boshqalar",
     },
     business: {
       about: "Haqida",

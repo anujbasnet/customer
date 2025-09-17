@@ -58,12 +58,12 @@ export default function ProfileScreen() {
     console.log('[Profile] Logout confirmed');
     logout();
     setShowLogoutModal(false);
-    router.replace('/login');
+    router.replace('/(auth)/login');
   };
 
   const handleLogin = () => {
     console.log('[Profile] Navigate to auth');
-    router.push('/login');
+    router.push('/(auth)/login');
   };
 
   const getCurrentCityName = () => {
@@ -110,7 +110,7 @@ export default function ProfileScreen() {
         {
           icon: <User size={24} color={colors.primary} />,
           title: t.profile.loginRegisterPrompt,
-          onPress: () => router.push('/login'),
+          onPress: () => router.push('/(auth)/login'),
         },
         languageItem,
         ...otherBaseItems,

@@ -27,26 +27,26 @@ export const categories: Category[] = [
   },
   {
     id: '5',
-    name: 'spa',
+    name: 'spaAndMassage',
     icon: 'flower2',
     image: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'
   },
   {
     id: '6',
-    name: 'massage',
-    icon: 'hand',
-    image: 'https://images.unsplash.com/photo-1519823551278-64ac92734fb1?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'
-  },
-  {
-    id: '7',
     name: 'dental',
     icon: 'smile',
     image: 'https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'
   },
   {
+    id: '7',
+    name: 'videogaming',
+    icon: 'gamepad2',
+    image: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'
+  },
+  {
     id: '8',
-    name: 'fitness',
-    icon: 'dumbbell',
-    image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'
+    name: 'others',
+    icon: 'more-horizontal',
+    image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'
   }
 ];
