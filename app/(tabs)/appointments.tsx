@@ -32,7 +32,7 @@ export default function AppointmentsScreen() {
   };
 
   const handleLogin = () => {
-    router.push('/(auth)');
+    router.push('/login');
   };
 
   // If not authenticated and not in guest mode, show login prompt
