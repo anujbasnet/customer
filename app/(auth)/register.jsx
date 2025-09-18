@@ -16,55 +16,57 @@ import { Input } from "@/components/Input";
 import { Button } from "@/components/Button";
 import { colors } from "@/constants/colors";
 import { LanguageSelector } from "@/components/LanguageSelector";
-import { auth } from "@/FirebaseConfig";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import axios from "axios";
+
+// backend URL (put it in .env later for flexibility)
+const API_URL = "http://192.168.1.3:5000/api/auth";
+
 export default function RegisterScreen() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
-  const [gender, setGender] = useState<"male" | "female" | "other" | "">("");
-  const [birthday, setBirthday] = useState<Date | null>(null);
+  const [gender, setGender] = useState(""); // male, female, other
+  const [birthday, setBirthday] = useState(null);
   const [address, setAddress] = useState("");
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const { register, enterGuestMode } = useAppStore();
+  const { enterGuestMode } = useAppStore();
   const { t } = useTranslation();
   const router = useRouter();
 
-  // const handleRegister = async () => {
-  //   if (!firstName || !lastName || !email || !password) {
-  //     setError("Please fill required fields");
-  //     return;
-  //   }
+  const handleRegister = async () => {
+    if (!firstName || !lastName || !email || !password) {
+      setError("Please fill required fields");
+      return;
+    }
 
-  //   setLoading(true);
-  //   setError("");
+    setLoading(true);
+    setError("");
 
-  //   try {
-  //     await register(`${firstName} ${lastName}`, email, password, {
-  //       phone,
-  //       gender: gender || undefined,
-  //       birthday: birthday?.toISOString().split("T")[0],
-  //       address,
-  //     });
-  //     router.replace("/(tabs)");
-  //   } catch (err) {
-  //     setError("Registration failed");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-  const signUp = async () => {
     try {
-      const user = await createUserWithEmailAndPassword(auth, email, password);
-      if (user) router.replace("/(tabs)");
-    } catch (error: any) {
-      console.log(error);
-      alert("Sign in failed: " + error.message);
+      const res = await axios.post(`${API_URL}/register`, {
+        email,
+        password,
+        role: "customer",
+        phone,
+        gender: gender || undefined,
+        birthday: birthday ? birthday.toISOString().split("T")[0] : undefined,
+        address,
+        name: `${firstName} ${lastName}`,
+      });
+
+      if (res.data.msg === "User registered successfully") {
+        router.replace("/(auth)/login");
+      }
+    } catch (err) {
+      console.log(err.response?.data || err.message);
+      setError(err.response?.data?.msg || "Registration failed");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -73,14 +75,14 @@ export default function RegisterScreen() {
     router.replace("/(tabs)");
   };
 
-  const handleDateChange = (event: any, selectedDate?: Date) => {
+  const handleDateChange = (event, selectedDate) => {
     setShowDatePicker(false);
     if (selectedDate) {
       setBirthday(selectedDate);
     }
   };
 
-  const formatDate = (date: Date) => {
+  const formatDate = (date) => {
     return date.toLocaleDateString();
   };
 
@@ -145,54 +147,25 @@ export default function RegisterScreen() {
           <View style={styles.fieldContainer}>
             <Text style={styles.label}>{t.profile.gender}</Text>
             <View style={styles.genderContainer}>
-              <TouchableOpacity
-                style={[
-                  styles.genderButton,
-                  gender === "male" && styles.genderButtonActive,
-                ]}
-                onPress={() => setGender("male")}
-              >
-                <Text
+              {["male", "female", "other"].map((g) => (
+                <TouchableOpacity
+                  key={g}
                   style={[
-                    styles.genderText,
-                    gender === "male" && styles.genderTextActive,
+                    styles.genderButton,
+                    gender === g && styles.genderButtonActive,
                   ]}
+                  onPress={() => setGender(g)}
                 >
-                  {t.profile.male}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[
-                  styles.genderButton,
-                  gender === "female" && styles.genderButtonActive,
-                ]}
-                onPress={() => setGender("female")}
-              >
-                <Text
-                  style={[
-                    styles.genderText,
-                    gender === "female" && styles.genderTextActive,
-                  ]}
-                >
-                  {t.profile.female}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[
-                  styles.genderButton,
-                  gender === "other" && styles.genderButtonActive,
-                ]}
-                onPress={() => setGender("other")}
-              >
-                <Text
-                  style={[
-                    styles.genderText,
-                    gender === "other" && styles.genderTextActive,
-                  ]}
-                >
-                  {t.profile.other}
-                </Text>
-              </TouchableOpacity>
+                  <Text
+                    style={[
+                      styles.genderText,
+                      gender === g && styles.genderTextActive,
+                    ]}
+                  >
+                    {t.profile[g]}
+                  </Text>
+                </TouchableOpacity>
+              ))}
             </View>
           </View>
 
@@ -224,7 +197,7 @@ export default function RegisterScreen() {
 
           <Button
             title={t.auth.register}
-            onPress={signUp}
+            onPress={handleRegister}
             loading={loading}
             style={styles.registerButton}
           />
@@ -252,72 +225,21 @@ export default function RegisterScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
-  },
-  scrollContent: {
-    flexGrow: 1,
-    padding: 20,
-  },
-  header: {
-    alignItems: "center",
-    marginTop: 60,
-    marginBottom: 40,
-  },
-  languageContainer: {
-    position: "absolute",
-    top: -40,
-    right: 0,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: colors.primary,
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: colors.textSecondary,
-    textAlign: "center",
-  },
-  form: {
-    width: "100%",
-  },
-  errorText: {
-    color: colors.error,
-    marginBottom: 16,
-  },
-  registerButton: {
-    marginTop: 16,
-    marginBottom: 24,
-  },
-  loginContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginTop: 16,
-  },
-  loginText: {
-    color: colors.textSecondary,
-    marginRight: 4,
-  },
-  loginLink: {
-    color: colors.primary,
-    fontWeight: "500",
-  },
-  fieldContainer: {
-    marginBottom: 16,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: "500",
-    color: colors.text,
-    marginBottom: 8,
-  },
-  genderContainer: {
-    flexDirection: "row",
-    gap: 8,
-  },
+  container: { flex: 1, backgroundColor: "#FFFFFF" },
+  scrollContent: { flexGrow: 1, padding: 20 },
+  header: { alignItems: "center", marginTop: 60, marginBottom: 40 },
+  languageContainer: { position: "absolute", top: -40, right: 0 },
+  title: { fontSize: 28, fontWeight: "bold", color: colors.primary, marginBottom: 8 },
+  subtitle: { fontSize: 16, color: colors.textSecondary, textAlign: "center" },
+  form: { width: "100%" },
+  errorText: { color: colors.error, marginBottom: 16 },
+  registerButton: { marginTop: 16, marginBottom: 24 },
+  loginContainer: { flexDirection: "row", justifyContent: "center", marginTop: 16 },
+  loginText: { color: colors.textSecondary, marginRight: 4 },
+  loginLink: { color: colors.primary, fontWeight: "500" },
+  fieldContainer: { marginBottom: 16 },
+  label: { fontSize: 16, fontWeight: "500", color: colors.text, marginBottom: 8 },
+  genderContainer: { flexDirection: "row", gap: 8 },
   genderButton: {
     flex: 1,
     paddingVertical: 12,
@@ -328,18 +250,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     alignItems: "center",
   },
-  genderButtonActive: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
-  genderText: {
-    fontSize: 14,
-    color: colors.text,
-  },
-  genderTextActive: {
-    color: "#FFFFFF",
-    fontWeight: "500",
-  },
+  genderButtonActive: { backgroundColor: colors.primary, borderColor: colors.primary },
+  genderText: { fontSize: 14, color: colors.text },
+  genderTextActive: { color: "#FFFFFF", fontWeight: "500" },
   dateButton: {
     paddingVertical: 12,
     paddingHorizontal: 16,
@@ -348,13 +261,8 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     backgroundColor: "#FFFFFF",
   },
-  dateText: {
-    fontSize: 16,
-    color: colors.text,
-  },
-  placeholderText: {
-    color: colors.textSecondary,
-  },
+  dateText: { fontSize: 16, color: colors.text },
+  placeholderText: { color: colors.textSecondary },
   guestModeButton: {
     marginTop: 24,
     paddingVertical: 12,
@@ -365,9 +273,5 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
     alignItems: "center",
   },
-  guestModeText: {
-    color: colors.textSecondary,
-    fontSize: 16,
-    fontWeight: "500",
-  },
+  guestModeText: { color: colors.textSecondary, fontSize: 16, fontWeight: "500" },
 });

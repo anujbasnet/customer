@@ -17,8 +17,11 @@ import { Input } from "@/components/Input";
 import { Button } from "@/components/Button";
 import { colors } from "@/constants/colors";
 import { LanguageSelector } from "@/components/LanguageSelector";
-import { auth } from "@/FirebaseConfig";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+// Backend URL
+const API_URL = "http://192.168.1.3:5000/api/auth";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
@@ -26,37 +29,38 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const { login, enterGuestMode } = useAppStore();
+  const { enterGuestMode } = useAppStore();
   const { t } = useTranslation();
   const router = useRouter();
 
-  // const handleLogin = async () => {
+  const handleLogin = async () => {
+  if (!email || !password) {
+    setError("Please enter email and password");
+    return;
+  }
 
-  //   setError('');
+  setLoading(true);
+  setError("");
 
-  //   try {
-  //     await login(email, password);
-  //     router.replace('/(tabs)');
-  //   } catch (err) {
-  //     setError('Invalid email or password');
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+  try {
+    const res = await axios.post(`${API_URL}/login`, { email, password });
 
-  const signIn = async () => {
-    if (!email || !password) {
-      setError("Please enter email and password");
-      return;
+    if (res.data.user && res.data.token) {
+      // Save JWT token for persistent login
+      await AsyncStorage.setItem("token", res.data.token);
+
+      // Optionally, save user info too
+      await AsyncStorage.setItem("user", JSON.stringify(res.data.user));
+
+      router.replace("/(tabs)"); // navigate to home
     }
-    try {
-      const user = await signInWithEmailAndPassword(auth, email, password);
-      if (user) router.replace("/(tabs)");
-    } catch (error: any) {
-      console.log(error);
-      alert("Sign in failed: " + error.message);
-    }
-  };
+  } catch (err: any) {
+    console.log(err.response?.data || err.message);
+    setError(err.response?.data?.msg || "Login failed");
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleGuestMode = () => {
     enterGuestMode();
@@ -115,7 +119,6 @@ export default function LoginScreen() {
             style={styles.forgotPassword}
             onPress={() => router.push("/forgot-password")}
             activeOpacity={0.7}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
             <Text style={styles.forgotPasswordText}>
               {t.auth.forgotPassword}
@@ -124,7 +127,7 @@ export default function LoginScreen() {
 
           <Button
             title={t.auth.login}
-            onPress={signIn}
+            onPress={handleLogin}
             loading={loading}
             style={styles.loginButton}
           />
@@ -152,24 +155,10 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
-  },
-  scrollContent: {
-    flexGrow: 1,
-    padding: 20,
-  },
-  header: {
-    alignItems: "center",
-    marginTop: 40,
-    marginBottom: 40,
-  },
-  languageContainer: {
-    position: "absolute",
-    top: -20,
-    right: 0,
-  },
+  container: { flex: 1, backgroundColor: "#FFFFFF" },
+  scrollContent: { flexGrow: 1, padding: 20 },
+  header: { alignItems: "center", marginTop: 40, marginBottom: 40 },
+  languageContainer: { position: "absolute", top: -20, right: 0 },
   logoContainer: {
     width: 100,
     height: 100,
@@ -179,52 +168,26 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: colors.primary,
   },
-  logo: {
-    width: "100%",
-    height: "100%",
-  },
+  logo: { width: "100%", height: "100%" },
   title: {
     fontSize: 28,
     fontWeight: "bold",
     color: colors.primary,
     marginBottom: 8,
   },
-  subtitle: {
-    fontSize: 16,
-    color: colors.textSecondary,
-    textAlign: "center",
-  },
-  form: {
-    width: "100%",
-  },
-  errorText: {
-    color: colors.error,
-    marginBottom: 16,
-  },
-  forgotPassword: {
-    alignSelf: "flex-end",
-    marginBottom: 24,
-  },
-  forgotPasswordText: {
-    color: colors.primary,
-    fontSize: 14,
-  },
-  loginButton: {
-    marginBottom: 24,
-  },
+  subtitle: { fontSize: 16, color: colors.textSecondary, textAlign: "center" },
+  form: { width: "100%" },
+  errorText: { color: colors.error, marginBottom: 16 },
+  forgotPassword: { alignSelf: "flex-end", marginBottom: 24 },
+  forgotPasswordText: { color: colors.primary, fontSize: 14 },
+  loginButton: { marginBottom: 24 },
   registerContainer: {
     flexDirection: "row",
     justifyContent: "center",
     marginTop: 16,
   },
-  registerText: {
-    color: colors.textSecondary,
-    marginRight: 4,
-  },
-  registerLink: {
-    color: colors.primary,
-    fontWeight: "500",
-  },
+  registerText: { color: colors.textSecondary, marginRight: 4 },
+  registerLink: { color: colors.primary, fontWeight: "500" },
   guestModeButton: {
     marginTop: 24,
     paddingVertical: 12,

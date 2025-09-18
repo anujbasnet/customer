@@ -75,16 +75,6 @@ export default function SettingsScreen() {
             <LanguageSelector />
           </View>
         );
-      case "city":
-        return (
-          <View key={index} style={styles.settingItem}>
-            <View style={styles.settingItemLeft}>
-              {item.icon}
-              <Text style={styles.settingItemTitle}>{item.title}</Text>
-            </View>
-            <CitySelector />
-          </View>
-        );
       case "switch":
         return (
           <View key={index} style={styles.settingItem}>
@@ -107,7 +97,6 @@ export default function SettingsScreen() {
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {settingsSections.map((section, sectionIndex) => (
         <View key={sectionIndex} style={styles.section}>
-          <Text style={styles.sectionTitle}>{section.title}</Text>
           <View style={styles.sectionContent}>
             {section.items.map((item, itemIndex) =>
               renderSettingItem(item, itemIndex)
