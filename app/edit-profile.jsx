@@ -201,7 +201,7 @@ export default function EditProfileScreen() {
         selectedCity: formData.cityId,
       };
 
-      const response = await fetch("http://192.168.1.3:5000/api/auth/me", {
+      const response = await fetch("http://192.168.1.4:5000/api/auth/me", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

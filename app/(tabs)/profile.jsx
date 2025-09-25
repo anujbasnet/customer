@@ -33,7 +33,7 @@ import { Button } from "@/components/Button";
 import { cities } from "@/mocks/cities";
 import { LanguageSelector } from "@/components/LanguageSelector";
 
-const API_URL = "http://192.168.1.3:5000/api/auth";
+const API_URL = "http://192.168.1.4:5000/api/auth";
 
 export default function ProfileScreen() {
   const { isGuestMode, logout } = useAppStore();

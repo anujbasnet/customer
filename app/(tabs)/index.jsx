@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -8,6 +8,7 @@ import {
   FlatList,
   TextInput,
 } from 'react-native';
+import axios from "axios";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Search, MapPin, Scissors } from 'lucide-react-native';
@@ -18,58 +19,59 @@ import { colors } from '@/constants/colors';
 import { CategoryCircle } from '@/components/CategoryCircle';
 import { BusinessCard } from '@/components/BusinessCard';
 import { categories } from '@/mocks/categories';
-import { getRecentlyVisitedBusinesses, getRecommendedBusinesses } from '@/mocks/businesses';
 import { cities } from '@/mocks/cities';
 import { getUpcomingAppointments } from '@/mocks/appointments';
 import { getPromotions } from '@/mocks/promotions';
-import { Business, Category, Appointment } from '@/types';
 import { AppointmentReminder } from '@/components/AppointmentReminder';
 import { PromotionCard } from '@/components/PromotionCard';
 import { CitySelectionModal } from '@/components/CitySelectionModal';
 
-
-
 export default function HomeScreen() {
   const { t } = useTranslation();
   const router = useRouter();
-  const { selectedCity, favorites, isGuestMode } = useAppStore();
+  const { selectedCity, isGuestMode } = useAppStore();
   const [searchQuery, setSearchQuery] = useState('');
   const insets = useSafeAreaInsets();
-  
-  // Get current city name
-  const currentCity = cities.find(city => city.id === selectedCity);
-  
-  const [showAllRecent, setShowAllRecent] = useState(false);
+
   const [showAllCategories, setShowAllCategories] = useState(false);
-  const [showAllRecommended, setShowAllRecommended] = useState(false);
   const [showAllPromotions, setShowAllPromotions] = useState(false);
   const [showCityModal, setShowCityModal] = useState(false);
-  
-  const recentlyVisited = getRecentlyVisitedBusinesses();
-  const recommendedBusinesses = getRecommendedBusinesses();
-  const upcomingAppointments = getUpcomingAppointments();
-  const promotions = getPromotions();
-  
-  // Combine recently visited and favorites
-  const visitedAndFavorites = [...recentlyVisited, ...favorites].filter(
-    (business, index, self) => self.findIndex(b => b.id === business.id) === index
-  );
 
-  
-  const handleCategoryPress = (category: Category) => {
+  const [businesses, setBusinesses] = useState([]); // ✅ now plain array
+  const [loading, setLoading] = useState(true);
+
+  const promotions = getPromotions();
+  const upcomingAppointments = getUpcomingAppointments();
+  const currentCity = cities.find(city => city.id === selectedCity);
+
+  // ✅ Fetch businesses from backend
+  useEffect(() => {
+    const fetchBusinesses = async () => {
+      try {
+        const res = await axios.get("http://192.168.1.4:5000/api/admin/business/all");
+        setBusinesses(res.data);
+      } catch (err) {
+        console.error("Failed to fetch businesses", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBusinesses();
+  }, []);
+
+  const handleCategoryPress = (category) => {
     router.push(`/category/${category.id}`);
   };
   
-  const handleBusinessPress = (business: Business) => {
-    router.push(`/business/${business.id}`);
+  const handleBusinessPress = (business) => {
+    router.push(`/business/${business._id}`); // ✅ use MongoDB _id
   };
-  
-  const handleAppointmentPress = (appointment: Appointment) => {
+
+  const handleAppointmentPress = (appointment) => {
     router.push(`/appointment/${appointment.id}`);
   };
   
-  const handlePromotionPress = (promotion: any) => {
-    // Navigate to business with promotion context
+  const handlePromotionPress = (promotion) => {
     router.push(`/business/${promotion.businessId}?promotionId=${promotion.id}`);
   };
   
@@ -100,7 +102,6 @@ export default function HomeScreen() {
         </View>
         <Text style={styles.appName}>{t.common.appName}</Text>
         
-        {/* City Display */}
         <TouchableOpacity 
           style={styles.cityButton}
           onPress={handleCityPress}
@@ -133,7 +134,7 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </View>
       
-      {/* Service Types */}
+      {/* Categories */}
       <View style={styles.categoryHeader}>
         <Text style={styles.sectionTitle}>{t.home.categories}</Text>
         <TouchableOpacity 
@@ -147,7 +148,6 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </View>
       
-      {/* Service Types - Horizontal Scroll or Grid */}
       {showAllCategories ? (
         <View style={styles.categoriesGrid}>
           {categories.map((item) => (
@@ -215,69 +215,30 @@ export default function HomeScreen() {
         </View>
       )}
       
-      {/* Visited and Favorites */}
-      <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>{t.home.visitedAndFavorites}</Text>
-          {visitedAndFavorites.length > 1 && (
-            <TouchableOpacity 
-              onPress={() => setShowAllRecent(!showAllRecent)}
-              activeOpacity={0.7}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <Text style={styles.viewAll}>
-                {showAllRecent ? t.common.showLess : t.common.viewAll}
-              </Text>
-            </TouchableOpacity>
-          )}
-        </View>
-        
-        {visitedAndFavorites.length > 0 ? (
-          <>
-            {(showAllRecent ? visitedAndFavorites : visitedAndFavorites.slice(0, 1)).map((business) => (
-              <BusinessCard
-                key={business.id}
-                business={business}
-                onPress={handleBusinessPress}
-                showFavoriteButton={true}
-              />
-            ))}
-          </>
-        ) : (
-          <View style={styles.emptyStateContainer}>
-            <Text style={styles.emptyStateText}>{t.home.noRecentlyVisited}</Text>
-          </View>
-        )}
-      </View>
-      
-      
-      {/* Recommendations */}
+      {/* ✅ Businesses from MongoDB */}
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>{t.home.recommendations}</Text>
-          <TouchableOpacity 
-            onPress={() => setShowAllRecommended(!showAllRecommended)}
-            activeOpacity={0.7}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            <Text style={styles.viewAll}>
-              {showAllRecommended ? t.common.showLess : t.common.viewAll}
-            </Text>
-          </TouchableOpacity>
         </View>
-        
-        {(showAllRecommended ? recommendedBusinesses.slice(0, 4) : recommendedBusinesses.slice(0, 1)).map((business) => (
-          <BusinessCard
-            key={business.id}
-            business={business}
-            onPress={handleBusinessPress}
-            showFavoriteButton={true}
-          />
-        ))}
+
+        {loading ? (
+          <Text>Loading...</Text>
+        ) : businesses.length > 0 ? (
+          businesses.map((business) => (
+            <BusinessCard
+              key={business.id}
+              business={business}
+              onPress={() => handleBusinessPress(business)}
+              showFavoriteButton={true}
+            />
+          ))
+        ) : (
+          <Text>No businesses available</Text>
+        )}
       </View>
       
-      {/* Promotions and Discounts */}
-      <View style={styles.section}>
+      {/* Promotions */}
+      <View style={styles.section}><wbr></wbr>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>{t.home.promotions}</Text>
           <TouchableOpacity 
@@ -418,14 +379,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.textSecondary,
     textAlign: 'center',
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    backgroundColor: colors.card,
-    borderRadius: 12,
-    padding: 16,
-    marginTop: 8,
   },
   expandButton: {
     fontSize: 14,
