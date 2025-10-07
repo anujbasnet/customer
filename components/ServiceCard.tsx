@@ -5,7 +5,7 @@ import {
   StyleSheet, 
   View 
 } from 'react-native';
-import { Clock, DollarSign } from 'lucide-react-native';
+import { Clock } from 'lucide-react-native';
 import { Service } from '@/types';
 import { colors } from '@/constants/colors';
 
@@ -47,7 +47,6 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
             </Text>
           </View>
           <View style={styles.priceDetail}>
-            <DollarSign size={16} color={selected ? '#FFFFFF' : colors.textSecondary} />
             <View style={styles.priceContainer}>
               {service.isPromotion && service.originalPrice ? (
                 <>

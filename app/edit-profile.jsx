@@ -201,7 +201,7 @@ export default function EditProfileScreen() {
         selectedCity: formData.cityId,
       };
 
-      const response = await fetch("http://192.168.1.4:5000/api/auth/me", {
+      const response = await fetch("http://192.168.1.5:5000/api/auth/me", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -296,17 +296,6 @@ export default function EditProfileScreen() {
                   setFormData((prev) => ({ ...prev, phone: text }))
                 }
                 keyboardType="phone-pad"
-              />
-            </View>
-
-            <View style={styles.fieldGroup}>
-              <Text style={styles.label}>Email</Text>
-              <Input
-                value={formData.email}
-                onChangeText={(text) =>
-                  setFormData((prev) => ({ ...prev, email: text }))
-                }
-                keyboardType="email-address"
               />
             </View>
 

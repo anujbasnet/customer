@@ -21,7 +21,7 @@ import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Backend URL
-const API_URL = "http://192.168.1.4:5000/api/auth";
+const API_URL = "http://192.168.1.5:5000/api/auth";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");

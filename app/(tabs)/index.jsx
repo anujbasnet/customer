@@ -48,7 +48,7 @@ export default function HomeScreen() {
   useEffect(() => {
     const fetchBusinesses = async () => {
       try {
-        const res = await axios.get("http://192.168.1.4:5000/api/admin/business/all");
+        const res = await axios.get("http://192.168.1.5:5000/api/admin/business/all");
         setBusinesses(res.data);
       } catch (err) {
         console.error("Failed to fetch businesses", err);
@@ -64,7 +64,7 @@ export default function HomeScreen() {
   };
   
   const handleBusinessPress = (business) => {
-    router.push(`/business/${business._id}`); // ✅ use MongoDB _id
+    router.push(`/business/${business.id}`); 
   };
 
   const handleAppointmentPress = (appointment) => {
@@ -238,7 +238,7 @@ export default function HomeScreen() {
       </View>
       
       {/* Promotions */}
-      <View style={styles.section}><wbr></wbr>
+      <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>{t.home.promotions}</Text>
           <TouchableOpacity 

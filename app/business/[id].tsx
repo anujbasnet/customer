@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -25,7 +25,8 @@ import { colors } from '@/constants/colors';
 import { Button } from '@/components/Button';
 import { ServiceCard } from '@/components/ServiceCard';
 import { EmployeeCard } from '@/components/EmployeeCard';
-import { getBusinessById } from '@/mocks/businesses';
+import { getBusinessById as getMockBusinessById } from '@/mocks/businesses';
+import axios from 'axios';
 import { Service, Employee } from '@/types';
 
 const { width } = Dimensions.get('window');
@@ -40,24 +41,108 @@ export default function BusinessScreen() {
   const router = useRouter();
   const { isAuthenticated, isFavorite, addToFavorites, removeFromFavorites } = useAppStore();
   
-  const business = getBusinessById(id);
+  const [business, setBusiness] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let active = true;
+    const fetchBusiness = async () => {
+      setLoading(true); setError('');
+      try {
+        // Try backend first
+        const res = await axios.get(`http://192.168.1.5:5000/api/admin/business/${id}`);
+        const apiBiz = res.data.business || res.data; // controller wraps in { business }
+        // --- Normalize working hours coming from backend ---
+        const normalizeWorkingHours = (raw: any) => {
+          if (!raw || typeof raw !== 'object') return {};
+          // If already looks like { Monday: {open:'', close:''}, ... }
+            const sampleVal = raw[Object.keys(raw)[0]];
+            if (sampleVal && typeof sampleVal === 'object' && ('open' in sampleVal || 'close' in sampleVal)) {
+              return raw; // assume already normalized
+            }
+          const daysOrder = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+          const result: Record<string, { open: string|null; close: string|null }> = {};
+          const parseTimeRange = (range: string) => {
+            if (!range || range.toLowerCase() === 'closed') return { open: null, close: null };
+            const parts = range.split('-');
+            if (parts.length === 2) return { open: parts[0].trim(), close: parts[1].trim() };
+            return { open: null, close: null };
+          };
+          const expandRange = (key: string, value: string) => {
+            if (key.includes('-')) {
+              // e.g. "Monday - Friday"
+              const [start, end] = key.split('-').map(p => p.trim());
+              const startIdx = daysOrder.indexOf(start);
+              const endIdx = daysOrder.indexOf(end);
+              if (startIdx !== -1 && endIdx !== -1 && startIdx <= endIdx) {
+                for (let i = startIdx; i <= endIdx; i++) {
+                  result[daysOrder[i]] = parseTimeRange(value);
+                }
+                return;
+              }
+            }
+            // Single day key
+            result[key] = parseTimeRange(value);
+          };
+          Object.entries(raw).forEach(([k, v]) => expandRange(k, String(v)));
+          // Ensure any missing days are marked closed for consistency
+          daysOrder.forEach(d => { if (!result[d]) result[d] = { open: null, close: null }; });
+          return result;
+        };
+        // Normalize fields to match component expectations
+        const normalized = {
+          id: apiBiz.id || apiBiz._id || id,
+            name: apiBiz.name || apiBiz.full_name || 'Business',
+            category: apiBiz.service_type || 'general',
+            address: apiBiz.address || '',
+            addressRu: apiBiz.addressRu || apiBiz.address || '',
+            addressUz: apiBiz.addressUz || apiBiz.address || '',
+            phone: apiBiz.phone || apiBiz.phone_number || '',
+            email: apiBiz.email || '',
+            description: apiBiz.description || '',
+            descriptionRu: apiBiz.descriptionRu || apiBiz.description || '',
+            descriptionUz: apiBiz.descriptionUz || apiBiz.description || '',
+            rating: apiBiz.rating || 0,
+            reviewCount: apiBiz.reviewCount || 0,
+            image: apiBiz.coverPhotoUrl || apiBiz.imageUrl || apiBiz.logoUrl || apiBiz.image || 'https://via.placeholder.com/800x400?text=Business',
+            employees: apiBiz.staff || [],
+            services: apiBiz.services || [],
+            workingHours: normalizeWorkingHours(apiBiz.workingHours || {}),
+            portfolio: apiBiz.portfolio || [],
+        };
+        if (active) setBusiness(normalized);
+      } catch (err) {
+        // fallback to mock
+        const mock = getMockBusinessById(id as string);
+        if (mock) {
+          if (active) setBusiness(mock);
+        } else {
+          if (active) setError('Business not found');
+        }
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+    fetchBusiness();
+    return () => { active = false; };
+  }, [id]);
   
   // Auto-select promotional service if promotionId is provided
   React.useEffect(() => {
     if (promotionId && business) {
-      const promotionalService = business.services.find(s => s.isPromotion && s.promotionId === promotionId);
+  const promotionalService = business.services.find((s: any) => s.isPromotion && s.promotionId === promotionId);
       if (promotionalService) {
         setSelectedService(promotionalService);
       }
     }
   }, [promotionId, business]);
   
+  if (loading) {
+    return <View style={styles.notFoundContainer}><Text style={styles.notFoundText}>{t.common.loading || 'Loading...'}</Text></View>;
+  }
   if (!business) {
-    return (
-      <View style={styles.notFoundContainer}>
-        <Text style={styles.notFoundText}>Business not found</Text>
-      </View>
-    );
+    return <View style={styles.notFoundContainer}><Text style={styles.notFoundText}>{error || 'Business not found'}</Text></View>;
   }
   
   const getLocalizedDescription = () => {
@@ -143,14 +228,51 @@ export default function BusinessScreen() {
   
   const formatWorkingHours = (day: keyof typeof business.workingHours) => {
     const hours = business.workingHours[day];
-    if (!hours.open || !hours.close) {
-      return t.business.closed;
+    if (!hours) return t.business.closed;
+    // If it's a string (legacy) just show or interpret closed
+    if (typeof hours === 'string') {
+      if (hours.toLowerCase() === 'closed') return t.business.closed;
+      // Try parse "HH:MM - HH:MM"
+      const parts = hours.split('-');
+      if (parts.length === 2) return `${parts[0].trim()} - ${parts[1].trim()}`;
+      return hours;
     }
+    if (!hours.open || !hours.close) return t.business.closed;
     return `${hours.open} - ${hours.close}`;
   };
   
   const getDayName = (day: string) => {
-    return t.days[day as keyof typeof t.days];
+    if (!t || !t.days) return day;
+    const variants = [
+      day,
+      day.toLowerCase(),
+      day.slice(0,3).toLowerCase(), // Mon, Tue, etc.
+      day.replace(/\s+/g,'').toLowerCase(), // mondayfriday style (just in case)
+    ];
+    for (const v of variants) {
+      if ((t.days as any)[v]) return (t.days as any)[v];
+    }
+    return day; // fallback raw
+  };
+
+  const orderedDays = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+
+  // Safely resolve category translation with fallbacks
+  const getCategoryLabel = () => {
+    if (!business) return '';
+    const raw = business.category || business.service_type || business.service_name;
+    if (!raw) return '';
+    const cats: any = (t as any).categories || (t.business && (t.business as any).categories) || {};
+    // Try several key normalization strategies
+    const direct = cats[raw];
+    if (direct) return direct;
+    const lower = cats[raw.toLowerCase()];
+    if (lower) return lower;
+    const underscoredKey = raw.replace(/\s+/g, '_').toLowerCase();
+    const underscored = cats[underscoredKey];
+    if (underscored) return underscored;
+    // Fallback to raw value
+    return raw;
   };
   
   return (
@@ -197,7 +319,7 @@ export default function BusinessScreen() {
               </TouchableOpacity>
             </View>
             <Text style={styles.category}>
-              {t.categories[business.category as keyof typeof t.categories]}
+              {getCategoryLabel()}
             </Text>
             
             <View style={styles.ratingContainer}>
@@ -281,7 +403,7 @@ export default function BusinessScreen() {
                       contentContainerStyle={styles.employeesList}
                       scrollEventThrottle={16}
                     >
-                      {business.employees.map((employee) => (
+                      {business.employees.map((employee: any) => (
                         <EmployeeCard
                           key={employee.id}
                           employee={employee}
@@ -302,7 +424,7 @@ export default function BusinessScreen() {
                   </View>
                 )}
                 {business.services.length > 0 ? (
-                  business.services.map((service) => {
+                  business.services.map((service: any) => {
                     // Check if this service is part of the promotion
                     const isPromotionalService = service.isPromotion && service.promotionId === promotionId;
                     
@@ -332,7 +454,7 @@ export default function BusinessScreen() {
                 
                 <Text style={styles.sectionTitle}>{t.business.workingHours}</Text>
                 <View style={styles.workingHours}>
-                  {Object.entries(business.workingHours).map(([day, hours]) => (
+                  {orderedDays.map(day => (
                     <View key={day} style={styles.workingHoursItem}>
                       <Text style={styles.day}>{getDayName(day)}</Text>
                       <Text style={styles.hours}>{formatWorkingHours(day as keyof typeof business.workingHours)}</Text>
@@ -350,7 +472,7 @@ export default function BusinessScreen() {
                   <>
                     <Text style={styles.sectionTitle}>{t.business.portfolio}</Text>
                     <View style={styles.portfolioContainer}>
-                      {business.portfolio.map((item) => (
+                      {business.portfolio.map((item: any) => (
                         <View key={item.id} style={styles.portfolioItem}>
                           <Image
                             source={{ uri: item.image }}

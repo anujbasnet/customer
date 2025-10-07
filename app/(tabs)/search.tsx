@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   View, 
   Text, 
@@ -17,7 +17,7 @@ import { colors } from '@/constants/colors';
 import { BusinessCard } from '@/components/BusinessCard';
 import { CategoryCircle } from '@/components/CategoryCircle';
 import { CitySelectionModal } from '@/components/CitySelectionModal';
-import { businesses } from '@/mocks/businesses';
+import { fetchAllBusinesses } from '@/lib/api';
 import { categories } from '@/mocks/categories';
 import { cities } from '@/mocks/cities';
 import { Business, Category } from '@/types';
@@ -26,67 +26,165 @@ export default function SearchScreen() {
   const params = useLocalSearchParams<{ query: string }>();
   const [searchQuery, setSearchQuery] = useState(params.query || '');
   const [filteredBusinesses, setFilteredBusinesses] = useState<Business[]>([]);
+  const [allBusinesses, setAllBusinesses] = useState<Business[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); // only used for network now (kept for compatibility)
+  const [initialLoading, setInitialLoading] = useState(false);
   const [showAllCategories, setShowAllCategories] = useState(false);
   const [showCityModal, setShowCityModal] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   const { t, language } = useTranslation();
   const router = useRouter();
   const { selectedCity } = useAppStore();
   
+  // Initial fetch
   useEffect(() => {
-    if (searchQuery.trim() === '' && !selectedCategory && !selectedCity) {
-      setFilteredBusinesses([]);
-      return;
-    }
-    
-    setLoading(true);
-    
-    // Simulate API call delay
-    setTimeout(() => {
-      let results = [...businesses];
-      
-      // Filter by city if selected
-      if (selectedCity) {
-        results = results.filter(business => business.cityId === selectedCity);
-      }
-      
-      // Filter by search query
-      if (searchQuery.trim() !== '') {
-        results = results.filter(business => {
-          const nameMatch = business.name.toLowerCase().includes(searchQuery.toLowerCase());
-          
-          // Check localized descriptions based on language
-          let descriptionMatch = false;
-          if (language === 'ru') {
-            descriptionMatch = business.descriptionRu.toLowerCase().includes(searchQuery.toLowerCase());
-          } else if (language === 'uz') {
-            descriptionMatch = business.descriptionUz.toLowerCase().includes(searchQuery.toLowerCase());
-          } else {
-            descriptionMatch = business.description.toLowerCase().includes(searchQuery.toLowerCase());
-          }
-          
-          const categoryMatch = t.categories[business.category as keyof typeof t.categories]
-            .toLowerCase()
-            .includes(searchQuery.toLowerCase());
-            
-          return nameMatch || descriptionMatch || categoryMatch;
-        });
-      }
-      
-      // Filter by category if selected
-      if (selectedCategory && selectedCategory !== 'all') {
-        const category = categories.find(c => c.id === selectedCategory);
-        if (category) {
-          results = results.filter(business => business.category === category.name);
+    let cancelled = false;
+    const fetchData = async () => {
+      setInitialLoading(true);
+      setError(null);
+      try {
+        const backendList = await fetchAllBusinesses();
+        const mapped: Business[] = backendList.map((b: any): Business => ({
+          id: b.id,
+          name: b.name,
+          category: normalizeCategory(b.category),
+          cityId: b.cityId || selectedCity || '1',
+          address: b.address || '',
+          addressRu: b.addressRu || b.address || '',
+          addressUz: b.addressUz || b.address || '',
+          phone: b.phone || '',
+          email: b.email || '',
+          description: b.service || b.description || '',
+          descriptionRu: b.descriptionRu || b.description || '',
+          descriptionUz: b.descriptionUz || b.description || '',
+          rating: b.rating || 0,
+          reviewCount: b.reviewCount || 0,
+          image: b.image || b.coverPhotoUrl || 'https://via.placeholder.com/600x400?text=Business',
+          employees: b.employees || [],
+          workingHours: b.workingHours || {
+            monday: { open: null, close: null },
+            tuesday: { open: null, close: null },
+            wednesday: { open: null, close: null },
+            thursday: { open: null, close: null },
+            friday: { open: null, close: null },
+            saturday: { open: null, close: null },
+            sunday: { open: null, close: null }
+          },
+          timeSlots: b.timeSlots || [],
+          services: b.services || [],
+          latitude: b.latitude || 0,
+          longitude: b.longitude || 0,
+          portfolio: b.portfolio || []
+        }));
+        if (!cancelled) {
+          setAllBusinesses(mapped);
         }
+      } catch (err) {
+        console.error('search screen fetch businesses error', err);
+        if (!cancelled) setError('Failed to fetch businesses. Please try again later.');
+      } finally {
+        if (!cancelled) setInitialLoading(false);
       }
-      
-      setFilteredBusinesses(results);
-      setLoading(false);
-    }, 500);
-  }, [searchQuery, selectedCategory, selectedCity, language]);
+    };
+    fetchData();
+    return () => { cancelled = true; };
+  }, []);
+
+  // Debounce search input
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    // Immediate apply for snappy feel (especially clearing input)
+    applyFilters(false);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    // Debounced re-apply to catch slower typing for any future heavier logic
+    debounceRef.current = setTimeout(() => {
+      applyFilters(false);
+    }, 250);
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery, selectedCategory, selectedCity, language, allBusinesses]);
+
+  function normalizeCategory(raw?: string): string {
+    if (!raw) return 'others';
+    const lowered = raw.replace(/\s+|&/g, '').toLowerCase();
+    const map: Record<string, string> = {
+      barber: 'barber',
+      hairsalon: 'hairSalon',
+      nailsalon: 'nailSalon',
+      spaandmassage: 'spaAndMassage',
+      dentist: 'dental',
+      dental: 'dental',
+      football: 'football',
+      footballfields: 'football',
+      videogaming: 'videogaming',
+      others: 'others'
+    };
+    return map[lowered] || 'others';
+  }
+
+  function applyFilters(showLoading: boolean = false) {
+    if (showLoading) setLoading(true);
+    const q = searchQuery.trim().toLowerCase();
+    const categoryObj = selectedCategory && selectedCategory !== 'all' ? categories.find(c => c.id === selectedCategory || c.name === selectedCategory) : null;
+    let result = [...allBusinesses];
+
+    if (selectedCity) {
+      result = result.filter(b => b.cityId === selectedCity);
+    }
+
+    if (categoryObj) {
+      result = result.filter(b => b.category === categoryObj.name || b.category === categoryObj.id);
+    }
+
+    if (q) {
+      result = result.filter(b => {
+        const descField = language === 'ru' ? b.descriptionRu : language === 'uz' ? b.descriptionUz : b.description;
+        const servicesText = (b.services || [])
+          .map((s: any) => [s.name, s.nameRu, s.nameUz, s.description, s.descriptionRu, s.descriptionUz]
+            .filter(Boolean)
+            .join(' '))
+          .join(' ')
+          .toLowerCase();
+        const catTranslationRoot: any = (t as any).categories || (t as any).business?.categories || {};
+        const categoryLabel = (catTranslationRoot?.[b.category] || b.category || '').toString().toLowerCase();
+        // Derive additional category tokens (split camelCase, etc.)
+        const categoryTokens = new Set<string>();
+        const addTokens = (str?: string) => {
+          if (!str) return;
+          const base = str.toLowerCase();
+            categoryTokens.add(base);
+            base.replace(/([a-z])([A-Z])/g, '$1 $2')
+              .split(/[^a-z0-9]+/i)
+              .filter(Boolean)
+              .forEach(tok => categoryTokens.add(tok.toLowerCase()));
+        };
+        addTokens(b.category);
+        addTokens(categoryLabel);
+        // Location/address strings
+        const addressText = [b.address, (b as any).addressRu, (b as any).addressUz]
+          .filter(Boolean)
+          .join(' ') // join addresses
+          .toLowerCase();
+        // City name matching (if user types a city, include businesses in that city)
+        const cityObj = cities.find(c => c.id === b.cityId);
+        const cityNames = cityObj ? [cityObj.name, cityObj.nameRu, cityObj.nameUz].map(n => n.toLowerCase()) : [];
+        return (
+          b.name.toLowerCase().includes(q) ||
+          descField?.toLowerCase().includes(q) ||
+          categoryLabel.includes(q) ||
+          servicesText.includes(q) ||
+          addressText.includes(q) ||
+          cityNames.some(n => n.includes(q)) ||
+          Array.from(categoryTokens).some(tok => tok.includes(q))
+        );
+      });
+    }
+
+    setFilteredBusinesses(result);
+    if (showLoading) setLoading(false);
+  }
   
   const handleCategoryPress = (category: Category) => {
     if (category.id === 'all') {
@@ -200,12 +298,20 @@ export default function SearchScreen() {
         )}
       </View>
       
-      {loading ? (
+      {(initialLoading) ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.primary} />
         </View>
       ) : (
         <>
+          {error && (
+            <View style={styles.errorBox}>
+              <Text style={styles.errorText}>{error}</Text>
+              <TouchableOpacity onPress={() => { setSearchQuery(''); setSelectedCategory(null); }}>
+                <Text style={styles.retryText}>Reset Filters</Text>
+              </TouchableOpacity>
+            </View>
+          )}
           {filteredBusinesses.length > 0 ? (
             <FlatList
               data={filteredBusinesses}
@@ -227,6 +333,9 @@ export default function SearchScreen() {
                 <Text style={styles.emptyText}>No results found</Text>
               ) : (
                 <Text style={styles.emptyText}>Search for services or select a category</Text>
+              )}
+              {!error && (
+                <Text style={styles.metaText}>Fetched: {filteredBusinesses.length} | City: {selectedCity || 'any'}</Text>
               )}
             </View>
           )}
@@ -378,4 +487,29 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     textAlign: 'center',
   },
+  errorBox: {
+    marginHorizontal: 16,
+    marginTop: 12,
+    backgroundColor: '#FEE2E2',
+    borderRadius: 8,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#FCA5A5'
+  },
+  errorText: {
+    color: '#B91C1C',
+    fontSize: 14,
+    fontWeight: '600'
+  },
+  retryText: {
+    marginTop: 8,
+    color: colors.primary,
+    fontSize: 14,
+    fontWeight: '500'
+  },
+  metaText: {
+    marginTop: 12,
+    fontSize: 12,
+    color: colors.textSecondary
+  }
 });

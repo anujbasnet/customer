@@ -40,6 +40,23 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({ business, onPress, s
       addToFavorites(business);
     }
   };
+
+  // Safely resolve category translation with multiple fallback strategies
+  const getCategoryLabel = () => {
+    const raw = business.category || (business as any).service_type || (business as any).service_name;
+    if (!raw) return '';
+    const categories: any = (t as any).categories || (t.business && (t.business as any).categories) || {};
+    // Direct key
+    if (categories[raw]) return categories[raw];
+    // Lowercase
+    const lower = raw.toLowerCase();
+    if (categories[lower]) return categories[lower];
+    // Replace spaces with underscores
+    const underscored = raw.replace(/\s+/g, '_').toLowerCase();
+    if (categories[underscored]) return categories[underscored];
+    // Final fallback: raw human-readable (capitalize first letter)
+    return raw.charAt(0).toUpperCase() + raw.slice(1);
+  };
   
   return (
     <TouchableOpacity 
@@ -71,9 +88,7 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({ business, onPress, s
             </TouchableOpacity>
           )}
         </View>
-        <Text style={styles.category}>
-          {t.categories[business.category as keyof typeof t.categories]}
-        </Text>
+        <Text style={styles.category}>{getCategoryLabel()}</Text>
         <View style={styles.addressContainer}>
           <MapPin size={14} color={colors.textSecondary} />
           <Text style={styles.address} numberOfLines={1}>

@@ -33,7 +33,7 @@ import { Button } from "@/components/Button";
 import { cities } from "@/mocks/cities";
 import { LanguageSelector } from "@/components/LanguageSelector";
 
-const API_URL = "http://192.168.1.4:5000/api/auth";
+const API_URL = "http://192.168.1.5:5000/api/auth";
 
 export default function ProfileScreen() {
   const { isGuestMode, logout } = useAppStore();
@@ -47,31 +47,36 @@ export default function ProfileScreen() {
 
   // Load user from token
   const loadUser = async () => {
-  const token = await AsyncStorage.getItem("token");
-  const storedUser = await AsyncStorage.getItem("user");
+    const token = await AsyncStorage.getItem("token");
+    if (!token) {
+      setUser(null);
+      setIsAuthenticated(false);
+      return;
+    }
 
-  if (token && storedUser) {
-    setUser(JSON.parse(storedUser));
-    setIsAuthenticated(true);
-  } else if (token) {
-    // fallback to API call
+    // Optimistic: show cached user immediately while refreshing from backend
+    const cached = await AsyncStorage.getItem("user");
+    if (cached) {
+      try { setUser(JSON.parse(cached)); setIsAuthenticated(true); } catch {}
+    }
+
     try {
       const res = await axios.get(`${API_URL}/me`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setUser(res.data.user);
+      // Backend /me returns the user object directly (not under .user) according to controller
+      const userData = res.data?.user ? res.data.user : res.data;
+      setUser(userData);
+      await AsyncStorage.setItem("user", JSON.stringify(userData));
       setIsAuthenticated(true);
     } catch (err) {
-      console.log("Invalid token, logging out", err);
+      console.log("Token invalid or fetch failed, logging out", err?.message);
       await AsyncStorage.removeItem("token");
+      await AsyncStorage.removeItem("user");
       setUser(null);
       setIsAuthenticated(false);
     }
-  } else {
-    setUser(null);
-    setIsAuthenticated(false);
-  }
-};
+  };
 
 
   // Reload user every time screen comes into focus

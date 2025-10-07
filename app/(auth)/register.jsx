@@ -19,7 +19,7 @@ import { LanguageSelector } from "@/components/LanguageSelector";
 import axios from "axios";
 
 // backend URL (put it in .env later for flexibility)
-const API_URL = "http://192.168.1.4:5000/api/auth";
+const API_URL = "http://192.168.1.5:5000/api/auth";
 
 export default function RegisterScreen() {
   const [firstName, setFirstName] = useState("");
