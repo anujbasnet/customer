@@ -7,7 +7,8 @@ import {
   TouchableOpacity,
   Dimensions,
   Alert,
-  Platform
+  Platform,
+  Modal
 } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { Image } from 'expo-image';
@@ -28,6 +29,7 @@ import { EmployeeCard } from '@/components/EmployeeCard';
 import { getBusinessById as getMockBusinessById } from '@/mocks/businesses';
 import axios from 'axios';
 import { Service, Employee } from '@/types';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');
 
@@ -39,28 +41,74 @@ export default function BusinessScreen() {
   
   const { t, language } = useTranslation();
   const router = useRouter();
-  const { isAuthenticated, isFavorite, addToFavorites, removeFromFavorites } = useAppStore();
+  const { isFavorite, addToFavorites, removeFromFavorites } = useAppStore();
+  const [authReady, setAuthReady] = useState(false);
+  const [hasToken, setHasToken] = useState(false);
+  const [bookingVisible, setBookingVisible] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedTime, setSelectedTime] = useState<string | null>(null);
   
   const [business, setBusiness] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  // Availability map scoped by date: dateStr -> { employeeId -> Set(times) }
+  const [bookedByDate, setBookedByDate] = useState<Record<string, Record<string, Set<string>>>>({});
+  const [availabilityLoading, setAvailabilityLoading] = useState(false);
 
   useEffect(() => {
     let active = true;
+    // Load token once on mount (and whenever screen refocus via custom effect)
+    const loadToken = async () => {
+      try {
+        const keys = ['token','Token','userToken','BusinessToken'];
+        let found: string | null = null;
+        for (const k of keys) {
+          const val = await AsyncStorage.getItem(k);
+            if (val) { found = val; break; }
+        }
+        if (active) {
+          setHasToken(!!found);
+          setAuthReady(true);
+        }
+      } catch (e) {
+        if (active) { setHasToken(false); setAuthReady(true); }
+      }
+    };
+
     const fetchBusiness = async () => {
       setLoading(true); setError('');
       try {
         // Try backend first
-        const res = await axios.get(`http://192.168.1.5:5000/api/admin/business/${id}`);
+        const API_BASE = 'http://192.168.1.5:5000';
+        const res = await axios.get(`${API_BASE}/api/admin/business/${id}`);
         const apiBiz = res.data.business || res.data; // controller wraps in { business }
         // --- Normalize working hours coming from backend ---
         const normalizeWorkingHours = (raw: any) => {
           if (!raw || typeof raw !== 'object') return {};
+          // Prepare canonicalization helpers first (must exist before possible early return)
+          const dayMap: Record<string,string> = {
+            monday:'Monday', mon:'Monday',
+            tuesday:'Tuesday', tue:'Tuesday', tues:'Tuesday',
+            wednesday:'Wednesday', wed:'Wednesday',
+            thursday:'Thursday', thu:'Thursday', thurs:'Thursday',
+            friday:'Friday', fri:'Friday',
+            saturday:'Saturday', sat:'Saturday',
+            sunday:'Sunday', sun:'Sunday'
+          };
+          function canonicalizeDay(k:string){
+            const lower = k.toLowerCase().replace(/[^a-z]/g,'');
+            return (dayMap[lower] || k).trim();
+          }
           // If already looks like { Monday: {open:'', close:''}, ... }
-            const sampleVal = raw[Object.keys(raw)[0]];
-            if (sampleVal && typeof sampleVal === 'object' && ('open' in sampleVal || 'close' in sampleVal)) {
-              return raw; // assume already normalized
-            }
+          const sampleVal = raw[Object.keys(raw)[0]];
+          if (sampleVal && typeof sampleVal === 'object' && ('open' in sampleVal || 'close' in sampleVal)) {
+            // Still canonicalize keys in case of lowercase / short forms
+            const canon: any = {};
+            Object.entries(raw).forEach(([k,v]) => {
+              canon[canonicalizeDay(k)] = v;
+            });
+            return canon; // assume already normalized
+          }
           const daysOrder = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
           const result: Record<string, { open: string|null; close: string|null }> = {};
           const parseTimeRange = (range: string) => {
@@ -73,8 +121,8 @@ export default function BusinessScreen() {
             if (key.includes('-')) {
               // e.g. "Monday - Friday"
               const [start, end] = key.split('-').map(p => p.trim());
-              const startIdx = daysOrder.indexOf(start);
-              const endIdx = daysOrder.indexOf(end);
+              const startIdx = daysOrder.indexOf(canonicalizeDay(start));
+              const endIdx = daysOrder.indexOf(canonicalizeDay(end));
               if (startIdx !== -1 && endIdx !== -1 && startIdx <= endIdx) {
                 for (let i = startIdx; i <= endIdx; i++) {
                   result[daysOrder[i]] = parseTimeRange(value);
@@ -83,12 +131,56 @@ export default function BusinessScreen() {
               }
             }
             // Single day key
-            result[key] = parseTimeRange(value);
+            result[canonicalizeDay(key)] = parseTimeRange(value);
           };
           Object.entries(raw).forEach(([k, v]) => expandRange(k, String(v)));
           // Ensure any missing days are marked closed for consistency
           daysOrder.forEach(d => { if (!result[d]) result[d] = { open: null, close: null }; });
           return result;
+        };
+        // --- Normalize staff (employees) so EmployeeCard receives .image with data URL or absolute URL ---
+        const normalizeAvatar = (val: any): string => {
+          if (!val || typeof val !== 'string') return '';
+          let v = val.trim();
+          if (!v) return '';
+          // Convert localhost/127 to API_BASE so physical devices can load
+          v = v.replace(/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?/i, API_BASE);
+          // Already data URL
+          if (/^data:image\/(png|jpe?g|gif|webp);base64,/i.test(v)) return v;
+          // Raw base64 heuristic (allow padding fix)
+          if (/^[A-Za-z0-9+/=]+$/.test(v) && v.length > 60) {
+            const mod = v.length % 4;
+            if (mod) v = v + '='.repeat(4 - mod);
+            return `data:image/png;base64,${v}`;
+          }
+          // Relative path starting with / or uploads/images/img
+          if (/^(\/|uploads\/|images\/|img\/)/i.test(v)) {
+            if (!v.startsWith('/')) v = '/' + v; // ensure single leading slash
+            return API_BASE + v;
+          }
+          // If looks like protocol-less //domain.com
+          if (/^\/\//.test(v)) {
+            return 'http:' + v; // default to http
+          }
+          // Absolute URL (http/https)
+          if (/^https?:\/\//i.test(v)) return v;
+          // Reject data that is too short or not interpretable
+          return '';
+        };
+        const mapStaff = (staffArr: any): any[] => {
+          if (!Array.isArray(staffArr)) return [];
+          return staffArr.map((s: any) => {
+            const rawAvatar = s.avatarUrl || s.avatar || s.image || s.photo || '';
+            return {
+              // Keep original fields spread last so original metadata retained
+              id: s.id || s._id || s.staffId || s.employeeId || Math.random().toString(36).slice(2),
+              name: s.name || s.fullName || s.full_name || 'Employee',
+              position: s.position || s.title || s.role || '',
+              image: normalizeAvatar(rawAvatar), // what EmployeeCard expects
+              rawAvatar,
+              ...s,
+            };
+          });
         };
         // Normalize fields to match component expectations
         const normalized = {
@@ -105,8 +197,8 @@ export default function BusinessScreen() {
             descriptionUz: apiBiz.descriptionUz || apiBiz.description || '',
             rating: apiBiz.rating || 0,
             reviewCount: apiBiz.reviewCount || 0,
-            image: apiBiz.coverPhotoUrl || apiBiz.imageUrl || apiBiz.logoUrl || apiBiz.image || 'https://via.placeholder.com/800x400?text=Business',
-            employees: apiBiz.staff || [],
+            image: normalizeAvatar(apiBiz.coverPhotoUrl || apiBiz.imageUrl || apiBiz.logoUrl || apiBiz.image) || 'https://via.placeholder.com/800x400?text=Business',
+            employees: mapStaff(apiBiz.staff || []),
             services: apiBiz.services || [],
             workingHours: normalizeWorkingHours(apiBiz.workingHours || {}),
             portfolio: apiBiz.portfolio || [],
@@ -125,6 +217,7 @@ export default function BusinessScreen() {
       }
     };
     fetchBusiness();
+    loadToken();
     return () => { active = false; };
   }, [id]);
   
@@ -137,6 +230,177 @@ export default function BusinessScreen() {
       }
     }
   }, [promotionId, business]);
+  
+  // --- Move all hook calls (useMemo) above any early returns to keep hook order stable ---
+  // Date list (next 14 days)
+  const dateOptions = React.useMemo(() => {
+    const arr: Date[] = [];
+    for (let i = 0; i < 14; i++) {
+      const d = new Date();
+      d.setDate(d.getDate() + i);
+      arr.push(d);
+    }
+    return arr;
+  }, []);
+
+  const getDayKey = (d: Date) => d.toLocaleDateString('en-US', { weekday: 'long' });
+  // Local date (YYYY-MM-DD) independent of timezone offsets (avoids previous-day bleed when UTC rolls)
+  const formatLocalDate = (d: Date) => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  // Robust time parser supporting formats: HH:MM, H:MM, HHMM, HH.MM, 9am, 9:30pm, 09:00 AM
+  const parseTimeString = (raw: string): { h: number; m: number } | null => {
+    if (!raw) return null;
+    let s = raw.trim().toLowerCase();
+    if (s === 'closed') return null;
+    // Replace '.' with ':'
+    s = s.replace(/\./g, ':');
+    // Extract am/pm
+    let isPM = false, isAM = false;
+    if (/(am|pm)$/.test(s)) {
+      isPM = s.endsWith('pm');
+      isAM = s.endsWith('am');
+      s = s.replace(/(am|pm)$/,'').trim();
+    }
+    // HHMM -> HH:MM
+    if (/^\d{3,4}$/.test(s)) {
+      const pad = s.length === 3 ? '0'+s : s;
+      s = pad.slice(0,2) + ':' + pad.slice(2);
+    }
+    if (!s.includes(':')) s = s + ':00';
+    const [hhStr, mmStr='0'] = s.split(':');
+    const hNum = Number(hhStr);
+    const mNum = Number(mmStr);
+    if (Number.isNaN(hNum) || Number.isNaN(mNum)) return null;
+    let hAdj = hNum;
+    if (isPM && hAdj < 12) hAdj += 12; // 1pm ->13
+    if (isAM && hAdj === 12) hAdj = 0; // 12am ->0
+    if (hAdj < 0 || hAdj > 23 || mNum < 0 || mNum > 59) return null;
+    return { h: hAdj, m: mNum };
+  };
+
+  const isDayClosed = (d: Date): boolean => {
+    if (!business?.workingHours) return true; // treat as closed until loaded
+    const dayKey = getDayKey(d).trim();
+    let hours = business.workingHours[dayKey];
+    if (!hours) {
+      const alt = Object.keys(business.workingHours).find(k => k.toLowerCase() === dayKey.toLowerCase());
+      if (alt) hours = business.workingHours[alt];
+    }
+    if (!hours) return true;
+    if (typeof hours === 'string') {
+      return hours.trim().toLowerCase().includes('closed');
+    }
+    const openVal = (hours.open || hours.openTime || hours.start || '').trim();
+    const closeVal = (hours.close || hours.closeTime || hours.end || '').trim();
+    if (!openVal || !closeVal) return true;
+    if (openVal.toLowerCase() === 'closed' || closeVal.toLowerCase() === 'closed') return true;
+    const openParsed = parseTimeString(openVal);
+    const closeParsed = parseTimeString(closeVal);
+    if (!openParsed || !closeParsed) return true;
+    const openMinutes = openParsed.h*60 + openParsed.m;
+    const closeMinutes = closeParsed.h*60 + closeParsed.m;
+    return closeMinutes <= openMinutes; // invalid or zero-length treated as closed
+  };
+
+  // Hoisted before early returns so its dependent useMemo always runs each render
+  const generateTimeSlots = (d: Date): string[] => {
+    if (!business?.workingHours) return [];
+    const dayKey = getDayKey(d).trim(); // Monday, Tuesday ...
+    let hours = business.workingHours[dayKey];
+    if (!hours) {
+      // Attempt loose match (some APIs may return lowercase keys)
+      const alt = Object.keys(business.workingHours).find(k => k.toLowerCase() === dayKey.toLowerCase());
+      if (alt) hours = business.workingHours[alt];
+    }
+    if (!hours) return [];
+    // Handle string form "09:00-18:00" or "09:00 - 18:00" or 'Closed'
+    if (typeof hours === 'string') {
+      if (!hours || hours.toLowerCase().includes('closed')) return [];
+      const range = hours.replace(/\s+/g,'');
+      const parts = range.split('-');
+      if (parts.length === 2) {
+        hours = { open: parts[0], close: parts[1] };
+      } else {
+        return [];
+      }
+    }
+    // Support alternate property names (openTime/closeTime, start/end)
+    const openVal = (hours.open || hours.openTime || hours.start || '').trim();
+    const closeVal = (hours.close || hours.closeTime || hours.end || '').trim();
+    const openParsed = parseTimeString(openVal);
+    const closeParsed = parseTimeString(closeVal);
+    if (!openParsed || !closeParsed) return [];
+    const start = new Date(d.getFullYear(), d.getMonth(), d.getDate(), openParsed.h, openParsed.m, 0, 0);
+    const end = new Date(d.getFullYear(), d.getMonth(), d.getDate(), closeParsed.h, closeParsed.m, 0, 0);
+    if (end <= start) return [];
+    const slots: string[] = [];
+    const cursor = new Date(start);
+    while (cursor < end) {
+      const hh = String(cursor.getHours()).padStart(2, '0');
+      const mm = String(cursor.getMinutes()).padStart(2, '0');
+      slots.push(`${hh}:${mm}`);
+      cursor.setMinutes(cursor.getMinutes() + 30);
+    }
+    return slots;
+  };
+
+  const timeSlots = React.useMemo(() => generateTimeSlots(selectedDate), [selectedDate, business]);
+
+  // Reset selectedTime when date changes to avoid carrying a time across days
+  useEffect(() => {
+    // Whenever the selectedDate changes and modal open, wipe old map until new fetch repopulates
+    if (bookingVisible) {
+      setSelectedTime(null);
+    }
+  }, [selectedDate, bookingVisible]);
+
+  // Fetch availability (all employees for the selected date) when modal visible or date/service changes.
+  useEffect(() => {
+    const fetchAllAvailability = async () => {
+      if (!business || !bookingVisible) return;
+      try {
+        setAvailabilityLoading(true);
+  const API_BASE = 'http://192.168.1.5:5000';
+  const dateStr = formatLocalDate(selectedDate);
+  const baseUrl = `${API_BASE}/api/appointments/availability?business_id=${business.id}&date=${dateStr}` + (selectedService ? `&service_id=${selectedService.id}` : '');
+  let map: Record<string, Set<string>> = {};
+        try {
+          const res = await axios.get(baseUrl);
+          const bookings = res.data.bookings || res.data || [];
+          bookings.forEach((b: any) => {
+            if (!b || !b.time) return;
+            // Backend returns specialist_id (controller), but also guard for alternative shapes
+            const empId = b.specialist_id || b.specialistId || b.specialist?.id || b.employeeId || b.employee_id || b.staffId || b.staff_id;
+            if (!empId) return; // skip if no specialist id (we only block per-employee duplicates)
+            if (!map[empId]) map[empId] = new Set();
+            map[empId].add(b.time);
+          });
+        } catch (inner) {
+          // If request totally fails, leave map empty (all slots appear free)
+          console.warn('Availability fetch failed', (inner as any)?.message || inner);
+        }
+        setBookedByDate(prev => ({ ...prev, [dateStr]: map }));
+      } catch {
+  const failedDate = formatLocalDate(selectedDate);
+  setBookedByDate(prev => ({ ...prev, [failedDate]: prev[failedDate] || {} }));
+      } finally {
+        setAvailabilityLoading(false);
+      }
+    };
+    fetchAllAvailability();
+  }, [bookingVisible, selectedDate, selectedService?.id, business?.id]);
+
+  // Memo of selected employee's booked times for quick lookup
+  const selectedEmployeeBookedTimes = React.useMemo(() => {
+    if (!selectedEmployee) return new Set<string>();
+    const ds = formatLocalDate(selectedDate);
+    return bookedByDate[ds]?.[selectedEmployee.id] || new Set<string>();
+  }, [selectedEmployee?.id, bookedByDate, selectedDate]);
   
   if (loading) {
     return <View style={styles.notFoundContainer}><Text style={styles.notFoundText}>{t.common.loading || 'Loading...'}</Text></View>;
@@ -197,34 +461,192 @@ export default function BusinessScreen() {
     setSelectedEmployee(employee);
   };
   
-  const handleBookAppointment = () => {
-    if (!isAuthenticated) {
-      Alert.alert(
-        "Login Required",
-        "You need to login to book an appointment",
-        [
-          {
-            text: "Cancel",
-            style: "cancel"
-          },
-          {
-            text: "Login",
-            onPress: () => router.push('/(auth)/login')
-          }
-        ]
-      );
+  const handleBookAppointment = async () => {
+    // If we already know user is authenticated, skip storage scan & prompt
+    if (authReady && hasToken) {
+      let serviceToUse = selectedService;
+      if (!serviceToUse && business?.services?.length > 0) {
+        serviceToUse = business.services[0];
+        setSelectedService(serviceToUse);
+      }
+      if (!serviceToUse) {
+        Alert.alert('No Services', 'No services available to book.');
+        return;
+      }
+      setBookingVisible(true);
       return;
     }
-
-    if (selectedService) {
-      const params = new URLSearchParams({
-        serviceId: selectedService.id,
-        ...(selectedEmployee && { employeeId: selectedEmployee.id }),
-        ...(promotionId && { promotionId })
-      });
-      router.push(`/booking/${business.id}?${params.toString()}`);
+    // Fallback: perform one-time token lookup if not yet marked logged in
+    try {
+      const tokenKeys = ['token','Token','userToken','BusinessToken'];
+      for (const k of tokenKeys) {
+        const v = await AsyncStorage.getItem(k);
+        if (v) { setHasToken(true); break; }
+      }
+      if (!hasToken) {
+        Alert.alert(
+          'Login Required',
+          'You need to login to book an appointment',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            { text: 'Login', onPress: () => router.push('/(auth)/login') }
+          ]
+        );
+        return;
+      }
+      // If token discovered just now, reopen with updated state next tick
+      setTimeout(() => handleBookAppointment(), 0);
+    } catch (e) {
+      console.warn('Booking auth fallback check failed', e);
+      Alert.alert('Error', 'Unable to verify login status. Please try again.');
     }
   };
+
+
+  const confirmBooking = async () => {
+    if (!selectedService) {
+      Alert.alert('Select Service', 'Please select a service first.');
+      return;
+    }
+    if (!selectedTime) {
+      Alert.alert('Select Time', 'Please select a time slot.');
+      return;
+    }
+    // Double-book guard: if selected employee has this time already booked re-prompt
+    if (selectedEmployee) {
+  const dateStrInner = formatLocalDate(selectedDate);
+  const empSet = bookedByDate[dateStrInner]?.[selectedEmployee.id];
+      if (empSet?.has(selectedTime)) {
+        Alert.alert('Time Unavailable', 'This specialist is already booked at that time. Please choose another time or specialist.');
+        return;
+      }
+    }
+  const dateStr = formatLocalDate(selectedDate);
+    // Retrieve token for authenticated POST
+    const tokenKeys = ['token','Token','userToken','BusinessToken'];
+    let token: string | null = null;
+    for (const k of tokenKeys) {
+      const v = await AsyncStorage.getItem(k); if (v) { token = v; break; }
+    }
+    if (!token) {
+      Alert.alert('Login Required', 'Session expired. Please login again.');
+      return;
+    }
+    try {
+      setAvailabilityLoading(true);
+      const API_BASE = 'http://192.168.1.5:5000';
+      const payload: any = {
+        business_id: business.id,
+        service_id: selectedService.id,
+        date: dateStr,
+        time: selectedTime,
+      };
+      if (selectedEmployee) payload.specialist_id = selectedEmployee.id;
+      const res = await axios.post(`${API_BASE}/api/appointments`, payload, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setBookingVisible(false);
+      // Optimistically update local availability map so user can't immediately re-book same slot
+      if (selectedEmployee) {
+        const dateStrInner = formatLocalDate(selectedDate);
+        setBookedByDate(prev => {
+          const dayMap = { ...(prev[dateStrInner] || {}) } as Record<string, Set<string>>;
+          const cur = new Set(dayMap[selectedEmployee.id] || []);
+          cur.add(selectedTime);
+          dayMap[selectedEmployee.id] = cur;
+          return { ...prev, [dateStrInner]: dayMap };
+        });
+      }
+      alert('Appointment booked successfully.');
+    } catch (e: any) {
+      console.error('Create appointment failed', e?.response?.data || e?.message);
+      Alert.alert('Error', e?.response?.data?.msg || 'Failed to create appointment.');
+    } finally {
+      setAvailabilityLoading(false);
+    }
+  };
+
+  const renderBookingModal = () => (
+    <Modal
+      visible={bookingVisible}
+      animationType="slide"
+      transparent
+      onRequestClose={() => setBookingVisible(false)}
+    >
+      <View style={styles.modalBackdrop}>
+        <View style={styles.modalContainer}>
+          <Text style={styles.modalTitle}>{t.business.bookAppointment}</Text>
+          <Text style={styles.modalSectionLabel}>Date</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.datesRow}>
+            {dateOptions.map(d => {
+              const dayShort = d.toLocaleDateString('en-US', { weekday: 'short' });
+              const dateNum = d.getDate();
+              const selected = d.toDateString() === selectedDate.toDateString();
+              const closed = isDayClosed(d);
+              return (
+                <TouchableOpacity
+                  key={d.toISOString()}
+                  style={[styles.dateChip, selected && styles.dateChipSelected, closed && styles.dateChipDisabled]}
+                  disabled={closed}
+                  onPress={() => { setSelectedDate(d); setSelectedTime(null); }}
+                >
+                  <Text style={[styles.dateChipText, selected && styles.dateChipTextSelected]}>{dayShort}</Text>
+                  <Text style={[styles.dateChipNumber, selected && styles.dateChipTextSelected]}>{dateNum}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+          <Text style={styles.modalSectionLabel}>Time</Text>
+          {timeSlots.length === 0 ? (
+            <Text style={styles.emptySlotsText}>{t.business.closed || 'Closed'}</Text>
+          ) : (
+            <ScrollView style={styles.timesWrapper} contentContainerStyle={styles.timesContent}>
+              <View style={styles.timesGrid}>
+                {timeSlots.map(ts => {
+                  const selected = ts === selectedTime;
+                  // Disable if past (same day) or booked for selected employee
+                  const dateStr = selectedDate.toISOString().split('T')[0];
+                  const now = new Date();
+                  const slotDate = new Date(selectedDate);
+                  const [sh, sm] = ts.split(':').map(Number);
+                  slotDate.setHours(sh, sm, 0, 0);
+                  const isToday = dateStr === new Date().toISOString().split('T')[0];
+                  const isPast = isToday && slotDate < now;
+                  const isBooked = selectedEmployeeBookedTimes.has(ts);
+                  const disabled = isPast || isBooked;
+                  return (
+                    <TouchableOpacity
+                      key={ts}
+                      disabled={disabled}
+                      style={[
+                        styles.timeSlot,
+                        disabled && styles.timeSlotDisabled,
+                        selected && styles.timeSlotSelected
+                      ]}
+                      onPress={() => !disabled && setSelectedTime(ts)}
+                    >
+                      <Text style={[
+                        styles.timeSlotText,
+                        disabled && styles.timeSlotTextDisabled,
+                        selected && styles.timeSlotTextSelected
+                      ]}>{ts}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </ScrollView>
+          )}
+          {availabilityLoading && (
+            <Text style={styles.availabilityLoadingText}>{t.common.loading || 'Loading...'}</Text>
+          )}
+          <View style={styles.modalButtonsRow}>
+            <Button title={t.common.cancel || 'Cancel'} style={styles.modalButton} onPress={() => setBookingVisible(false)} />
+            <Button title={t.common.confirm || 'Confirm'} style={styles.modalButton} onPress={confirmBooking} disabled={!selectedTime} />
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
   
   const formatWorkingHours = (day: keyof typeof business.workingHours) => {
     const hours = business.workingHours[day];
@@ -403,14 +825,29 @@ export default function BusinessScreen() {
                       contentContainerStyle={styles.employeesList}
                       scrollEventThrottle={16}
                     >
-                      {business.employees.map((employee: any) => (
-                        <EmployeeCard
-                          key={employee.id}
-                          employee={employee}
-                          selected={selectedEmployee?.id === employee.id}
-                          onPress={handleEmployeePress}
-                        />
-                      ))}
+                      {business.employees.map((employee: any) => {
+                        const dateStrEmp = formatLocalDate(selectedDate);
+                        const bookedSet = bookedByDate[dateStrEmp]?.[employee.id];
+                        const isBookedAtSelectedTime = !!(selectedTime && bookedSet?.has(selectedTime));
+                        return (
+                          <View key={employee.id} style={{ position: 'relative' }}>
+                            <EmployeeCard
+                              employee={employee}
+                              selected={selectedEmployee?.id === employee.id}
+                              // Prevent selecting an employee already booked at chosen time
+                              onPress={(emp: any) => {
+                                if (isBookedAtSelectedTime) return; // no-op when booked
+                                handleEmployeePress(emp);
+                              }}
+                            />
+                            {isBookedAtSelectedTime && (
+                              <View style={{ position: 'absolute', top: 8, right: 8, backgroundColor: 'rgba(0,0,0,0.6)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 }}>
+                                <Text style={{ color: '#fff', fontSize: 10 }}>{(t.business as any)?.booked || 'Booked'}</Text>
+                              </View>
+                            )}
+                          </View>
+                        );
+                      })}
                     </ScrollView>
                   </View>
                 )}
@@ -507,10 +944,11 @@ export default function BusinessScreen() {
           <Button
             title={t.business.bookAppointment}
             onPress={handleBookAppointment}
-            disabled={!selectedService}
+            disabled={business.services.length === 0 || !authReady}
             style={styles.bookButton}
           />
         </View>
+        {renderBookingModal()}
       </View>
     </>
   );
@@ -749,4 +1187,111 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontWeight: '500',
   },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'flex-end'
+  },
+  modalContainer: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    maxHeight: '80%'
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: colors.text,
+    marginBottom: 16
+  },
+  modalSectionLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: colors.textSecondary,
+    marginTop: 4,
+    marginBottom: 8
+  },
+  datesRow: {
+    marginBottom: 12
+  },
+  dateChip: {
+    backgroundColor: colors.card,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    marginRight: 8,
+    alignItems: 'center'
+  },
+  dateChipSelected: {
+    backgroundColor: colors.primary
+  },
+  dateChipDisabled: {
+    opacity: 0.35
+  },
+  dateChipText: {
+    fontSize: 12,
+    color: colors.textSecondary
+  },
+  dateChipTextSelected: {
+    color: '#fff'
+  },
+  dateChipNumber: {
+    fontSize: 14,
+    fontWeight: '600'
+  },
+  timesWrapper: {
+    maxHeight: 200,
+    marginBottom: 12
+  },
+  timesContent: {
+    paddingBottom: 8
+  },
+  timesGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap'
+  },
+  timeSlot: {
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 8,
+    backgroundColor: colors.card,
+    marginRight: 8,
+    marginBottom: 8
+  },
+  timeSlotSelected: {
+    backgroundColor: colors.primary
+  },
+  timeSlotDisabled: {
+    opacity: 0.35
+  },
+  timeSlotText: {
+    fontSize: 14,
+    color: colors.textSecondary
+  },
+  timeSlotTextDisabled: {
+    textDecorationLine: 'line-through'
+  },
+  timeSlotTextSelected: {
+    color: '#fff',
+    fontWeight: '600'
+  },
+  emptySlotsText: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginBottom: 16
+  },
+  availabilityLoadingText: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    marginBottom: 8
+  },
+  modalButtonsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 12
+  },
+  modalButton: {
+    flex: 1
+  }
 });

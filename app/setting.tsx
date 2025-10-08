@@ -15,53 +15,55 @@ import { CitySelector } from "@/components/CitySelector";
 
 export default function SettingsScreen() {
   const { t } = useTranslation();
-  const navigation =useNavigation();
+  const navigation = useNavigation();
   const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
   const [darkModeEnabled, setDarkModeEnabled] = React.useState(false);
 
   // Recompute styles whenever dark mode changes
   const styles = React.useMemo(() => getStyles(darkModeEnabled), [darkModeEnabled]);
 
-  // Update header dynamically
+  // Update header dynamically (include dependencies to avoid stale closures)
   React.useLayoutEffect(() => {
-    navigation.setOptions({
-      title: t.profile.settings,
-      headerStyle: { backgroundColor: darkModeEnabled ? "#121212" : "#FFFFFF" },
-      headerTitleStyle: { color: darkModeEnabled ? "#FFFFFF" : colors.text },
-    });
-  }, [darkModeEnabled]);
+    try {
+      navigation.setOptions?.({
+        title: t?.profile?.settings || 'Settings',
+        headerStyle: { backgroundColor: darkModeEnabled ? "#121212" : "#FFFFFF" },
+        headerTitleStyle: { color: darkModeEnabled ? "#FFFFFF" : colors.text },
+      });
+    } catch {/* no-op if navigation not ready */}
+  }, [darkModeEnabled, navigation, t?.profile?.settings]);
 
-  const settingsSections = [
+  const settingsSections = React.useMemo(() => ([
     {
-      title: t.profile.settings,
+      title: t?.profile?.settings || 'Settings',
       items: [
         {
           icon: <Globe size={24} color={colors.primary} />,
-          title: t.profile.language,
+          title: t?.profile?.language || 'Language',
           type: "language",
         },
         {
           icon: <MapPin size={24} color={colors.primary} />,
-          title: t.profile.city,
+          title: t?.profile?.city || 'City',
           type: "city",
         },
         {
           icon: <Bell size={24} color={colors.primary} />,
-          title: t.profile.notifications,
+          title: t?.profile?.notifications || 'Notifications',
           type: "switch",
           value: notificationsEnabled,
           onValueChange: setNotificationsEnabled,
         },
         {
           icon: <Moon size={24} color={colors.primary} />,
-          title: "Dark Mode",
+          title: 'Dark Mode',
           type: "switch",
           value: darkModeEnabled,
           onValueChange: setDarkModeEnabled,
         },
       ],
     },
-  ];
+  ]), [t, notificationsEnabled, darkModeEnabled]);
 
   const renderSettingItem = (item: any, index: number) => {
     switch (item.type) {
@@ -73,6 +75,16 @@ export default function SettingsScreen() {
               <Text style={styles.settingItemTitle}>{item.title}</Text>
             </View>
             <LanguageSelector />
+          </View>
+        );
+      case "city":
+        return (
+          <View key={index} style={styles.settingItem}>
+            <View style={styles.settingItemLeft}>
+              {item.icon}
+              <Text style={styles.settingItemTitle}>{item.title}</Text>
+            </View>
+            <CitySelector />
           </View>
         );
       case "switch":
@@ -90,6 +102,8 @@ export default function SettingsScreen() {
             />
           </View>
         );
+      default:
+        return null;
     }
   };
 
