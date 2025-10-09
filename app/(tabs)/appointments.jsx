@@ -19,9 +19,10 @@ const API_URL = "http://192.168.1.5:5000/api"; // Replace with your backend IP
 
 export default function AppointmentsScreen() {
   const [activeTab, setActiveTab] = useState("upcoming"); // 'upcoming' or 'past'
-  const [appointments, setAppointments] = useState([]);
+  const [appointments, setAppointments] = useState([]); // unified list; we'll split by time in render
   const [loading, setLoading] = useState(false);
   const [token, setToken] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   const { t } = useTranslation();
   const router = useRouter();
@@ -39,7 +40,81 @@ export default function AppointmentsScreen() {
       const res = await axios.get(`${API_URL}/appointments`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setAppointments(res.data.appointments);
+      const list = (res?.data?.appointments || res?.data || []).filter(Boolean);
+      // Bulk fetch businesses to enrich display fields
+      const bizIds = Array.from(new Set(list.map(a => a.business_id).filter(Boolean)));
+      const bizMap = {};
+      await Promise.all(bizIds.map(async (id) => {
+        try {
+          const bizRes = await axios.get(`${API_URL}/business/${id}`);
+          bizMap[id] = bizRes?.data?.business || bizRes?.data;
+        } catch {}
+      }));
+
+      // Helpers for time handling and display
+      const parseTimeLabel = (label) => {
+        if (!label) return { h: 0, m: 0 };
+        const s = String(label).trim().toLowerCase();
+        const am = s.includes('am');
+        const pm = s.includes('pm');
+        const match = s.match(/(\d{1,2}):(\d{2})/);
+        let h = 0, m = 0;
+        if (match) {
+          h = parseInt(match[1], 10);
+          m = parseInt(match[2], 10);
+          if (pm && h < 12) h += 12;
+          if (am && h === 12) h = 0;
+        }
+        return { h, m };
+      };
+      const toTimestamp = (dateStr, timeLabel) => {
+        if (!dateStr) return 0;
+        const [y, mo, d] = String(dateStr).split('-').map(v => parseInt(v, 10));
+        const { h, m } = parseTimeLabel(timeLabel);
+        return new Date(y, (mo || 1) - 1, d || 1, h, m, 0, 0).getTime();
+      };
+      const formatTimeForDisplay = (label) => {
+        const { h, m } = parseTimeLabel(label);
+        const suffix = h >= 12 ? 'PM' : 'AM';
+        const hh12 = (h % 12) || 12;
+        const mm = String(m).padStart(2, '0');
+        return `${hh12}:${mm} ${suffix}`;
+      };
+      const mapStatus = (raw) => {
+        const s = String(raw || '').toLowerCase().replace(/\s|_/g, '');
+        if (s === 'booked') return 'confirmed';
+        if (s === 'waiting') return 'pending';
+        if (s === 'notbooked' || s === 'canceled' || s === 'cancelled') return 'cancelled';
+        if (s === 'completed') return 'completed';
+        return 'pending';
+      };
+
+      const mapped = list.map((a) => {
+        const biz = a.business_id ? bizMap[a.business_id] : undefined;
+        const businessName = biz?.full_name || biz?.name || String(a.business_id || '');
+        const svc = Array.isArray(biz?.services) ? biz.services.find(s => String(s.id) === String(a.service_id)) : null;
+        const serviceName = svc?.name || String(a.service_id || '');
+        const duration = Number(svc?.duration || 0);
+        const price = Number(svc?.price || 0);
+        const employeeName = a?.specialist?.name || (Array.isArray(biz?.staff) ? (biz.staff.find(s => String(s.id) === String(a?.specialist?.id))?.name) : '') || '';
+        return {
+          id: String(a._id || a.id || ''),
+          businessId: String(a.business_id || ''),
+          businessName,
+          serviceId: String(a.service_id || ''),
+          serviceName,
+          employeeId: String(a?.specialist?.id || ''),
+          employeeName,
+          date: a.date,
+          time: formatTimeForDisplay(a.time),
+          _timeRaw: a.time, // keep raw for sorting if needed
+          duration,
+          price,
+          status: mapStatus(a.status),
+          _ts: toTimestamp(a.date, a.time),
+        };
+      });
+      setAppointments(mapped);
     } catch (err) {
       console.log(err);
     } finally {
@@ -55,9 +130,27 @@ export default function AppointmentsScreen() {
     if (token) fetchAppointments();
   }, [token]);
 
-  const filteredAppointments = appointments.filter((a) =>
-    activeTab === "upcoming" ? a.status === "upcoming" : a.status === "past"
-  );
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await fetchAppointments();
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const now = Date.now();
+  const filteredAppointments = appointments
+    .filter(a => {
+      const isUpcoming = (a._ts ?? 0) >= now;
+      return activeTab === 'upcoming' ? isUpcoming : !isUpcoming;
+    })
+    .sort((a, b) => {
+      const da = a._ts ?? 0;
+      const db = b._ts ?? 0;
+      // Arrange strictly by time (ascending) in both tabs
+      return da - db;
+    });
 
   const handleAppointmentPress = (appointment) => {
     router.push(`/appointment/${appointment.id}`);
@@ -113,7 +206,7 @@ export default function AppointmentsScreen() {
         </TouchableOpacity>
       </View>
 
-      {loading ? (
+      { (loading && appointments.length === 0) ? (
         <ActivityIndicator
           size="large"
           color={colors.primary}
@@ -122,7 +215,7 @@ export default function AppointmentsScreen() {
       ) : filteredAppointments.length > 0 ? (
         <FlatList
           data={filteredAppointments}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => String(item.id)}
           renderItem={({ item }) => (
             <AppointmentCard
               appointment={item}
@@ -131,6 +224,8 @@ export default function AppointmentsScreen() {
           )}
           contentContainerStyle={styles.appointmentsList}
           showsVerticalScrollIndicator={false}
+          refreshing={refreshing}
+          onRefresh={onRefresh}
         />
       ) : (
         <View style={styles.emptyContainer}>
