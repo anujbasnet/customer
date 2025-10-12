@@ -79,7 +79,7 @@ export default function BusinessScreen() {
       setLoading(true); setError('');
       try {
         // Try backend first
-        const API_BASE = 'http://192.168.1.5:5000';
+  const API_BASE = 'http://192.168.1.4:5000';
         const res = await axios.get(`${API_BASE}/api/admin/business/${id}`);
         const apiBiz = res.data.business || res.data; // controller wraps in { business }
         // --- Normalize working hours coming from backend ---
@@ -365,7 +365,7 @@ export default function BusinessScreen() {
       if (!business || !bookingVisible) return;
       try {
         setAvailabilityLoading(true);
-  const API_BASE = 'http://192.168.1.5:5000';
+  const API_BASE = 'http://192.168.1.4:5000';
   const dateStr = formatLocalDate(selectedDate);
   const baseUrl = `${API_BASE}/api/appointments/availability?business_id=${business.id}&date=${dateStr}` + (selectedService ? `&service_id=${selectedService.id}` : '');
   let map: Record<string, Set<string>> = {};
@@ -534,7 +534,7 @@ export default function BusinessScreen() {
     }
     try {
       setAvailabilityLoading(true);
-      const API_BASE = 'http://192.168.1.5:5000';
+  const API_BASE = 'http://192.168.1.4:5000';
       const payload: any = {
         business_id: business.id,
         service_id: selectedService.id,
@@ -557,7 +557,7 @@ export default function BusinessScreen() {
           return { ...prev, [dateStrInner]: dayMap };
         });
       }
-      alert('Appointment booked successfully.');
+      alert('Appointment request sent successfully.');
     } catch (e: any) {
       console.error('Create appointment failed', e?.response?.data || e?.message);
       Alert.alert('Error', e?.response?.data?.msg || 'Failed to create appointment.');

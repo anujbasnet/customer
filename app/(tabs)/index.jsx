@@ -49,7 +49,7 @@ export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const currentCity = cities.find(city => city.id === selectedCity);
 
-  const API_BASE_URL = 'http://192.168.1.5:5000/api';
+  const API_BASE_URL = 'http://192.168.1.4:5000/api';
 
   const parseTimeLabel = (label) => {
     if (!label) return { h: 0, m: 0 };
@@ -153,7 +153,7 @@ export default function HomeScreen() {
   const fetchBusinesses = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("http://192.168.1.5:5000/api/admin/business/all");
+  const res = await axios.get("http://192.168.1.4:5000/api/admin/business/all");
       setBusinesses(res.data);
     } catch (err) {
       console.error("Failed to fetch businesses", err);

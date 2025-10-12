@@ -26,7 +26,7 @@ export default function AppointmentDetailsScreen() {
   const { t, language } = useTranslation();
   const router = useRouter();
   
-  const API_BASE_URL = 'http://192.168.1.5:5000/api';
+  const API_BASE_URL = 'http://192.168.1.4:5000/api';
 
   const parseTimeLabel = (label: string) => {
     if (!label) return { h: 0, m: 0 };
