@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 // TODO: externalize to env / app config. For now reuse same base.
-export const API_BASE_URL = 'http://192.168.1.4:5000/api';
+const BASE_URL = process.env.EXPO_PUBLIC_SERVER_IP;
+export const API_BASE_URL = `https://${BASE_URL}/api`;
 
 export const api = axios.create({
   baseURL: API_BASE_URL,

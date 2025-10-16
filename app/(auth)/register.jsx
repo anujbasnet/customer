@@ -19,7 +19,9 @@ import { LanguageSelector } from "@/components/LanguageSelector";
 import axios from "axios";
 
 // backend URL (put it in .env later for flexibility)
-const API_URL = "http://192.168.1.4:5000/api/auth";
+
+const BASE_URL = process.env.EXPO_PUBLIC_SERVER_IP;
+const API_URL = `https://${BASE_URL}/api/auth`;
 
 export default function RegisterScreen() {
   const [firstName, setFirstName] = useState("");

@@ -4,20 +4,14 @@ import type { AppRouter } from "@/backend/trpc/app-router";
 import superjson from "superjson";
 
 export const trpc = createTRPCReact<AppRouter>();
+const BASE_URL = process.env.EXPO_PUBLIC_SERVER_IP;
+const API_BASE_URL = `https://${BASE_URL}`;
 
-const getBaseUrl = () => {
-  if (process.env.EXPO_PUBLIC_RORK_API_BASE_URL) {
-    return process.env.EXPO_PUBLIC_RORK_API_BASE_URL;
-  }
-
-  // Fallback to localhost for development
-  return "http://localhost:3000";
-};
 
 export const trpcClient = trpc.createClient({
   links: [
     httpLink({
-      url: `${getBaseUrl()}/api/trpc`,
+      url: `${API_BASE_URL}/api/trpc`,
       transformer: superjson,
       fetch: (url, options) => {
         // Create timeout controller

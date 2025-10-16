@@ -56,7 +56,7 @@ export default function EditProfileScreen() {
   const [showGenderModal, setShowGenderModal] = useState(false);
   const [showServicesModal, setShowServicesModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
+  const BASE_URL = process.env.EXPO_PUBLIC_SERVER_IP;
   const genderOptions = [
     { value: "male", label: "Male" },
     { value: "female", label: "Female" },
@@ -198,10 +198,10 @@ export default function EditProfileScreen() {
         name: `${formData.firstName.trim()} ${formData.lastName.trim()}`,
         phone: formData.phone.trim(),
         avatar: formData.avatar,
-        selectedCity: formData.cityId,
+        selectedCity: getCityName(formData.cityId), // Save city name, not cityId
       };
 
-  const response = await fetch("http://192.168.1.4:5000/api/auth/me", {
+      const response = await fetch(`https://${BASE_URL}/api/auth/me`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -357,7 +357,7 @@ export default function EditProfileScreen() {
                   }}
                 />
               </View>
-            </View> 
+            </View>
           </View>
 
           <View style={styles.buttonSection}>

@@ -15,7 +15,8 @@ import { AppointmentCard } from "@/components/AppointmentCard";
 import { Button } from "@/components/Button";
 import { useTranslation } from "@/hooks/useTranslation";
 
-const API_URL = "http://192.168.1.4:5000/api"; // Replace with your backend IP
+const BASE_URL = process.env.EXPO_PUBLIC_SERVER_IP;
+const API_URL = `https://${BASE_URL}/api`;
 
 export default function AppointmentsScreen() {
   const [activeTab, setActiveTab] = useState("upcoming"); // 'upcoming' or 'past'

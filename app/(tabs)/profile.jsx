@@ -33,7 +33,8 @@ import { Button } from "@/components/Button";
 import { cities } from "@/mocks/cities";
 import { LanguageSelector } from "@/components/LanguageSelector";
 
-const API_URL = "http://192.168.1.4:5000/api/auth";
+const BASE_URL = process.env.EXPO_PUBLIC_SERVER_IP;
+const API_URL = `https://${BASE_URL}/api/auth`;
 
 export default function ProfileScreen() {
   const { isGuestMode, logout } = useAppStore();
