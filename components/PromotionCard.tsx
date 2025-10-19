@@ -7,9 +7,10 @@ import {
 } from 'react-native';
 import { Image } from 'expo-image';
 import { Tag, Calendar } from 'lucide-react-native';
-import { Promotion } from '@/mocks/promotions';
 import { colors } from '@/constants/colors';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useAppStore } from '@/hooks/useAppStore';
+import { Promotion } from '@/mocks/promotions';
 
 interface PromotionCardProps {
   promotion: Promotion;
@@ -18,7 +19,13 @@ interface PromotionCardProps {
 
 export const PromotionCard: React.FC<PromotionCardProps> = ({ promotion, onPress }) => {
   const { t } = useTranslation();
-  
+  const { darkModeEnabled } = useAppStore();
+
+  const bgColor = darkModeEnabled ? "#1E1E1E" : colors.card;
+  const textColor = darkModeEnabled ? "#FFFFFF" : colors.text;
+  const secondaryTextColor = darkModeEnabled ? "#B0B0B0" : colors.textSecondary;
+  const categoryBg = darkModeEnabled ? "#2A2A2A" : colors.background;
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { 
@@ -27,15 +34,14 @@ export const PromotionCard: React.FC<PromotionCardProps> = ({ promotion, onPress
       year: 'numeric'
     });
   };
-  
+
   const handlePress = () => {
-    // Navigate to booking with promotion ID
     onPress(promotion);
   };
-  
+
   return (
     <TouchableOpacity 
-      style={styles.card}
+      style={[styles.card, { backgroundColor: bgColor }]}
       onPress={handlePress}
       activeOpacity={0.7}
     >
@@ -46,24 +52,26 @@ export const PromotionCard: React.FC<PromotionCardProps> = ({ promotion, onPress
         transition={200}
       />
       <View style={styles.overlay}>
-        <View style={styles.discountBadge}>
+        <View style={[styles.discountBadge, { backgroundColor: colors.error }]}>
           <Text style={styles.discountText}>{promotion.discount}</Text>
         </View>
       </View>
       
       <View style={styles.content}>
-        <Text style={styles.title} numberOfLines={2}>{promotion.title}</Text>
-        <Text style={styles.businessName}>{promotion.businessName}</Text>
-        <Text style={styles.description} numberOfLines={2}>{promotion.description}</Text>
+        <Text style={[styles.title, { color: textColor }]} numberOfLines={2}>{promotion.title}</Text>
+        <Text style={[styles.businessName, { color: colors.primary }]}>{promotion.businessName}</Text>
+        <Text style={[styles.description, { color: secondaryTextColor }]} numberOfLines={2}>{promotion.description}</Text>
         
         <View style={styles.footer}>
           <View style={styles.validUntil}>
-            <Calendar size={14} color={colors.textSecondary} />
-            <Text style={styles.validText}>Valid until {formatDate(promotion.validUntil)}</Text>
+            <Calendar size={14} color={secondaryTextColor} />
+            <Text style={[styles.validText, { color: secondaryTextColor }]}>
+              Valid until {formatDate(promotion.validUntil)}
+            </Text>
           </View>
-          <View style={styles.categoryTag}>
+          <View style={[styles.categoryTag, { backgroundColor: categoryBg }]}>
             <Tag size={12} color={colors.primary} />
-            <Text style={styles.categoryText}>
+            <Text style={[styles.categoryText, { color: colors.primary }]}>
               {t.categories[promotion.category as keyof typeof t.categories]}
             </Text>
           </View>
@@ -75,7 +83,6 @@ export const PromotionCard: React.FC<PromotionCardProps> = ({ promotion, onPress
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: colors.card,
     borderRadius: 12,
     overflow: 'hidden',
     marginBottom: 16,
@@ -96,7 +103,6 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   discountBadge: {
-    backgroundColor: colors.error,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
@@ -112,18 +118,15 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.text,
     marginBottom: 4,
   },
   businessName: {
     fontSize: 14,
-    color: colors.primary,
     fontWeight: '500',
     marginBottom: 6,
   },
   description: {
     fontSize: 14,
-    color: colors.textSecondary,
     marginBottom: 12,
     lineHeight: 20,
   },
@@ -139,20 +142,17 @@ const styles = StyleSheet.create({
   },
   validText: {
     fontSize: 12,
-    color: colors.textSecondary,
     marginLeft: 4,
   },
   categoryTag: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.background,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 8,
   },
   categoryText: {
     fontSize: 12,
-    color: colors.primary,
     marginLeft: 4,
     fontWeight: '500',
   },

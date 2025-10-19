@@ -12,58 +12,52 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { colors } from "@/constants/colors";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { CitySelector } from "@/components/CitySelector";
+import { useAppStore } from "@/hooks/useAppStore";
 
 export default function SettingsScreen() {
   const { t } = useTranslation();
   const navigation = useNavigation();
-  const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
-  const [darkModeEnabled, setDarkModeEnabled] = React.useState(false);
+  const { darkModeEnabled, setDarkModeEnabled } = useAppStore();
 
   // Recompute styles whenever dark mode changes
   const styles = React.useMemo(() => getStyles(darkModeEnabled), [darkModeEnabled]);
 
-  // Update header dynamically (include dependencies to avoid stale closures)
+  // Update header dynamically
   React.useLayoutEffect(() => {
-    try {
-      navigation.setOptions?.({
-        title: t?.profile?.settings || 'Settings',
-        headerStyle: { backgroundColor: darkModeEnabled ? "#121212" : "#FFFFFF" },
-        headerTitleStyle: { color: darkModeEnabled ? "#FFFFFF" : colors.text },
-      });
-    } catch {/* no-op if navigation not ready */}
+    navigation.setOptions?.({
+      title: t?.profile?.settings || "Settings",
+      headerStyle: { backgroundColor: darkModeEnabled ? "#121212" : "#FFFFFF" },
+      headerTitleStyle: { color: darkModeEnabled ? "#FFFFFF" : colors.text },
+    });
   }, [darkModeEnabled, navigation, t?.profile?.settings]);
 
-  const settingsSections = React.useMemo(() => ([
-    {
-      title: t?.profile?.settings || 'Settings',
-      items: [
-        {
-          icon: <Globe size={24} color={colors.primary} />,
-          title: t?.profile?.language || 'Language',
-          type: "language",
-        },
-        {
-          icon: <MapPin size={24} color={colors.primary} />,
-          title: t?.profile?.city || 'City',
-          type: "city",
-        },
-        {
-          icon: <Bell size={24} color={colors.primary} />,
-          title: t?.profile?.notifications || 'Notifications',
-          type: "switch",
-          value: notificationsEnabled,
-          onValueChange: setNotificationsEnabled,
-        },
-        {
-          icon: <Moon size={24} color={colors.primary} />,
-          title: 'Dark Mode',
-          type: "switch",
-          value: darkModeEnabled,
-          onValueChange: setDarkModeEnabled,
-        },
+  const settingsSections = React.useMemo(
+    () => [
+      {
+        title: t?.profile?.settings || "Settings",
+        items: [
+          {
+            icon: <Globe size={24} color={colors.primary} />,
+            title: t?.profile?.language || "Language",
+            type: "language",
+          },
+          {
+            icon: <MapPin size={24} color={colors.primary} />,
+            title: t?.profile?.city || "City",
+            type: "city",
+          },
+          {
+            icon: <Moon size={24} color={colors.primary} />,
+            title: "Dark Mode",
+            type: "switch",
+            value: darkModeEnabled,
+            onValueChange: setDarkModeEnabled,
+          },
+        ],
+      },
       ],
-    },
-  ]), [t, notificationsEnabled, darkModeEnabled]);
+      [t, darkModeEnabled, setDarkModeEnabled]
+  );
 
   const renderSettingItem = (item: any, index: number) => {
     switch (item.type) {
@@ -84,7 +78,7 @@ export default function SettingsScreen() {
               {item.icon}
               <Text style={styles.settingItemTitle}>{item.title}</Text>
             </View>
-            <CitySelector />
+            <CitySelector  />
           </View>
         );
       case "switch":
@@ -112,9 +106,7 @@ export default function SettingsScreen() {
       {settingsSections.map((section, sectionIndex) => (
         <View key={sectionIndex} style={styles.section}>
           <View style={styles.sectionContent}>
-            {section.items.map((item, itemIndex) =>
-              renderSettingItem(item, itemIndex)
-            )}
+            {section.items.map((item, itemIndex) => renderSettingItem(item, itemIndex))}
           </View>
         </View>
       ))}

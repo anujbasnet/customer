@@ -14,12 +14,14 @@ interface CategoryCircleProps {
   category: Category;
   onPress: (category: Category) => void;
   selected?: boolean;
+  darkModeEnabled?: boolean; // ✅ Add dark mode prop
 }
 
 export const CategoryCircle: React.FC<CategoryCircleProps> = ({ 
   category, 
   onPress,
-  selected = false
+  selected = false,
+  darkModeEnabled = false
 }) => {
   const { t, language } = useTranslation();
   
@@ -32,8 +34,6 @@ export const CategoryCircle: React.FC<CategoryCircleProps> = ({
     return t.categories[category.name as keyof typeof t.categories] || category.name;
   };
   
-
-  
   return (
     <TouchableOpacity 
       style={styles.container}
@@ -43,6 +43,18 @@ export const CategoryCircle: React.FC<CategoryCircleProps> = ({
     >
       <View style={[
         styles.iconContainer,
+        {
+          backgroundColor: selected 
+            ? colors.primary 
+            : darkModeEnabled 
+              ? '#1E1E1E' 
+              : colors.card,
+          borderColor: selected 
+            ? colors.primary 
+            : darkModeEnabled 
+              ? '#333' 
+              : colors.border,
+        },
         selected && styles.selectedIconContainer
       ]}>
         <Image
@@ -54,6 +66,7 @@ export const CategoryCircle: React.FC<CategoryCircleProps> = ({
       </View>
       <Text style={[
         styles.name, 
+        { color: darkModeEnabled ? '#FFFFFF' : colors.text },
         selected && styles.selectedName
       ]} numberOfLines={1}>
         {getCategoryName()}
@@ -71,10 +84,8 @@ const styles = StyleSheet.create({
     width: 70,
     height: 70,
     borderRadius: 35,
-    backgroundColor: colors.card,
     marginBottom: 8,
     borderWidth: 2,
-    borderColor: colors.border,
     overflow: 'hidden',
     position: 'relative',
   },
@@ -91,12 +102,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 122, 255, 0.3)',
   },
   selectedIconContainer: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
+    borderWidth: 2,
   },
   name: {
     fontSize: 12,
-    color: colors.text,
     textAlign: 'center',
     maxWidth: 80,
   },

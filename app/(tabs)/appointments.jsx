@@ -14,6 +14,7 @@ import { colors } from "@/constants/colors";
 import { AppointmentCard } from "@/components/AppointmentCard";
 import { Button } from "@/components/Button";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useAppStore } from "@/hooks/useAppStore";
 
 const BASE_URL = process.env.EXPO_PUBLIC_SERVER_IP;
 const API_URL = `https://${BASE_URL}/api`;
@@ -24,7 +25,7 @@ export default function AppointmentsScreen() {
   const [loading, setLoading] = useState(false);
   const [token, setToken] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
-
+  const { selectedCity, isGuestMode, darkModeEnabled } = useAppStore();
   const { t } = useTranslation();
   const router = useRouter();
 
@@ -43,23 +44,28 @@ export default function AppointmentsScreen() {
       });
       const list = (res?.data?.appointments || res?.data || []).filter(Boolean);
       // Bulk fetch businesses to enrich display fields
-      const bizIds = Array.from(new Set(list.map(a => a.business_id).filter(Boolean)));
+      const bizIds = Array.from(
+        new Set(list.map((a) => a.business_id).filter(Boolean))
+      );
       const bizMap = {};
-      await Promise.all(bizIds.map(async (id) => {
-        try {
-          const bizRes = await axios.get(`${API_URL}/business/${id}`);
-          bizMap[id] = bizRes?.data?.business || bizRes?.data;
-        } catch {}
-      }));
+      await Promise.all(
+        bizIds.map(async (id) => {
+          try {
+            const bizRes = await axios.get(`${API_URL}/business/${id}`);
+            bizMap[id] = bizRes?.data?.business || bizRes?.data;
+          } catch {}
+        })
+      );
 
       // Helpers for time handling and display
       const parseTimeLabel = (label) => {
         if (!label) return { h: 0, m: 0 };
         const s = String(label).trim().toLowerCase();
-        const am = s.includes('am');
-        const pm = s.includes('pm');
+        const am = s.includes("am");
+        const pm = s.includes("pm");
         const match = s.match(/(\d{1,2}):(\d{2})/);
-        let h = 0, m = 0;
+        let h = 0,
+          m = 0;
         if (match) {
           h = parseInt(match[1], 10);
           m = parseInt(match[2], 10);
@@ -70,41 +76,55 @@ export default function AppointmentsScreen() {
       };
       const toTimestamp = (dateStr, timeLabel) => {
         if (!dateStr) return 0;
-        const [y, mo, d] = String(dateStr).split('-').map(v => parseInt(v, 10));
+        const [y, mo, d] = String(dateStr)
+          .split("-")
+          .map((v) => parseInt(v, 10));
         const { h, m } = parseTimeLabel(timeLabel);
         return new Date(y, (mo || 1) - 1, d || 1, h, m, 0, 0).getTime();
       };
       const formatTimeForDisplay = (label) => {
         const { h, m } = parseTimeLabel(label);
-        const suffix = h >= 12 ? 'PM' : 'AM';
-        const hh12 = (h % 12) || 12;
-        const mm = String(m).padStart(2, '0');
+        const suffix = h >= 12 ? "PM" : "AM";
+        const hh12 = h % 12 || 12;
+        const mm = String(m).padStart(2, "0");
         return `${hh12}:${mm} ${suffix}`;
       };
       const mapStatus = (raw) => {
-        const s = String(raw || '').toLowerCase().replace(/\s|_/g, '');
-        if (s === 'booked') return 'confirmed';
-        if (s === 'waiting') return 'pending';
-        if (s === 'notbooked' || s === 'canceled' || s === 'cancelled') return 'cancelled';
-        if (s === 'completed') return 'completed';
-        return 'pending';
+        const s = String(raw || "")
+          .toLowerCase()
+          .replace(/\s|_/g, "");
+        if (s === "booked") return "confirmed";
+        if (s === "waiting") return "pending";
+        if (s === "notbooked" || s === "canceled" || s === "cancelled")
+          return "cancelled";
+        if (s === "completed") return "completed";
+        return "pending";
       };
 
       const mapped = list.map((a) => {
         const biz = a.business_id ? bizMap[a.business_id] : undefined;
-        const businessName = biz?.full_name || biz?.name || String(a.business_id || '');
-        const svc = Array.isArray(biz?.services) ? biz.services.find(s => String(s.id) === String(a.service_id)) : null;
-        const serviceName = svc?.name || String(a.service_id || '');
+        const businessName =
+          biz?.full_name || biz?.name || String(a.business_id || "");
+        const svc = Array.isArray(biz?.services)
+          ? biz.services.find((s) => String(s.id) === String(a.service_id))
+          : null;
+        const serviceName = svc?.name || String(a.service_id || "");
         const duration = Number(svc?.duration || 0);
         const price = Number(svc?.price || 0);
-        const employeeName = a?.specialist?.name || (Array.isArray(biz?.staff) ? (biz.staff.find(s => String(s.id) === String(a?.specialist?.id))?.name) : '') || '';
+        const employeeName =
+          a?.specialist?.name ||
+          (Array.isArray(biz?.staff)
+            ? biz.staff.find((s) => String(s.id) === String(a?.specialist?.id))
+                ?.name
+            : "") ||
+          "";
         return {
-          id: String(a._id || a.id || ''),
-          businessId: String(a.business_id || ''),
+          id: String(a._id || a.id || ""),
+          businessId: String(a.business_id || ""),
           businessName,
-          serviceId: String(a.service_id || ''),
+          serviceId: String(a.service_id || ""),
           serviceName,
-          employeeId: String(a?.specialist?.id || ''),
+          employeeId: String(a?.specialist?.id || ""),
           employeeName,
           date: a.date,
           time: formatTimeForDisplay(a.time),
@@ -142,9 +162,9 @@ export default function AppointmentsScreen() {
 
   const now = Date.now();
   const filteredAppointments = appointments
-    .filter(a => {
+    .filter((a) => {
       const isUpcoming = (a._ts ?? 0) >= now;
-      return activeTab === 'upcoming' ? isUpcoming : !isUpcoming;
+      return activeTab === "upcoming" ? isUpcoming : !isUpcoming;
     })
     .sort((a, b) => {
       const da = a._ts ?? 0;
@@ -177,63 +197,109 @@ export default function AppointmentsScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.tabsContainer}>
-        <TouchableOpacity
-          style={[styles.tab, activeTab === "upcoming" && styles.activeTab]}
-          onPress={() => setActiveTab("upcoming")}
-        >
-          <Text
-            style={[
-              styles.tabText,
-              activeTab === "upcoming" && styles.activeTabText,
-            ]}
-          >
-            {t.profile.upcoming}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.tab, activeTab === "past" && styles.activeTab]}
-          onPress={() => setActiveTab("past")}
-        >
-          <Text
-            style={[
-              styles.tabText,
-              activeTab === "past" && styles.activeTabText,
-            ]}
-          >
-            {t.profile.past}
-          </Text>
-        </TouchableOpacity>
-      </View>
+   <View
+  style={[
+    styles.container,
+    { backgroundColor: darkModeEnabled ? "#121212" : "#FFFFFF" },
+  ]}
+>
+  <View style={styles.tabsContainer}>
+    <TouchableOpacity
+      style={[
+        styles.tab,
+        activeTab === "upcoming" && {
+          borderBottomWidth: 2,
+          borderBottomColor: darkModeEnabled ? "#0A84FF" : "#007AFF",
+        },
+      ]}
+      onPress={() => setActiveTab("upcoming")}
+    >
+      <Text
+        style={[
+          styles.tabText,
+          {
+            color:
+              activeTab === "upcoming"
+                ? darkModeEnabled
+                  ? "#0A84FF"
+                  : "#007AFF"
+                : darkModeEnabled
+                ? "#AAAAAA"
+                : "#666666",
+          },
+        ]}
+      >
+        {t.profile.upcoming}
+      </Text>
+    </TouchableOpacity>
 
-      { (loading && appointments.length === 0) ? (
-        <ActivityIndicator
-          size="large"
-          color={colors.primary}
-          style={{ marginTop: 24 }}
+    <TouchableOpacity
+      style={[
+        styles.tab,
+        activeTab === "past" && {
+          borderBottomWidth: 2,
+          borderBottomColor: darkModeEnabled ? "#0A84FF" : "#007AFF",
+        },
+      ]}
+      onPress={() => setActiveTab("past")}
+    >
+      <Text
+        style={[
+          styles.tabText,
+          {
+            color:
+              activeTab === "past"
+                ? darkModeEnabled
+                  ? "#0A84FF"
+                  : "#007AFF"
+                : darkModeEnabled
+                ? "#AAAAAA"
+                : "#666666",
+          },
+        ]}
+      >
+        {t.profile.past}
+      </Text>
+    </TouchableOpacity>
+  </View>
+
+  {loading && appointments.length === 0 ? (
+    <ActivityIndicator
+      size="large"
+      color={darkModeEnabled ? "#0A84FF" : "#007AFF"}
+      style={{ marginTop: 24 }}
+    />
+  ) : filteredAppointments.length > 0 ? (
+    <FlatList
+      data={filteredAppointments}
+      keyExtractor={(item) => String(item.id)}
+      renderItem={({ item }) => (
+        <AppointmentCard
+          appointment={item}
+          onPress={() => handleAppointmentPress(item)}
+          darkMode={darkModeEnabled} // pass to card if needed
         />
-      ) : filteredAppointments.length > 0 ? (
-        <FlatList
-          data={filteredAppointments}
-          keyExtractor={(item) => String(item.id)}
-          renderItem={({ item }) => (
-            <AppointmentCard
-              appointment={item}
-              onPress={() => handleAppointmentPress(item)}
-            />
-          )}
-          contentContainerStyle={styles.appointmentsList}
-          showsVerticalScrollIndicator={false}
-          refreshing={refreshing}
-          onRefresh={onRefresh}
-        />
-      ) : (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>{t.appointments.noAppointments}</Text>
-        </View>
       )}
+      contentContainerStyle={styles.appointmentsList}
+      showsVerticalScrollIndicator={false}
+      refreshing={refreshing}
+      onRefresh={onRefresh}
+    />
+  ) : (
+    <View style={styles.emptyContainer}>
+      <Text
+        style={{
+          color: darkModeEnabled ? "#AAAAAA" : "#666666",
+          fontSize: 16,
+          textAlign: "center",
+        }}
+      >
+        {t.appointments.noAppointments}
+      </Text>
     </View>
+  )}
+</View>
+
   );
 }
 
@@ -261,8 +327,6 @@ const styles = StyleSheet.create({
   loginButton: { width: "100%", maxWidth: 300 },
   tabsContainer: {
     flexDirection: "row",
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
   },
   tab: { flex: 1, paddingVertical: 16, alignItems: "center" },
   activeTab: { borderBottomWidth: 2, borderBottomColor: colors.primary },

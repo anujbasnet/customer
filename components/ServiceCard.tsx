@@ -8,6 +8,16 @@ import {
 import { Clock } from 'lucide-react-native';
 import { Service } from '@/types';
 import { colors } from '@/constants/colors';
+import { useAppStore } from '@/hooks/useAppStore';
+
+const darkColors = {
+  background: "#121212",
+  card: "#1E1E1E",
+  border: "#2A2A2A",
+  text: "#EAEAEA",
+  textSecondary: "#A1A1A1",
+  primary: "#3B82F6", // Tailwind blue-500 accent
+};
 
 interface ServiceCardProps {
   service: Service;
@@ -22,46 +32,97 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
   onPress,
   currencySymbol = 'UZS'
 }) => {
-  // Format price to include thousands separators
+  const { darkModeEnabled } = useAppStore();
+  const theme = darkModeEnabled ? darkColors : colors;
+
+  // Format price with thousand separators
   const formattedPrice = service.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
   const formattedOriginalPrice = service.originalPrice?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-  
+
   return (
     <TouchableOpacity 
-      style={[styles.card, selected && styles.selectedCard]}
+      style={[
+        styles.card,
+        {
+          backgroundColor: theme.card,
+          borderColor: selected ? theme.primary : theme.border,
+          shadowColor: darkModeEnabled ? '#000' : '#ccc',
+        },
+        selected && { backgroundColor: theme.primary + '22' },
+      ]}
       onPress={() => onPress(service)}
-      activeOpacity={0.7}
+      activeOpacity={0.8}
     >
       <View style={styles.content}>
-        <Text style={[styles.name, selected && styles.selectedText]}>
+        <Text 
+          style={[
+            styles.name, 
+            { color: selected ? theme.primary : theme.text }
+          ]}
+          numberOfLines={1}
+        >
           {service.name}
         </Text>
-        <Text style={[styles.description, selected && styles.selectedText]}>
+
+        <Text 
+          style={[
+            styles.description, 
+            { color: theme.textSecondary }
+          ]}
+          numberOfLines={2}
+        >
           {service.description}
         </Text>
+
         <View style={styles.detailsContainer}>
           <View style={styles.detail}>
-            <Clock size={16} color={selected ? '#FFFFFF' : colors.textSecondary} />
-            <Text style={[styles.detailText, selected && styles.selectedText]}>
+            <Clock size={16} color={selected ? theme.primary : theme.textSecondary} />
+            <Text 
+              style={[
+                styles.detailText, 
+                { color: selected ? theme.primary : theme.textSecondary }
+              ]}
+            >
               {service.duration} min
             </Text>
           </View>
+
           <View style={styles.priceDetail}>
             <View style={styles.priceContainer}>
               {service.isPromotion && service.originalPrice ? (
                 <>
-                  <Text style={[styles.originalPrice, selected && styles.selectedOriginalPrice]}>
+                  <Text 
+                    style={[
+                      styles.originalPrice, 
+                      { color: darkModeEnabled ? 'rgba(255,255,255,0.5)' : theme.textSecondary }
+                    ]}
+                  >
                     {formattedOriginalPrice} {currencySymbol}
                   </Text>
-                  <Text style={[styles.detailText, selected && styles.selectedText]}>
+                  <Text 
+                    style={[
+                      styles.detailText, 
+                      { color: selected ? theme.primary : theme.text }
+                    ]}
+                  >
                     {formattedPrice} {currencySymbol}
                   </Text>
-                  <Text style={[styles.promotionBadge, selected && styles.selectedPromotionBadge]}>
+                  <Text 
+                    style={[
+                      styles.promotionBadge, 
+                      { color: selected ? theme.primary : theme.primary }
+                    ]}
+                  >
                     SPECIAL OFFER
                   </Text>
                 </>
               ) : (
-                <Text style={[styles.detailText, selected && styles.selectedText]}>
+                <Text 
+                  style={[
+                    styles.detailText, 
+                    { color: selected ? theme.primary : theme.text }
+                  ]}
+                >
                   {formattedPrice} {currencySymbol}
                 </Text>
               )}
@@ -75,16 +136,14 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: colors.card,
-    borderRadius: 12,
+    borderRadius: 14,
     overflow: 'hidden',
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: colors.border,
-  },
-  selectedCard: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
+    shadowOpacity: 0.15,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 3,
   },
   content: {
     padding: 16,
@@ -92,56 +151,42 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.text,
     marginBottom: 4,
-  },
-  selectedText: {
-    color: '#FFFFFF',
   },
   description: {
     fontSize: 14,
-    color: colors.textSecondary,
     marginBottom: 12,
   },
   detailsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
   },
   detail: {
     flexDirection: 'row',
     alignItems: 'center',
   },
+  detailText: {
+    fontSize: 14,
+    marginLeft: 6,
+  },
   priceDetail: {
-    flexDirection: 'row',
-    alignItems: 'center',
     flex: 1,
+    flexDirection: 'row',
     justifyContent: 'flex-end',
   },
   priceContainer: {
     alignItems: 'flex-end',
-    marginLeft: 4,
-  },
-  detailText: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    marginLeft: 4,
   },
   originalPrice: {
     fontSize: 12,
-    color: colors.textSecondary,
     textDecorationLine: 'line-through',
     marginBottom: 2,
   },
-  selectedOriginalPrice: {
-    color: 'rgba(255, 255, 255, 0.7)',
-  },
   promotionBadge: {
     fontSize: 10,
-    color: colors.primary,
     fontWeight: '600',
-    marginTop: 2,
-  },
-  selectedPromotionBadge: {
-    color: '#FFFFFF',
+    marginTop: 4,
+    letterSpacing: 0.3,
   },
 });

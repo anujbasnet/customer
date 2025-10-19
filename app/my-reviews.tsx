@@ -1,23 +1,43 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Stack } from 'expo-router';
-import { colors } from '@/constants/colors';
+import { colors as baseColors } from '@/constants/colors';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Star } from 'lucide-react-native';
+import { useAppStore } from '@/hooks/useAppStore';
 
 export default function MyReviewsScreen() {
   const { t } = useTranslation();
-  
+  const { darkModeEnabled } = useAppStore();
+
+  const colors = {
+    background: darkModeEnabled ? '#121212' : '#FFFFFF',
+    text: darkModeEnabled ? '#FFFFFF' : '#000000',
+    textSecondary: darkModeEnabled ? '#AAAAAA' : '#6B7280',
+    primary: baseColors.primary,
+    iconBackground: darkModeEnabled ? '#1E1E1E' : '#F0F9FF',
+  };
+
   return (
     <>
-      <Stack.Screen options={{ title: t.myReviews.title }} />
-      <View style={styles.container}>
+        <Stack.Screen
+              options={{
+                title: t.myReviews.title,
+                headerStyle: {
+                  backgroundColor: darkModeEnabled ? "#121212" : "#FFFFFF",
+                },
+                headerTintColor: darkModeEnabled ? "#FFFFFF" : "#000000",
+                headerTitleStyle: { fontWeight: "600" },
+              }}
+            />
+      
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={styles.content}>
-          <View style={styles.iconContainer}>
+          <View style={[styles.iconContainer, { backgroundColor: colors.iconBackground }]}>
             <Star size={64} color={colors.primary} />
           </View>
-          <Text style={styles.title}>{t.myReviews.comingSoon}</Text>
-          <Text style={styles.description}>
+          <Text style={[styles.title, { color: colors.text }]}>{t.myReviews.comingSoon}</Text>
+          <Text style={[styles.description, { color: colors.textSecondary }]}>
             {t.myReviews.description}
           </Text>
         </View>
@@ -29,7 +49,6 @@ export default function MyReviewsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
   },
   content: {
     flex: 1,
@@ -41,7 +60,6 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: '#F0F9FF',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 24,
@@ -49,13 +67,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '600',
-    color: colors.text,
     marginBottom: 12,
     textAlign: 'center',
   },
   description: {
     fontSize: 16,
-    color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: 24,
   },

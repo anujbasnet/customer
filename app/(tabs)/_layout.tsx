@@ -2,24 +2,33 @@ import React from 'react';
 import { Tabs } from 'expo-router';
 import { Home, Search, Calendar, User } from 'lucide-react-native';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useAppStore } from '@/hooks/useAppStore';
 import { colors } from '@/constants/colors';
 
 export default function TabLayout() {
   const { t } = useTranslation();
-  
+  const { darkModeEnabled } = useAppStore();
+
+  const bgColor = darkModeEnabled ? '#1C1C1E' : colors.background;
+  const textColor = darkModeEnabled ? '#FFFFFF' : colors.text;
+  const borderColor = darkModeEnabled ? '#2C2C2E' : colors.border;
+  const inactiveColor = darkModeEnabled ? '#AAAAAA' : colors.textSecondary;
+  const activeColor = colors.primary;
+
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.textSecondary,
+        tabBarActiveTintColor: activeColor,
+        tabBarInactiveTintColor: inactiveColor,
         tabBarStyle: {
-          borderTopColor: colors.border,
+          backgroundColor: bgColor,
+          borderTopColor: borderColor,
         },
         headerStyle: {
-          backgroundColor: '#FFFFFF',
+          backgroundColor: bgColor,
         },
         headerTitleStyle: {
-          color: colors.text,
+          color: textColor,
           fontWeight: '600',
         },
         headerShown: false, // Hide the header for all tab screens

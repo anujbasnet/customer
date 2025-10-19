@@ -20,7 +20,7 @@ interface BusinessCardProps {
 
 export const BusinessCard: React.FC<BusinessCardProps> = ({ business, onPress, showFavoriteButton = false }) => {
   const { t, language } = useTranslation();
-  const { isFavorite, addToFavorites, removeFromFavorites } = useAppStore();
+  const { isFavorite, addToFavorites, removeFromFavorites, darkModeEnabled } = useAppStore();
   
   const getLocalizedAddress = () => {
     switch (language) {
@@ -41,26 +41,25 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({ business, onPress, s
     }
   };
 
-  // Safely resolve category translation with multiple fallback strategies
   const getCategoryLabel = () => {
     const raw = business.category || (business as any).service_type || (business as any).service_name;
     if (!raw) return '';
     const categories: any = (t as any).categories || (t.business && (t.business as any).categories) || {};
-    // Direct key
     if (categories[raw]) return categories[raw];
-    // Lowercase
     const lower = raw.toLowerCase();
     if (categories[lower]) return categories[lower];
-    // Replace spaces with underscores
     const underscored = raw.replace(/\s+/g, '_').toLowerCase();
     if (categories[underscored]) return categories[underscored];
-    // Final fallback: raw human-readable (capitalize first letter)
     return raw.charAt(0).toUpperCase() + raw.slice(1);
   };
   
+  const bgColor = darkModeEnabled ? '#1C1C1E' : colors.card;
+  const textColor = darkModeEnabled ? '#FFFFFF' : colors.text;
+  const secondaryTextColor = darkModeEnabled ? '#AAAAAA' : colors.textSecondary;
+
   return (
     <TouchableOpacity 
-      style={styles.card}
+      style={[styles.card, { backgroundColor: bgColor }]}
       onPress={() => onPress(business)}
       activeOpacity={0.7}
     >
@@ -72,7 +71,7 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({ business, onPress, s
       />
       <View style={styles.content}>
         <View style={styles.nameRow}>
-          <Text style={styles.name}>{business.name}</Text>
+          <Text style={[styles.name, { color: textColor }]}>{business.name}</Text>
           {showFavoriteButton && (
             <TouchableOpacity 
               style={styles.favoriteButton}
@@ -82,23 +81,23 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({ business, onPress, s
             >
               <Heart 
                 size={20} 
-                color={isFavorite(business.id) ? colors.error : colors.textSecondary}
+                color={isFavorite(business.id) ? colors.error : secondaryTextColor}
                 fill={isFavorite(business.id) ? colors.error : 'transparent'}
               />
             </TouchableOpacity>
           )}
         </View>
-        <Text style={styles.category}>{getCategoryLabel()}</Text>
+        <Text style={[styles.category, { color: secondaryTextColor }]}>{getCategoryLabel()}</Text>
         <View style={styles.addressContainer}>
-          <MapPin size={14} color={colors.textSecondary} />
-          <Text style={styles.address} numberOfLines={1}>
+          <MapPin size={14} color={secondaryTextColor} />
+          <Text style={[styles.address, { color: secondaryTextColor }]} numberOfLines={1}>
             {getLocalizedAddress()}
           </Text>
         </View>
         <View style={styles.ratingContainer}>
           <Star size={16} color={colors.warning} fill={colors.warning} />
-          <Text style={styles.rating}>{business.rating}</Text>
-          <Text style={styles.reviewCount}>({business.reviewCount})</Text>
+          <Text style={[styles.rating, { color: textColor }]}>{business.rating}</Text>
+          <Text style={[styles.reviewCount, { color: secondaryTextColor }]}>({business.reviewCount})</Text>
         </View>
       </View>
     </TouchableOpacity>
@@ -107,7 +106,6 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({ business, onPress, s
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: colors.card,
     borderRadius: 12,
     overflow: 'hidden',
     marginBottom: 16,
@@ -133,12 +131,10 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.text,
     flex: 1,
   },
   category: {
     fontSize: 14,
-    color: colors.textSecondary,
     marginBottom: 8,
   },
   addressContainer: {
@@ -148,7 +144,6 @@ const styles = StyleSheet.create({
   },
   address: {
     fontSize: 14,
-    color: colors.textSecondary,
     marginLeft: 4,
     flex: 1,
   },
@@ -163,12 +158,10 @@ const styles = StyleSheet.create({
   rating: {
     fontSize: 14,
     fontWeight: '500',
-    color: colors.text,
     marginLeft: 4,
   },
   reviewCount: {
     fontSize: 14,
-    color: colors.textSecondary,
     marginLeft: 4,
   },
 });

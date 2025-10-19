@@ -41,7 +41,12 @@ export default function BusinessScreen() {
 
   const { t, language } = useTranslation();
   const router = useRouter();
-  const { isFavorite, addToFavorites, removeFromFavorites } = useAppStore();
+  const { isFavorite, addToFavorites, removeFromFavorites, darkModeEnabled } = useAppStore();
+  const darkColors = {
+    background: "#121212",
+    card: "#1E1E1E",
+    text: "#FFFFFF",
+  };
   const [authReady, setAuthReady] = useState(false);
   const [hasToken, setHasToken] = useState(false);
   const [bookingVisible, setBookingVisible] = useState(false);
@@ -502,8 +507,8 @@ export default function BusinessScreen() {
 
   if (loading) {
     return (
-      <View style={styles.notFoundContainer}>
-        <Text style={styles.notFoundText}>
+      <View style={[styles.notFoundContainer, { backgroundColor: darkModeEnabled ? darkColors.background : colors.background }]}>
+        <Text style={[styles.notFoundText, { color: darkModeEnabled ? darkColors.text : colors.text }]}>
           {t.common.loading || "Loading..."}
         </Text>
       </View>
@@ -511,8 +516,10 @@ export default function BusinessScreen() {
   }
   if (!business) {
     return (
-      <View style={styles.notFoundContainer}>
-        <Text style={styles.notFoundText}>{error || "Business not found"}</Text>
+      <View style={[styles.notFoundContainer, { backgroundColor: darkModeEnabled ? darkColors.background : colors.background }]}>
+        <Text style={[styles.notFoundText, { color: darkModeEnabled ? darkColors.text : colors.text }]}>
+          {error || "Business not found"}
+        </Text>
       </View>
     );
   }
@@ -700,13 +707,13 @@ export default function BusinessScreen() {
       onRequestClose={() => setBookingVisible(false)}
     >
       <View style={styles.modalBackdrop}>
-        <View style={styles.modalContainer}>
-          <Text style={styles.modalTitle}>{t.business.bookAppointment}</Text>
-          <Text style={styles.modalSectionLabel}>Date</Text>
+        <View style={[styles.modalContainer, darkModeEnabled ? { backgroundColor: darkColors.card } : {}]}>
+          <Text style={[styles.modalTitle, darkModeEnabled ? { color: darkColors.text } : {}]}>{t.business.bookAppointment}</Text>
+          <Text style={[styles.modalSectionLabel, darkModeEnabled ? { color: darkColors.text } : {}]}>Date</Text>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            style={styles.datesRow}
+            style={[styles.datesRow, darkModeEnabled ? { backgroundColor: darkColors.card } : {}]}
           >
             {dateOptions.map((d) => {
               const dayShort = d.toLocaleDateString("en-US", {
@@ -889,24 +896,29 @@ export default function BusinessScreen() {
         options={{
           title: business.name,
           headerBackTitle: t.common.back,
+            headerStyle: {
+                  backgroundColor: darkModeEnabled ? "#121212" : "#FFFFFF",
+                },
+                headerTintColor: darkModeEnabled ? "#FFFFFF" : "#000000",
+                headerTitleStyle: { fontWeight: "600" },
         }}
       />
 
-      <View style={styles.container}>
+      <View style={[styles.container, darkModeEnabled ? { backgroundColor: darkColors.background } : {}]}>
         <ScrollView
           showsVerticalScrollIndicator={false}
           scrollEventThrottle={16}
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[styles.scrollContent, darkModeEnabled ? { backgroundColor: darkColors.background } : {}]}
         >
           <Image
             source={{ uri: business.image }}
-            style={styles.coverImage}
+            style={[styles.coverImage, darkModeEnabled ? { backgroundColor: darkColors.card } : {}]}
             contentFit="cover"
           />
 
-          <View style={styles.header}>
+          <View style={[styles.header, darkModeEnabled ? { backgroundColor: darkColors.card } : {}]}>
             <View style={styles.nameRow}>
-              <Text style={styles.name}>{business.name}</Text>
+              <Text style={[styles.name, darkModeEnabled ? { color: darkColors.text } : {}]}>{business.name}</Text>
               <TouchableOpacity
                 style={styles.favoriteButton}
                 onPress={() => {
@@ -930,33 +942,33 @@ export default function BusinessScreen() {
                 />
               </TouchableOpacity>
             </View>
-            <Text style={styles.category}>{getCategoryLabel()}</Text>
+            <Text style={[styles.category, darkModeEnabled ? { color: darkColors.text } : {}]}>{getCategoryLabel()}</Text>
 
             <View style={styles.ratingContainer}>
               <Star size={16} color={colors.warning} fill={colors.warning} />
-              <Text style={styles.rating}>{business.rating}</Text>
-              <Text style={styles.reviewCount}>({business.reviewCount})</Text>
+              <Text style={[styles.rating, darkModeEnabled ? { color: darkColors.text } : {}]}>{business.rating}</Text>
+              <Text style={[styles.reviewCount, darkModeEnabled ? { color: darkColors.text } : {}]}>({business.reviewCount})</Text>
             </View>
 
-            <View style={styles.contactContainer}>
+            <View style={[styles.contactContainer, darkModeEnabled ? { backgroundColor: darkColors.card } : {}]}>
               <View style={styles.contactItem}>
-                <MapPin size={16} color={colors.textSecondary} />
-                <Text style={styles.contactText}>{getLocalizedAddress()}</Text>
+                <MapPin size={16} color={darkModeEnabled ? darkColors.text : colors.textSecondary} />
+                <Text style={[styles.contactText, darkModeEnabled ? { color: darkColors.text } : {}]}>{getLocalizedAddress()}</Text>
               </View>
 
               <View style={styles.contactItem}>
-                <Phone size={16} color={colors.textSecondary} />
-                <Text style={styles.contactText}>{business.phone}</Text>
+                <Phone size={16} color={darkModeEnabled ? darkColors.text : colors.textSecondary} />
+                <Text style={[styles.contactText, darkModeEnabled ? { color: darkColors.text } : {}]}>{business.phone}</Text>
               </View>
 
               <View style={styles.contactItem}>
-                <Mail size={16} color={colors.textSecondary} />
-                <Text style={styles.contactText}>{business.email}</Text>
+                <Mail size={16} color={darkModeEnabled ? darkColors.text : colors.textSecondary} />
+                <Text style={[styles.contactText, darkModeEnabled ? { color: darkColors.text } : {}]}>{business.email}</Text>
               </View>
             </View>
           </View>
 
-          <View style={styles.tabsContainer}>
+          <View style={[styles.tabsContainer, darkModeEnabled ? { backgroundColor: darkColors.card } : {}]}>
             <TouchableOpacity
               style={[styles.tab, activeTab === "services" && styles.activeTab]}
               onPress={() => setActiveTab("services")}
@@ -966,6 +978,7 @@ export default function BusinessScreen() {
                 style={[
                   styles.tabText,
                   activeTab === "services" && styles.activeTabText,
+                  darkModeEnabled ? { color: darkColors.text } : {}
                 ]}
               >
                 {t.business.services}
@@ -980,6 +993,7 @@ export default function BusinessScreen() {
                 style={[
                   styles.tabText,
                   activeTab === "about" && styles.activeTabText,
+                  darkModeEnabled ? { color: darkColors.text } : {}
                 ]}
               >
                 {t.business.about}
@@ -994,6 +1008,7 @@ export default function BusinessScreen() {
                 style={[
                   styles.tabText,
                   activeTab === "reviews" && styles.activeTabText,
+                  darkModeEnabled ? { color: darkColors.text } : {}
                 ]}
               >
                 {t.business.reviews}
@@ -1005,8 +1020,8 @@ export default function BusinessScreen() {
             {activeTab === "services" && (
               <View>
                 {business.employees.length > 1 && (
-                  <View style={styles.employeesSection}>
-                    <Text style={styles.sectionTitle}>
+                  <View style={[styles.employeesSection, darkModeEnabled ? { backgroundColor: darkColors.card } : {}]}>
+                    <Text style={[styles.sectionTitle, darkModeEnabled ? { color: darkColors.text } : {}]}>
                       {t.business.employees}
                     </Text>
                     <ScrollView
@@ -1042,7 +1057,7 @@ export default function BusinessScreen() {
                                   position: "absolute",
                                   top: 8,
                                   right: 8,
-                                  backgroundColor: "rgba(0,0,0,0.6)",
+                                  backgroundColor: darkModeEnabled ? darkColors.card : "rgba(0,0,0,0.6)",
                                   paddingHorizontal: 6,
                                   paddingVertical: 2,
                                   borderRadius: 6,
@@ -1060,7 +1075,7 @@ export default function BusinessScreen() {
                   </View>
                 )}
 
-                <Text style={styles.sectionTitle}>{t.business.services}</Text>
+                <Text style={[styles.sectionTitle,darkModeEnabled ? { color: darkColors.text } : {}]}>{t.business.services}</Text>
                 {promotionId && (
                   <View style={styles.promotionNotice}>
                     <Text style={styles.promotionNoticeText}>
@@ -1101,18 +1116,18 @@ export default function BusinessScreen() {
 
             {activeTab === "about" && (
               <View>
-                <Text style={styles.description}>
+                <Text style={[styles.description,darkModeEnabled ? { color: darkColors.text } : {}]}>
                   {getLocalizedDescription()}
                 </Text>
 
-                <Text style={styles.sectionTitle}>
+                <Text style={[styles.sectionTitle, darkModeEnabled ? { color: darkColors.text } : {}]}>
                   {t.business.workingHours}
                 </Text>
-                <View style={styles.workingHours}>
+                <View style={[styles.workingHours, darkModeEnabled ? { backgroundColor: darkColors.card } : {}]}>
                   {orderedDays.map((day) => (
                     <View key={day} style={styles.workingHoursItem}>
-                      <Text style={styles.day}>{getDayName(day)}</Text>
-                      <Text style={styles.hours}>
+                      <Text style={[styles.day, darkModeEnabled ? { color: darkColors.text } : {}]}>{getDayName(day)}</Text>
+                      <Text style={[styles.hours, darkModeEnabled ? { color: darkColors.text } : {}]}>
                         {formatWorkingHours(
                           day as keyof typeof business.workingHours
                         )}
@@ -1121,10 +1136,10 @@ export default function BusinessScreen() {
                   ))}
                 </View>
 
-                <Text style={styles.sectionTitle}>{t.business.address}</Text>
-                <View style={styles.addressDetailContainer}>
-                  <MapPin size={16} color={colors.textSecondary} />
-                  <Text style={styles.addressDetail}>
+                <Text style={[styles.sectionTitle,darkModeEnabled ? { color: darkColors.text } : {}]}>{t.business.address}</Text>
+                <View style={[styles.addressDetailContainer, darkModeEnabled ? { backgroundColor: darkColors.card } : {}]}>
+                  <MapPin size={16} color={darkModeEnabled? darkColors.text : colors.textSecondary} />
+                  <Text style={[styles.addressDetail, darkModeEnabled ? { color: darkColors.text } : {}]}>
                     {getLocalizedAddress()}
                   </Text>
                 </View>
@@ -1162,13 +1177,13 @@ export default function BusinessScreen() {
 
             {activeTab === "reviews" && (
               <View style={styles.reviewsContainer}>
-                <Text style={styles.reviewsText}>Reviews coming soon...</Text>
+                <Text style={[styles.reviewsText, darkModeEnabled ? { color: darkColors.text } : {}]}>Reviews coming soon...</Text>
               </View>
             )}
           </View>
         </ScrollView>
 
-        <View style={styles.footer}>
+        <View style={[styles.footer, darkModeEnabled ? { backgroundColor: darkColors.card} : {}]}>
           <Button
             title={t.business.bookAppointment}
             onPress={handleBookAppointment}
@@ -1205,7 +1220,6 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 16,
-    borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
   nameRow: {
@@ -1261,7 +1275,6 @@ const styles = StyleSheet.create({
   },
   tabsContainer: {
     flexDirection: "row",
-    borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
   tab: {
@@ -1356,7 +1369,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: "#FFFFFF",
-    borderTopWidth: 1,
     borderTopColor: colors.border,
     padding: 16,
     ...Platform.select({

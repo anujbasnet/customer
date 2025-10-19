@@ -3,11 +3,21 @@ import {
   TouchableOpacity,
   Text,
   StyleSheet,
-  View
+  View,
 } from 'react-native';
 import { Image } from 'expo-image';
 import { Employee } from '@/types';
 import { colors } from '@/constants/colors';
+import { useAppStore } from '@/hooks/useAppStore';
+
+const darkColors = {
+  background: "#121212",
+  card: "#1E1E1E",
+  border: "#2A2A2A",
+  text: "#EAEAEA",
+  textSecondary: "#A1A1A1",
+  primary: "#3B82F6", // Tailwind blue-500 for accent
+};
 
 interface EmployeeCardProps {
   employee: Employee;
@@ -15,22 +25,36 @@ interface EmployeeCardProps {
   onPress: (employee: Employee) => void;
 }
 
-export const EmployeeCard: React.FC<EmployeeCardProps> = ({ 
-  employee, 
-  selected = false, 
-  onPress 
+export const EmployeeCard: React.FC<EmployeeCardProps> = ({
+  employee,
+  selected = false,
+  onPress,
 }) => {
   const [broken, setBroken] = useState(false);
+  const { darkModeEnabled } = useAppStore();
+
   const getInitial = (name?: string) => {
     if (!name || !name.trim()) return '?';
     return name.trim().charAt(0).toUpperCase();
   };
+
   const showImage = !!employee.image && !broken;
+
+  const theme = darkModeEnabled ? darkColors : colors;
+
   return (
-    <TouchableOpacity 
-      style={[styles.card, selected && styles.selectedCard]}
+    <TouchableOpacity
+      style={[
+        styles.card,
+        {
+          backgroundColor: theme.card,
+          borderColor: selected ? theme.primary : theme.border,
+          shadowColor: darkModeEnabled ? '#000' : '#ccc',
+        },
+        selected && { backgroundColor: theme.primary + '22' },
+      ]}
       onPress={() => onPress(employee)}
-      activeOpacity={0.7}
+      activeOpacity={0.8}
     >
       {showImage ? (
         <Image
@@ -41,15 +65,36 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
           onError={() => setBroken(true)}
         />
       ) : (
-        <View style={[styles.image, styles.fallbackContainer]}>
-          <Text style={styles.fallbackText}>{getInitial(employee.name)}</Text>
+        <View
+          style={[
+            styles.image,
+            styles.fallbackContainer,
+            { backgroundColor: theme.primary + '33' },
+          ]}
+        >
+          <Text style={[styles.fallbackText, { color: theme.primary }]}>
+            {getInitial(employee.name)}
+          </Text>
         </View>
       )}
+
       <View style={styles.content}>
-        <Text style={[styles.name, selected && styles.selectedText]}>
+        <Text
+          style={[
+            styles.name,
+            { color: selected ? theme.primary : theme.text },
+          ]}
+          numberOfLines={1}
+        >
           {employee.name}
         </Text>
-        <Text style={[styles.position, selected && styles.selectedText]}>
+        <Text
+          style={[
+            styles.position,
+            { color: selected ? theme.text : theme.textSecondary },
+          ]}
+          numberOfLines={1}
+        >
           {employee.position}
         </Text>
       </View>
@@ -59,17 +104,15 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: colors.card,
-    borderRadius: 12,
+    borderRadius: 14,
     overflow: 'hidden',
     marginRight: 12,
     width: 140,
     borderWidth: 1,
-    borderColor: colors.border,
-  },
-  selectedCard: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
+    shadowOpacity: 0.15,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 3,
   },
   image: {
     width: '100%',
@@ -78,27 +121,21 @@ const styles = StyleSheet.create({
   fallbackContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.primary + '22',
   },
   fallbackText: {
-    fontSize: 48,
+    fontSize: 42,
     fontWeight: '700',
-    color: colors.primary,
   },
   content: {
     padding: 12,
   },
   name: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '600',
-    color: colors.text,
-    marginBottom: 4,
+    marginBottom: 2,
   },
   position: {
-    fontSize: 12,
-    color: colors.textSecondary,
-  },
-  selectedText: {
-    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '400',
   },
 });

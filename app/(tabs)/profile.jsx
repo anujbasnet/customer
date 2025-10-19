@@ -28,7 +28,7 @@ import {
 import axios from "axios";
 import { useAppStore } from "@/hooks/useAppStore";
 import { useTranslation } from "@/hooks/useTranslation";
-import { colors } from "@/constants/colors";
+import { colors as defaultColors } from "@/constants/colors";
 import { Button } from "@/components/Button";
 import { cities } from "@/mocks/cities";
 import { LanguageSelector } from "@/components/LanguageSelector";
@@ -37,7 +37,7 @@ const BASE_URL = process.env.EXPO_PUBLIC_SERVER_IP;
 const API_URL = `https://${BASE_URL}/api/auth`;
 
 export default function ProfileScreen() {
-  const { isGuestMode, logout } = useAppStore();
+  const { isGuestMode, logout, darkModeEnabled } = useAppStore();
   const { t, language } = useTranslation();
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -46,7 +46,17 @@ export default function ProfileScreen() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  // Load user from token
+  // Colors according to dark mode
+  const colors = {
+    background: darkModeEnabled ? "#121212" : "#FFFFFF",
+    card: darkModeEnabled ? "#1E1E1E" : "#FFFFFF",
+    text: darkModeEnabled ? "#FFFFFF" : defaultColors.text,
+    textSecondary: darkModeEnabled ? "#AAAAAA" : defaultColors.textSecondary,
+    primary: defaultColors.primary,
+    border: darkModeEnabled ? "#333333" : defaultColors.border,
+    error: defaultColors.error,
+  };
+
   const loadUser = async () => {
     const token = await AsyncStorage.getItem("token");
     if (!token) {
@@ -55,23 +65,23 @@ export default function ProfileScreen() {
       return;
     }
 
-    // Optimistic: show cached user immediately while refreshing from backend
     const cached = await AsyncStorage.getItem("user");
     if (cached) {
-      try { setUser(JSON.parse(cached)); setIsAuthenticated(true); } catch {}
+      try {
+        setUser(JSON.parse(cached));
+        setIsAuthenticated(true);
+      } catch {}
     }
 
     try {
       const res = await axios.get(`${API_URL}/me`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      // Backend /me returns the user object directly (not under .user) according to controller
       const userData = res.data?.user ? res.data.user : res.data;
       setUser(userData);
       await AsyncStorage.setItem("user", JSON.stringify(userData));
       setIsAuthenticated(true);
     } catch (err) {
-      console.log("Token invalid or fetch failed, logging out", err?.message);
       await AsyncStorage.removeItem("token");
       await AsyncStorage.removeItem("user");
       setUser(null);
@@ -79,8 +89,6 @@ export default function ProfileScreen() {
     }
   };
 
-
-  // Reload user every time screen comes into focus
   useFocusEffect(
     React.useCallback(() => {
       loadUser();
@@ -173,7 +181,7 @@ export default function ProfileScreen() {
   const renderMenuItem = (item, index) => {
     const titleStyle = [
       styles.menuItemTitle,
-      item.variant === "danger" ? { color: colors.error } : null,
+      { color: item.variant === "danger" ? colors.error : colors.text },
     ];
 
     if (item.type === "language") {
@@ -183,7 +191,7 @@ export default function ProfileScreen() {
             {item.icon}
             <Text style={titleStyle}>{item.title}</Text>
           </View>
-          <LanguageSelector />
+          <LanguageSelector darkMode={darkModeEnabled} />
         </View>
       );
     }
@@ -206,12 +214,26 @@ export default function ProfileScreen() {
 
   if (!isAuthenticated && !isGuestMode) {
     return (
-      <View style={[styles.notAuthContainer, { paddingTop: insets.top }]}>
-        <View style={styles.largeAvatarPlaceholder}>
+      <View
+        style={[
+          styles.notAuthContainer,
+          { backgroundColor: colors.background, paddingTop: insets.top },
+        ]}
+      >
+        <View
+          style={[
+            styles.largeAvatarPlaceholder,
+            { backgroundColor: colors.primary },
+          ]}
+        >
           <User size={56} color="#FFFFFF" />
         </View>
-        <Text style={styles.notAuthTitle}>{t.auth.noAccount}</Text>
-        <Text style={styles.notAuthText}>{t.profile.loginToAccess}</Text>
+        <Text style={[styles.notAuthTitle, { color: colors.text }]}>
+          {t.auth.noAccount}
+        </Text>
+        <Text style={[styles.notAuthText, { color: colors.textSecondary }]}>
+          {t.profile.loginToAccess}
+        </Text>
         <Button
           title={t.auth.login}
           onPress={handleLogin}
@@ -222,25 +244,52 @@ export default function ProfileScreen() {
   }
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: colors.background, paddingTop: insets.top },
+      ]}
+    >
       <ScrollView
         style={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.sectionCard}>
+        <View
+          style={[
+            styles.sectionCard,
+            { backgroundColor: colors.card, borderColor: colors.border },
+          ]}
+        >
           <View style={styles.profileHeader}>
             {user?.avatar ? (
               <Image source={{ uri: user.avatar }} style={styles.avatarLarge} />
             ) : (
               <View style={styles.avatarDecorWrap}>
-                <View style={styles.avatarRing} />
-                <View style={styles.avatarLargePlaceholder}>
+                <View
+                  style={[
+                    styles.avatarRing,
+                    {
+                      backgroundColor: darkModeEnabled
+                        ? "rgba(255,255,255,0.1)"
+                        : "rgba(59,130,246,0.12)",
+                    },
+                  ]}
+                />
+                <View
+                  style={[
+                    styles.avatarLargePlaceholder,
+                    { backgroundColor: colors.primary },
+                  ]}
+                >
                   <User size={64} color="#FFFFFF" />
                 </View>
               </View>
             )}
             <View style={styles.profileInfo}>
-              <Text style={styles.nameLarge} numberOfLines={1}>
+              <Text
+                style={[styles.nameLarge, { color: colors.text }]}
+                numberOfLines={1}
+              >
                 {isGuestMode
                   ? t.profile.guestUser
                   : user?.name ?? t.profile.defaultUser}
@@ -249,33 +298,54 @@ export default function ProfileScreen() {
                 <>
                   <View style={styles.contactRowLg}>
                     <Phone size={18} color={colors.primary} />
-                    <Text style={styles.contactTextLg}>
+                    <Text
+                      style={[
+                        styles.contactTextLg,
+                        { color: colors.textSecondary },
+                      ]}
+                    >
                       {user?.phone ?? ""}
                     </Text>
                   </View>
                   <View style={styles.contactRowLg}>
                     <MapPin size={18} color={colors.primary} />
-                    <Text style={styles.contactTextLg}>
+                    <Text
+                      style={[
+                        styles.contactTextLg,
+                        { color: colors.textSecondary },
+                      ]}
+                    >
                       {getCurrentCityName()}
                     </Text>
                   </View>
                 </>
               )}
               {isGuestMode && (
-                <Text style={styles.guestModeText}>
+                <Text
+                  style={[
+                    styles.guestModeText,
+                    { color: colors.textSecondary },
+                  ]}
+                >
                   {t.profile.guestModeText}
                 </Text>
               )}
             </View>
           </View>
 
-          <View style={styles.itemDividerFull} />
-
+          <View
+            style={[styles.itemDividerFull, { backgroundColor: colors.border }]}
+          />
           {menuItems.map((item, index) => (
             <View key={index}>
               {renderMenuItem(item, index)}
               {index < menuItems.length - 1 && (
-                <View style={styles.itemDivider} />
+                <View
+                  style={[
+                    styles.itemDivider,
+                    { backgroundColor: colors.border },
+                  ]}
+                />
               )}
             </View>
           ))}
@@ -283,22 +353,33 @@ export default function ProfileScreen() {
       </ScrollView>
 
       <Modal visible={showLogoutModal} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>
+        <View style={[styles.modalOverlay]}>
+          <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>
               {isGuestMode ? t.profile.exitGuestMode : t.profile.confirmLogout}
             </Text>
-            <Text style={styles.modalMessage}>
+            <Text
+              style={[styles.modalMessage, { color: colors.textSecondary }]}
+            >
               {isGuestMode
                 ? t.profile.exitGuestModeConfirm
                 : t.profile.logoutConfirm}
             </Text>
             <View style={styles.modalButtons}>
               <TouchableOpacity
-                style={[styles.modalButton, styles.cancelButton]}
+                style={[
+                  styles.modalButton,
+                  styles.cancelButton,
+                  {
+                    borderColor: colors.border,
+                    backgroundColor: darkModeEnabled ? "#2C2C2C" : "#F1F5F9",
+                  },
+                ]}
                 onPress={() => setShowLogoutModal(false)}
               >
-                <Text style={styles.cancelButtonText}>{t.common.cancel}</Text>
+                <Text style={[styles.cancelButtonText, { color: colors.text }]}>
+                  {t.common.cancel}
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.modalButton, styles.confirmButton]}
@@ -314,9 +395,8 @@ export default function ProfileScreen() {
   );
 }
 
-// Styles remain the same
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#FFFFFF" },
+  container: { flex: 1 },
   scrollContainer: { flex: 1 },
   profileHeader: {
     flexDirection: "row",
@@ -342,7 +422,6 @@ const styles = StyleSheet.create({
     width: 88,
     height: 88,
     borderRadius: 44,
-    backgroundColor: colors.primary,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -350,14 +429,12 @@ const styles = StyleSheet.create({
   nameLarge: {
     fontSize: 22,
     fontWeight: "700",
-    color: colors.text,
     marginBottom: 8,
     textAlign: "left",
   },
   contactRowLg: { flexDirection: "row", alignItems: "center", marginBottom: 6 },
-  contactTextLg: { fontSize: 15, color: colors.textSecondary, marginLeft: 6 },
+  contactTextLg: { fontSize: 15, marginLeft: 6 },
   sectionCard: {
-    backgroundColor: "#FFFFFF",
     marginHorizontal: 16,
     marginTop: 20,
     borderRadius: 14,
@@ -374,13 +451,8 @@ const styles = StyleSheet.create({
       default: {},
     }),
   },
-  itemDivider: { height: 1, backgroundColor: colors.border, marginLeft: 52 },
-  itemDividerFull: {
-    height: 1,
-    backgroundColor: colors.border,
-    marginHorizontal: -12,
-    marginBottom: 10,
-  },
+  itemDivider: { height: 1, marginLeft: 52 },
+  itemDividerFull: { height: 1, marginHorizontal: -12, marginBottom: 10 },
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
@@ -389,15 +461,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   menuItemLeft: { flexDirection: "row", alignItems: "center" },
-  menuItemTitle: {
-    fontSize: 15,
-    color: colors.text,
-    marginLeft: 12,
-    fontWeight: "500",
-  },
+  menuItemTitle: { fontSize: 15, marginLeft: 12, fontWeight: "500" },
   notAuthContainer: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
     alignItems: "center",
     justifyContent: "center",
     padding: 24,
@@ -405,22 +471,15 @@ const styles = StyleSheet.create({
   notAuthTitle: {
     fontSize: 20,
     fontWeight: "600",
-    color: colors.text,
     marginTop: 16,
     marginBottom: 8,
   },
-  notAuthText: {
-    fontSize: 16,
-    color: colors.textSecondary,
-    textAlign: "center",
-    marginBottom: 24,
-  },
+  notAuthText: { fontSize: 16, textAlign: "center", marginBottom: 24 },
   loginButton: { width: "100%", maxWidth: 300 },
   largeAvatarPlaceholder: {
     width: 96,
     height: 96,
     borderRadius: 48,
-    backgroundColor: colors.primary,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -432,7 +491,6 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   modalContent: {
-    backgroundColor: "#FFFFFF",
     borderRadius: 16,
     padding: 24,
     width: "100%",
@@ -442,13 +500,11 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: colors.text,
     marginBottom: 8,
     textAlign: "center",
   },
   modalMessage: {
     fontSize: 16,
-    color: colors.textSecondary,
     textAlign: "center",
     marginBottom: 24,
     lineHeight: 22,
@@ -460,19 +516,9 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: "center",
   },
-  cancelButton: {
-    backgroundColor: "#F1F5F9",
-    borderWidth: 1,
-    borderColor: colors.border,
-    marginRight: 10,
-  },
-  confirmButton: { backgroundColor: colors.error, marginLeft: 10 },
-  cancelButtonText: { fontSize: 16, fontWeight: "600", color: colors.text },
+  cancelButton: { marginRight: 10, borderWidth: 1 },
+  confirmButton: { backgroundColor: defaultColors.error, marginLeft: 10 },
+  cancelButtonText: { fontSize: 16, fontWeight: "600" },
   confirmButtonText: { fontSize: 16, fontWeight: "600", color: "#FFFFFF" },
-  guestModeText: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    fontStyle: "italic",
-    marginTop: 4,
-  },
+  guestModeText: { fontSize: 14, fontStyle: "italic", marginTop: 4 },
 });

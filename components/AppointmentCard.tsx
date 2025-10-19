@@ -10,6 +10,7 @@ import { Calendar, Clock, User } from 'lucide-react-native';
 import { Appointment } from '@/types';
 import { colors } from '@/constants/colors';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useAppStore } from '@/hooks/useAppStore';
 
 interface AppointmentCardProps {
   appointment: Appointment;
@@ -21,7 +22,13 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({
   onPress 
 }) => {
   const { t, language } = useTranslation();
-  
+  const { darkModeEnabled } = useAppStore();
+
+   const bgColor = darkModeEnabled ? "#1E1E1E" : colors.card;
+   const textColor = darkModeEnabled ? "#FFFFFF" : colors.text;
+   const secondaryTextColor = darkModeEnabled ? "#B0B0B0" : colors.textSecondary;
+   const borderColor = darkModeEnabled ? "#2A2A2A" : colors.border;
+
   const getStatusColor = (status: Appointment['status']) => {
     switch (status) {
       case 'confirmed':
@@ -33,7 +40,7 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({
       case 'cancelled':
         return colors.error;
       default:
-        return colors.textSecondary;
+        return secondaryTextColor;
     }
   };
   
@@ -46,17 +53,16 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({
     );
   };
   
-  // Format price to include thousands separators
   const formattedPrice = appointment.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-  
+
   return (
     <TouchableOpacity 
-      style={styles.card}
+      style={[styles.card, { backgroundColor: bgColor, borderColor }]}
       onPress={() => onPress(appointment)}
       activeOpacity={0.7}
     >
       <View style={styles.header}>
-        <Text style={styles.businessName}>{appointment.businessName}</Text>
+        <Text style={[styles.businessName, { color: textColor }]}>{appointment.businessName}</Text>
         <View style={[styles.statusBadge, { backgroundColor: getStatusColor(appointment.status) }]}>
           <Text style={styles.statusText}>
             {t.appointments.status[appointment.status]}
@@ -64,26 +70,26 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({
         </View>
       </View>
       
-      <Text style={styles.serviceName}>{appointment.serviceName}</Text>
+      <Text style={[styles.serviceName, { color: secondaryTextColor }]}>{appointment.serviceName}</Text>
       
       <View style={styles.detailsContainer}>
         <View style={styles.detail}>
-          <Calendar size={16} color={colors.textSecondary} />
-          <Text style={styles.detailText}>{formatDate(appointment.date)}</Text>
+          <Calendar size={16} color={secondaryTextColor} />
+          <Text style={[styles.detailText, { color: secondaryTextColor }]}>{formatDate(appointment.date)}</Text>
         </View>
         <View style={styles.detail}>
-          <Clock size={16} color={colors.textSecondary} />
-          <Text style={styles.detailText}>{appointment.time}</Text>
+          <Clock size={16} color={secondaryTextColor} />
+          <Text style={[styles.detailText, { color: secondaryTextColor }]}>{appointment.time}</Text>
         </View>
         <View style={styles.detail}>
-          <User size={16} color={colors.textSecondary} />
-          <Text style={styles.detailText}>{appointment.employeeName}</Text>
+          <User size={16} color={secondaryTextColor} />
+          <Text style={[styles.detailText, { color: secondaryTextColor }]}>{appointment.employeeName}</Text>
         </View>
       </View>
       
       <View style={styles.footer}>
-        <Text style={styles.price}>{formattedPrice} {t.common.sum}</Text>
-        <Text style={styles.duration}>{appointment.duration} {t.booking.minutes}</Text>
+        <Text style={[styles.price, { color: colors.primary }]}>{formattedPrice} {t.common.sum}</Text>
+        <Text style={[styles.duration, { color: secondaryTextColor }]}>{appointment.duration} {t.booking.minutes}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -91,10 +97,10 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: colors.card,
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
+    borderWidth: 1,
     ...Platform.select({
       android: {
         elevation: 2,
@@ -116,7 +122,6 @@ const styles = StyleSheet.create({
   businessName: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.text,
   },
   statusBadge: {
     paddingHorizontal: 8,
@@ -130,7 +135,6 @@ const styles = StyleSheet.create({
   },
   serviceName: {
     fontSize: 14,
-    color: colors.textSecondary,
     marginBottom: 12,
   },
   detailsContainer: {
@@ -146,23 +150,18 @@ const styles = StyleSheet.create({
   },
   detailText: {
     fontSize: 14,
-    color: colors.textSecondary,
     marginLeft: 4,
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
     paddingTop: 12,
   },
   price: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.primary,
   },
   duration: {
     fontSize: 14,
-    color: colors.textSecondary,
   },
 });
